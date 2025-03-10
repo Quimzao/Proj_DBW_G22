@@ -35,3 +35,13 @@ body {
 .btn{
     background-color: #f8ec03;
 }
+
+.btn-primary {
+  transition: box-shadow 0.3s ease-in-out;
+  background-color: #f8ec03;
+  border-color: #f8ec03;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 10px rgba(255, 247, 0, 0.5);
+}
