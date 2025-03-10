@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMain } from '../controllers/mainContoller.js';
+import { getLogin } from '../controllers/loginContoller.js';
 const router = express.Router();
-router.get('/', getMain);
+router.get('/', getLogin);
 export default router; 
