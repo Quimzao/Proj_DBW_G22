@@ -1,0 +1,37 @@
+.navbar{
+  background-color: #e703f8;
+  color: #fff;
+  width: 100%;
+}
+
+footer{
+  background-color: #000000;
+  color: #fff;
+  width: 100%;
+  bottom: 0;
+  position: fixed;
+}
+body {
+  background-color: #292727;
+  color: #ffffff;
+}
+
+.card {
+    background-color: #333;
+    color: white;
+    border: none;
+}
+
+.card .form-control {
+    background-color: #444;
+    color: white;
+    border: 1px solid #555;
+}
+
+.logo{
+    color: #f8ec03;
+}
+
+.btn{
+    background-color: #f8ec03;
+}
