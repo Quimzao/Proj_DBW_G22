@@ -9,11 +9,6 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <title>Brainstorm</title>
     <link rel="stylesheet" href="/css/login.css">
-    <script>
-        function redirectToSignup() {
-            window.location.href = "signup.ejs";
-        }
-    </script>
 </head>
 
 <body>
@@ -43,7 +38,10 @@
                                 <input type="password" class="form-control" id="password" placeholder="Password">
                             </div>
                             <div class="d-grid">
-                                <button type="button" class="btn" onclick="document.location='/signup'">Login</button>
+                                <button type="button" class="btn">Login</button>
+                            </div>
+                            <div class="mb-3">
+                                <p class="text-center">Don't have an account? <a href="/signup">Sign up</a></p>
                             </div>
                         </form>
                     </div>
