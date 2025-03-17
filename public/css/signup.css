@@ -1,5 +1,5 @@
 .navbar{
-    background-color: #e703f8;
+    background-color: #b47eb3;
     color: #fff;
     width: 100%;
   }
@@ -29,17 +29,17 @@
   }
   
   .logo{
-      color: #f8ec03;
+      color: #d7ba89;
   }
   
   .btn{
-      background-color: #f8ec03;
+      background-color: #d7ba89;
   }
   
   .btn-primary {
     transition: box-shadow 0.3s ease-in-out;
-    background-color: #f8ec03;
-    border-color: #f8ec03;
+    background-color: #d7ba89;
+    border-color: #d7ba89;
   }
   
   .btn-primary:hover {

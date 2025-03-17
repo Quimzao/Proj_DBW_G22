@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
     <meta charset="UTF-8">
@@ -11,9 +11,7 @@
     <link rel="stylesheet" href="/css/login.css">
 </head>
 
-<body>
-
-
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -25,10 +23,52 @@
         </div>
     </nav>
 
-    
-        
+    <div class="container d-flex flex-grow-1 justify-content-center align-items-center">
+        <div class="text-center">
+            <h1 class="mb-4">Brainstorm</h1>
+            <p class="mb-4">Bem-vindo ao Brainstorm! Este é um jogo de perguntas e respostas para testar seus conhecimentos.</p>
+            <img src="/images/brainstorm.png" alt="Brainstorm Logo" class="img-fluid mb-4"></br>
+            <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#accountModal">Jogar</button>
+        </div>
+    </div>
 
-    <footer>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <img src="/images/feature1.png" alt="Feature 1" class="img-fluid mb-3">
+                <h3>Desafios Diários</h3>
+                <p>Participe de novos desafios todos os dias e teste seus conhecimentos.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <img src="/images/feature2.png" alt="Feature 2" class="img-fluid mb-3">
+                <h3>Ranking Global</h3>
+                <p>Veja como você se compara com jogadores de todo o mundo.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <img src="/images/feature3.png" alt="Feature 3" class="img-fluid mb-3">
+                <h3>Conquistas</h3>
+                <p>Ganhe conquistas ao completar desafios e alcançar novos marcos.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Você já tem uma conta?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <button onclick="window.location.href='/login'" class="btn btn-success">Sim</button>
+                    <button onclick="window.location.href='/signup'" class="btn btn-danger">Não</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto">
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
@@ -37,6 +77,8 @@
             </div>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
