@@ -5,7 +5,8 @@ import { fileURLToPath } from 'url';
 import mainRoutes from './routes/mainRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import signupRoutes from './routes/signupRoutes.js';
-
+import lobbyinicialRoutes from './routes/lobbyinicialRoutes.js';
+import lobbyfinderRoutes from './routes/lobbyfinderRoutes.js'; // Corrected import path
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename); 
@@ -16,10 +17,12 @@ app.use(express.urlencoded({ extended: true })); //é uma função middleware do
 app.use("/", mainRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
 app.use("/signup", signupRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
 app.use("/login", loginRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
+app.use("/lobbyinicial", lobbyinicialRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
+app.use("/lobbyfinder", lobbyfinderRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
 
 app.listen(3000, (err) => {
     if (err)
     console.error(err);
     else
     console.log("Server listening on PORT", 3000);
-    });
+});
