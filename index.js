@@ -1,28 +1,42 @@
-import express from "express"; 
-const app = express();
-import path from 'path'; 
-import { fileURLToPath } from 'url'; 
-import mainRoutes from './routes/mainRoutes.js';
-import loginRoutes from './routes/loginRoutes.js';
-import signupRoutes from './routes/signupRoutes.js';
-import lobbyinicialRoutes from './routes/lobbyinicialRoutes.js';
-import lobbyfinderRoutes from './routes/lobbyfinderRoutes.js'; // Corrected import path
+import express from "express";
+import mongoose from "mongoose"; // Use import instead of require
+import methodOverride from "method-override";
+import path from "path";
+import { fileURLToPath } from "url";
+import mainRoutes from "./routes/mainRoutes.js";
+import loginRoutes from "./routes/loginRoutes.js";
+import signupRoutes from "./routes/signupRoutes.js";
+import lobbyinicialRoutes from "./routes/lobbyinicialRoutes.js";
+import lobbyfinderRoutes from "./routes/lobbyfinderRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename); 
+const __dirname = path.dirname(__filename);
 
-app.set("view engine", "ejs"); //método para configurar a nossa view engine para “ejs”
-app.use(express.static(__dirname + "/public")); //é uma função middleware no framework Express.js para Node.js que serve arquivos estáticos, como imagens, arquivos CSS e JavaScript.
-app.use(express.urlencoded({ extended: true })); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
-app.use("/", mainRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
-app.use("/signup", signupRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
-app.use("/login", loginRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
-app.use("/lobbyinicial", lobbyinicialRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
-app.use("/lobbyfinder", lobbyfinderRoutes); //é uma função middleware do Express.js que é usada para analisar dados de formulários HTML que são enviados para o servidor.
+const app = express();
 
-app.listen(3000, (err) => {
-    if (err)
-    console.error(err);
-    else
-    console.log("Server listening on PORT", 3000);
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
+app.use(express.urlencoded({ extended: true }));
+app.use("/", mainRoutes);
+app.use("/signup", signupRoutes);
+app.use("/login", loginRoutes);
+app.use("/lobbyinicial", lobbyinicialRoutes);
+app.use("/lobbyfinder", lobbyfinderRoutes);
+app.use(methodOverride("_method"));
+
+app.listen(5000, (err) => {
+    if (err) console.error(err);
+    else console.log("Server listening on PORT", 5000);
 });
+
+mongoose
+    .connect(
+        "mongodb+srv://mongo:hOpUEjD1mVlOUogx@testdb.quoisku.mongodb.net/?retryWrites=true&w=majority",
+        { useUnifiedTopology: true, useNewUrlParser: true }
+    )
+    .then(() => {
+        console.log("Connected");
+    })
+    .catch((err) => {
+        console.log(err);
+    });
