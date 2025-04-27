@@ -15,6 +15,8 @@ import localStrategy from "passport-local";
 import session from "express-session";
 import user from "./models/user.js";
 
+import configurePassport from "./config/passportConfig.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -50,10 +52,11 @@ app.use(
     })
 );
 
+configurePassport();
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new localStrategy(user.authenticate()));
 passport.serializeUser(user.serializeUser());
 passport.deserializeUser(user.deserializeUser());
 

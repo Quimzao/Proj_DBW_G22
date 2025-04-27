@@ -15,7 +15,10 @@ router.post("/signup", userPost);
 router.get("/login", loginGet);
 router.post(
     "/login",
-    passport.authenticate("local", { failureRedirect: "/login" }),
+    passport.authenticate("local", {
+        failureRedirect: "/login",
+        failureMessage: true, // Enable failure messages
+    }),
     loginPostRedirect
 );
 router.get("/logout", logout);

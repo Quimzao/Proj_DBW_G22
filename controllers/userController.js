@@ -30,9 +30,13 @@ const loginGet = async (req, res) => {
 };
 
 const loginPostRedirect = (req, res) => {
-    console.log(req);
-    console.log(res);
-    res.redirect('/');
+    if (req.isAuthenticated()) {
+        console.log("Login successful for user:", req.user);
+        res.redirect("/"); // Redirect to the main page
+    } else {
+        console.log("Login failed");
+        res.redirect("/login"); // Redirect back to login on failure
+    }
 };
 
 const logout = (req, res, next) => {
