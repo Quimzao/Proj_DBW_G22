@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lobby | Brainstorm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/lobby.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <h3 class="logo">Brainstorm</h3>
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar me-2">
+                            <img src="/images/default-avatar.png" alt="User Avatar" class="rounded-circle">
+                        </div>
+                        <span class="text-white">Username</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li class="dropdown-header px-3 py-2">
+                            <div class="fw-bold">Username</div>
+                            <div class="small text-muted">Member since 01/01/2020</div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid lobby-container">
+        <div class="row">
+            <!-- Sala de espera -->
+            <div class="col-lg-8">
+                <div class="card lobby-room">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Room: <span id="room-name">Creative Minds</span></h4>
+                        <div class="room-code">
+                            <span>Room Code:</span>
+                            <strong id="room-code">ABCD12</strong>
+                            <button class="btn btn-sm btn-copy" title="Copy code">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="players-grid" id="players-container">
+                            <!-- Players will be added here dynamically -->
+                            <div class="player-card ready">
+                                <div class="player-avatar">
+                                    <img src="/images/default-avatar.png" alt="Player Avatar">
+                                </div>
+                                <div class="player-name">You</div>
+                                <div class="player-status ready">Ready</div>
+                            </div>
+                            <!-- More players will appear here -->
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button id="toggle-ready" class="btn btn-ready">
+                                <i class="fas fa-check-circle me-2"></i>Ready
+                            </button>
+                            <button id="leave-room" class="btn btn-quit">
+                                <i class="fas fa-sign-out-alt me-2"></i>Leave Room
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat e configurações -->
+            <div class="col-lg-4">
+                <div class="card chat-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Chat</h4>
+                    </div>
+                    <div class="card-body chat-messages" id="chat-messages">
+                        <!-- Messages will appear here -->
+                        <div class="message system">
+                            <div class="message-content">Welcome to the room!</div>
+                        </div>
+                    </div>
+                    <div class="card-footer chat-input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                            <button class="btn btn-send" id="send-message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card settings-card mt-3">
+                    <div class="card-header">
+                        <h4 class="mb-0">Game Settings</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="game-settings">
+                            <div class="mb-3">
+                                <label for="rounds" class="form-label">Rounds</label>
+                                <select class="form-select" id="rounds">
+                                    <option value="3">3</option>
+                                    <option value="5" selected>5</option>
+                                    <option value="7">7</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="draw-time" class="form-label">Drawing Time (seconds)</label>
+                                <select class="form-select" id="draw-time">
+                                    <option value="30">30</option>
+                                    <option value="60" selected>60</option>
+                                    <option value="90">90</option>
+                                    <option value="120">120</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="private-room" checked>
+                                <label class="form-check-label" for="private-room">Private Room</label>
+                            </div>
+                            <div class="d-grid">
+                                <button type="button" id="start-game" class="btn btn-start" disabled>
+                                    <i class="fas fa-play me-2"></i>Start Game
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0 text-center">Brainstorm &copy; 2025</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Simulação de jogadores (remover em produção)
+        const samplePlayers = [
+            { name: "Player1", avatar: "/images/default-avatar.png", ready: true },
+            { name: "Player2", avatar: "/images/default-avatar.png", ready: false },
+            { name: "Player3", avatar: "/images/default-avatar.png", ready: true },
+            { name: "Player4", avatar: "/images/default-avatar.png", ready: false },
+            { name: "Player5", avatar: "/images/default-avatar.png", ready: false }
+        ];
+
+        // Adiciona jogadores de exemplo (remover em produção)
+        samplePlayers.forEach(player => {
+            const playerCard = document.createElement('div');
+            playerCard.className = `player-card ${player.ready ? 'ready' : ''}`;
+            playerCard.innerHTML = `
+                <div class="player-avatar">
+                    <img src="${player.avatar}" alt="${player.name} Avatar">
+                </div>
+                <div class="player-name">${player.name}</div>
+                <div class="player-status ${player.ready ? 'ready' : ''}">
+                    ${player.ready ? 'Ready' : 'Not Ready'}
+                </div>
+            `;
+            document.getElementById('players-container').appendChild(playerCard);
+        });
+
+        // Lógica do botão Ready
+        document.getElementById('toggle-ready').addEventListener('click', function() {
+            this.classList.toggle('active');
+            const isReady = this.classList.contains('active');
+            
+            if (isReady) {
+                this.innerHTML = '<i class="fas fa-check-circle me-2"></i>Ready';
+                document.querySelector('.player-card.ready .player-status').textContent = 'Ready';
+            } else {
+                this.innerHTML = '<i class="fas fa-times-circle me-2"></i>Not Ready';
+                document.querySelector('.player-card.ready .player-status').textContent = 'Not Ready';
+            }
+            
+            // Aqui você enviaria o status para o servidor via Socket.IO
+        });
+
+        // Lógica do chat
+        document.getElementById('send-message').addEventListener('click', sendMessage);
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                // Aqui você enviaria a mensagem para o servidor via Socket.IO
+                addMessage('You', message, 'user');
+                input.value = '';
+            }
+        }
+
+        function addMessage(sender, content, type = 'user') {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.innerHTML = `
+                ${type === 'user' ? `<div class="message-sender">${sender}:</div>` : ''}
+                <div class="message-content">${content}</div>
+            `;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Simulação de mensagens (remover em produção)
+        setTimeout(() => {
+            addMessage('Player1', 'Hello everyone!', 'user');
+        }, 1000);
+        
+        setTimeout(() => {
+            addMessage('Player2', 'Ready to start!', 'user');
+        }, 2000);
+    </script>
+</body>
+</html>
