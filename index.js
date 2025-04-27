@@ -69,12 +69,14 @@ app.use("/lobbyinicial", lobbyinicialRoutes);
 import lobbyfinderRoutes from "./routes/lobbyfinderRoutes.js";
 app.use("/lobbyfinder", lobbyfinderRoutes);
 
-import dashboardRoutes from "./routes/dashboardRouters.js";
-app.use("/dashboard", dashboardRoutes);
+import getlobbyRoutes from "./routes/lobbyRoutes.js";
+app.use("/lobby", getlobbyRoutes);
 
 import userRouter from "./routes/userRoutes.js";
 app.use(userRouter);
 
+import profileRoutes from "./routes/profileRoutes.js";
+app.use("/profile", profileRoutes);
 const server = http.createServer(app);
 const io = new Server(server);
 
