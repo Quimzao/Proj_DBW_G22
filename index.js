@@ -66,6 +66,9 @@ app.use("/lobbyinicial", lobbyinicialRoutes);
 import lobbyfinderRoutes from "./routes/lobbyfinderRoutes.js";
 app.use("/lobbyfinder", lobbyfinderRoutes);
 
+import dashboardRoutes from "./routes/dashboardRouters.js";
+app.use("/dashboard", dashboardRoutes);
+
 import userRouter from "./routes/userRoutes.js";
 app.use(userRouter);
 
