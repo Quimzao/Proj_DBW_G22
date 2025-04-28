@@ -75,6 +75,10 @@ app.use("/lobby", getlobbyRoutes);
 import userRouter from "./routes/userRoutes.js";
 app.use(userRouter);
 
+app.get('/intro', (req, res) => {
+    res.render('game-intro'); // Certifique-se de que o arquivo EJS existe
+});
+
 import profileRoutes from "./routes/profileRoutes.js";
 app.use("/profile", profileRoutes);
 const server = http.createServer(app);
@@ -99,4 +103,9 @@ server.listen(port, (err) => {
         console.log("Server listening on PORT", port);
         console.log(`http://localhost:${port}`);
     }
+});
+
+// Redirecionar para a página de introdução do lobby
+app.get('/play', (req, res) => {
+    res.redirect('/lobby/intro');
 });

@@ -1,0 +1,274 @@
+/* game-intro.css - Estilos para a página de introdução usando as cores do sistema */
+
+:root {
+    --primary-color: #d7ba89;
+    --secondary-color: #1a1a1a;
+    --text-color: #ffffff;
+    --card-bg: #2d2d2d;
+    --input-bg: #3d3d3d;
+    --border-color: #444;
+    --placeholder-color: #b0b0b0;
+}
+
+.navbar {
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 0.8rem 1rem;
+}
+
+.logo {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--card-bg);
+    padding: 1.25rem 0;
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Estrutura principal */
+.intro-container {
+    padding-top: 100px;
+    padding-bottom: 20px;
+    min-height: calc(100vh - 120px);
+    background-color: var(--secondary-color);
+}
+
+.intro-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+/* Cabeçalho do card */
+.intro-card .card-header {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.intro-card .card-header h2 {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.8rem;
+    letter-spacing: 0.5px;
+}
+
+/* Corpo do card */
+.intro-card .card-body {
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Rodapé do card */
+.intro-card .card-footer {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+/* Seção de regras */
+.rule-section {
+    padding: 0.5rem;
+}
+
+.rule-item {
+    margin-bottom: 2rem;
+    padding: 0.8rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.rule-item:hover {
+    background-color: rgba(215, 186, 137, 0.1);
+    transform: translateX(5px);
+}
+
+.rule-icon {
+    color: var(--primary-color);
+    margin-right: 1rem;
+    font-size: 1.3rem;
+    width: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rule-item h4 {
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+.rule-item p {
+    margin-left: 46px;
+    color: var(--text-color);
+    opacity: 0.9;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Botão principal */
+.btn-enter {
+    background-color: var(--primary-color);
+    color: #121212;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-enter:hover {
+    background-color: #e0c28c;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-enter:active {
+    transform: translateY(1px);
+}
+
+/* Input de código */
+.code-input {
+    max-width: 320px;
+    margin: 1.5rem auto;
+}
+
+.code-input .form-control {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.75rem;
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+
+.code-input .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(215, 186, 137, 0.25);
+    border-color: var(--primary-color);
+}
+
+.code-input .form-control::placeholder {
+    color: var(--placeholder-color);
+    opacity: 0.7;
+}
+
+.code-input .btn-primary {
+    background-color: var(--primary-color);
+    color: #121212;
+    border: none;
+    padding: 0 1.5rem;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.3s;
+    font-size: 1.1rem;
+}
+
+.code-input .btn-primary:hover {
+    background-color: #e0c28c;
+}
+
+/* Divisor */
+.divider {
+    color: var(--primary-color);
+    font-weight: 500;
+    margin: 1.5rem 0;
+    position: relative;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    display: inline-block;
+    width: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    position: absolute;
+    top: 50%;
+}
+
+.divider::before {
+    left: 0;
+    background: linear-gradient(90deg, transparent, var(--primary-color));
+}
+
+.divider::after {
+    right: 0;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .intro-container {
+        padding: 70px 15px 30px;
+    }
+    
+    .intro-card {
+        border-radius: 8px;
+    }
+    
+    .intro-card .card-header,
+    .intro-card .card-body,
+    .intro-card .card-footer {
+        padding: 1.25rem;
+    }
+    
+    .rule-item h4 {
+        font-size: 1.1rem;
+    }
+    
+    .rule-item p {
+        font-size: 0.9rem;
+        margin-left: 42px;
+    }
+    
+    .btn-enter {
+        padding: 0.65rem 1.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .intro-card .card-body {
+        padding: 1rem;
+    }
+    
+    .rule-item {
+        margin-bottom: 1.5rem;
+        padding: 0.75rem;
+    }
+    
+    .divider::before,
+    .divider::after {
+        width: 25%;
+    }
+    
+    .code-input {
+        max-width: 280px;
+    }
+}

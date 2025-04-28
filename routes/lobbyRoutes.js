@@ -1,11 +1,13 @@
 import express from 'express';
-import { getlobby } from '../controllers/lobbyController.js';
+import { showIntro, showLobby } from '../controllers/lobbyController.js';
 import userLoggedIn from "../middleware/loggedIn.js";
 
 const router = express.Router();
 
-router.get("/", userLoggedIn, (req, res) => {
-    getlobby(req,res); // Render the main page only if logged in
-});
+router.get("/intro", userLoggedIn, showIntro);
+// Adicione esta nova rota
+router.get("/lobby", userLoggedIn, showLobby);
+// Mantenha a rota raiz se necessário
+router.get("/", userLoggedIn, showLobby);
 
-export default router; 
+export default router;
