@@ -94,89 +94,94 @@ body {
 .avatar-options {
     background-color: var(--card-bg);
     padding: 1rem;
-    border-radius: 10px;/* Avatar Selection Container */
-    .avatar-scroll-container {
-        width: 100%;
-        overflow-x: auto;
-        padding-bottom: 10px; /* Space for scrollbar */
-    }
-    
-    .avatar-grid {
-        display: inline-flex;
-        gap: 12px;
-        padding: 5px 0;
-        min-width: 100%;
-    }
-    
-    .avatar-item {
-        flex: 0 0 auto;
-    }
-    
-    .avatar-option {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-    }
-    
-    .avatar-option:hover {
-        transform: scale(1.05);
-        border-color: var(--primary-color);
-    }
-    
-    .selected-avatar {
-        border: 3px solid var(--primary-color);
-        box-shadow: 0 0 10px rgba(215, 186, 137, 0.5);
-    }
-    
-    /* Custom Scrollbar */
-    .avatar-scroll-container::-webkit-scrollbar {
-        height: 6px;
-    }
-    
-    .avatar-scroll-container::-webkit-scrollbar-track {
-        background: var(--input-bg);
-        border-radius: 3px;
-    }
-    
-    .avatar-scroll-container::-webkit-scrollbar-thumb {
-        background: var(--primary-color);
-        border-radius: 3px;
-    }
+    border-radius: 10px;
     border: 1px solid var(--border-color);
     margin-top: 1rem;
+    width: 100%; /* Make the avatar options bar span the full width */
+    display: flex;
+    justify-content: center; /* Center the avatars horizontally */
+    align-items: center;
+    flex-wrap: wrap; /* Allow avatars to wrap if needed */
 }
 
 .avatar-options-container {
     display: flex;
-    flex-direction: row;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
+    flex-wrap: wrap;
+    gap: 10px; /* space between avatars */
+    justify-content: center; /* optional: center them */
+}
+
+.avatar-scroll-container {
+    width: 100%;
     overflow-x: auto;
+    padding-bottom: 10px; /* Space for scrollbar */
+}
+
+.avatar-grid {
+    display: inline-flex;
+    gap: 12px;
+    padding: 5px 0;
+    min-width: 100%;
+}
+
+.avatar-item {
+    flex: 0 0 auto;
+}
+
+.avatar-options-container {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.avatar-options-container::-webkit-scrollbar {
+    height: 8px;
+}
+.avatar-options-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
 }
 
 .avatar-option {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.2s;
     flex-shrink: 0;
-    object-fit: cover;
+    transition: transform 0.2s, border 0.2s;
 }
 
 .avatar-option:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
     border-color: var(--primary-color);
+}
+
+.avatar-option.selected-avatar {
+    border: 3px solid #ffc107;
+    transform: scale(1.1);
 }
 
 .selected-avatar {
     border: 3px solid var(--primary-color);
-    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(215, 186, 137, 0.5);
+}
+
+/* Custom Scrollbar */
+.avatar-scroll-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.avatar-scroll-container::-webkit-scrollbar-track {
+    background: var(--input-bg);
+    border-radius: 3px;
+}
+
+.avatar-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
 }
 
 /* Form Styles */

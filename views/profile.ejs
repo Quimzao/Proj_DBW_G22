@@ -29,30 +29,21 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold">
-                                <%= user.username %>
-                            </div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
-                                    %>
-                            </div>
+                            <div class="fw-bold"><%= user.username %></div>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></div>
                         </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                         <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i
-                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="container profile-container">
+    <main class="container profile-container" style="margin-top: 80px;">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card profile-card">
@@ -61,44 +52,43 @@
                     </div>
                     <div class="card-body">
                         <form action="/profile/update" method="POST" enctype="multipart/form-data" id="profile-form">
-                            <input type="hidden" id="selected-avatar-input" name="selectedAvatar"
-                                value="<%= user.profilePicture %>">
-                            <!-- Profile Picture Section -->
+                            <input type="hidden" id="selected-avatar-input" name="selectedAvatar" value="<%= user.profilePicture %>">
+
+                            <!-- Profile Picture and Username Section -->
                             <div class="row mb-4">
                                 <div class="col-md-4 text-center">
                                     <div class="profile-picture-container">
                                         <img id="profile-picture-preview" src="<%= user.profilePicture %>"
                                             alt="Profile Picture" class="profile-image">
 
-                                        <!-- Avatar Selection Options -->
-                                        <div class="avatar-options mt-3" id="avatar-options">
-                                            <h6 class="text-white mb-2">Choose an avatar:</h6>
-                                            <div class="avatar-options-container">
-                                                <% DEFAULT_AVATARS.forEach(avatar=> { %>
-                                                    <img src="<%= avatar %>"
-                                                        class="avatar-option <%= user.profilePicture === avatar ? 'selected-avatar' : '' %>"
-                                                        data-avatar="<%= avatar %>">
-                                                    <% }); %>
-                                            </div>
-                                        </div>
-
                                         <div class="mt-3">
-                                            <button type="button" class="btn btn-sm btn-change-picture"
-                                                id="change-avatar-btn">
+                                            <button type="button" class="btn btn-sm btn-change-picture" id="change-avatar-btn">
                                                 <i class="fas fa-camera me-1"></i> Change Avatar
                                             </button>
-                                            <input type="file" id="profile-picture" name="profilePicture"
-                                                accept="image/*" class="d-none">
+                                            <input type="file" id="profile-picture" name="profilePicture" accept="image/*" class="d-none">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
-                                    <h4 class="text-white">
-                                        <%= user.username %>
-                                    </h4>
-                                    <p class="text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
-                                            %>
-                                    </p>
+
+                                <div class="col-md-8 d-flex flex-column justify-content-center">
+                                    <h4 class="text-white mb-0"><%= user.username %></h4>
+                                    <p class="text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                                </div>
+                            </div>
+
+                            <!-- Full Width Avatar Selection Section -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="avatar-options" id="avatar-options">
+                                        <h6 class="text-white mb-2">Choose an avatar:</h6>
+                                        <div class="avatar-options-container">
+                                            <% DEFAULT_AVATARS.forEach(avatar => { %>
+                                                <img src="<%= avatar %>"
+                                                    class="avatar-option <%= user.profilePicture === avatar ? 'selected-avatar' : '' %>"
+                                                    data-avatar="<%= avatar %>">
+                                            <% }); %>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -124,8 +114,7 @@
                                 <h5 class="section-title text-white">Change Password</h5>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="current-password" class="form-label text-white">Current
-                                            Password</label>
+                                        <label for="current-password" class="form-label text-white">Current Password</label>
                                         <input type="password" class="form-control" id="current-password"
                                             name="currentPassword">
                                         <small class="text-muted">Required only if changing password</small>
@@ -136,8 +125,7 @@
                                             name="newPassword">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="confirm-password" class="form-label text-white">Confirm New
-                                            Password</label>
+                                        <label for="confirm-password" class="form-label text-white">Confirm New Password</label>
                                         <input type="password" class="form-control" id="confirm-password"
                                             name="confirmPassword">
                                         <div id="password-error" class="invalid-feedback">Passwords don't match!</div>
@@ -162,55 +150,45 @@
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer mt-4">
         <div class="container">
-            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %>
-            </p>
+            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %></p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Avatar Selection Toggle
+        // Toggle avatar options
         document.getElementById('change-avatar-btn').addEventListener('click', function () {
             document.getElementById('avatar-options').classList.toggle('d-none');
         });
 
-        // Avatar Selection
+        // Select avatar
         document.querySelectorAll('.avatar-option').forEach(avatar => {
             avatar.addEventListener('click', function () {
                 const avatarPath = this.dataset.avatar;
-
-                // Update the profile picture preview
                 document.getElementById('profile-picture-preview').src = avatarPath;
+                document.getElementById('selected-avatar-input').value = avatarPath;
 
-                // Update the hidden input for form submission
-                const avatarInput = document.getElementById('selected-avatar-input');
-                avatarInput.value = avatarPath;
-
-                // Update the selected state
                 document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 this.classList.add('selected-avatar');
-
-                console.log('Selected Avatar:', avatarPath);
             });
         });
 
-        // Custom Image Upload
+        // Custom upload
         document.getElementById('profile-picture').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
                     document.getElementById('profile-picture-preview').src = event.target.result;
-                    // Clear any selected avatar
                     document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Form Validation
+        // Password validation
         document.getElementById('profile-form').addEventListener('submit', function (e) {
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
@@ -221,17 +199,15 @@
                 return false;
             }
 
-            // Show loading state
             document.getElementById('save-text').classList.add('d-none');
             document.getElementById('save-spinner').classList.remove('d-none');
             document.getElementById('save-button').disabled = true;
         });
 
-        // Real-time username update
+        // Live username update
         document.getElementById('username').addEventListener('input', function () {
             document.querySelector('h4').textContent = this.value;
         });
-
     </script>
 </body>
 
