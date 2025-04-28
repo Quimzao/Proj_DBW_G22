@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
@@ -41,13 +41,9 @@ const DEFAULT_AVATARS = [
 ];
 
 export const getProfile = (req, res) => {
-    res.render('profile', { 
-        user: {
-            username: req.user.username,
-            email: req.user.email,
-            profilePic: req.user.profilePicture || DEFAULT_AVATARS[0],
-            createdAt: req.user.createdAt
-        }
+    res.render('profile', {
+        user: req.user,
+        DEFAULT_AVATARS
     });
 };
 
@@ -59,7 +55,8 @@ export const updateProfile = async (req, res) => {
                 return res.redirect(`/profile?error=${encodeURIComponent(err.message)}`);
             }
 
-            const { username, email, currentPassword, newPassword, confirmPassword } = req.body;
+            const { username, email, currentPassword, newPassword, confirmPassword, selectedAvatar } = req.body;
+            console.log('Selected Avatar:', selectedAvatar);
             const user = await User.findById(req.user._id);
 
             // Update basic information
@@ -67,13 +64,8 @@ export const updateProfile = async (req, res) => {
             user.email = email || user.email;
 
             // Check if a predefined avatar was selected
-            if (req.body.selectedAvatar && DEFAULT_AVATARS.includes(req.body.selectedAvatar)) {
-                // Remove previous custom image if it exists
-                if (user.profilePicture && !DEFAULT_AVATARS.includes(user.profilePicture)) {
-                    const oldPath = path.join(__dirname, '../../public', user.profilePicture);
-                    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-                }
-                user.profilePicture = req.body.selectedAvatar;
+            if (selectedAvatar && DEFAULT_AVATARS.includes(selectedAvatar)) {
+                user.profilePicture = selectedAvatar; // Save the selected avatar
             }
 
             // Process custom image upload
@@ -108,6 +100,7 @@ export const updateProfile = async (req, res) => {
 
             await user.save();
             console.log('Profile updated successfully');
+            console.log("User profilePicture:", req.user.profilePicture);
             res.redirect(`/profile?success=${encodeURIComponent('Profile updated successfully')}`);
         });
     } catch (error) {
