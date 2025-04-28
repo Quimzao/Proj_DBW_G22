@@ -19,12 +19,12 @@
                         <div class="user-avatar me-2">
                             <img src="/images/default-avatar.png" alt="User Avatar" class="rounded-circle">
                         </div>
-                        <span class="text-white">Username</span>
+                        <span class="text-white"><%= username %></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold">Username</div>
-                            <div class="small text-muted">Member since 01/01/2020</div>
+                            <div class="fw-bold"><%= username %></div>
+                            <div class="small text-muted">Member since <%= memberSince %></div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
