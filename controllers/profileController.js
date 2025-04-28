@@ -53,51 +53,51 @@ export const getProfile = (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        upload(req, res, async function(err) {
+        upload(req, res, async function (err) {
             if (err) {
-                req.flash('error', err.message);
-                return res.redirect('/profile');
+                console.error('Error during file upload:', err.message);
+                return res.redirect(`/profile?error=${encodeURIComponent(err.message)}`);
             }
 
             const { username, email, currentPassword, newPassword, confirmPassword } = req.body;
             const user = await User.findById(req.user._id);
-            
-            // Atualizar informações básicas
+
+            // Update basic information
             user.username = username || user.username;
             user.email = email || user.email;
-            
-            // Verificar se foi selecionado um avatar pré-definido
+
+            // Check if a predefined avatar was selected
             if (req.body.selectedAvatar && DEFAULT_AVATARS.includes(req.body.selectedAvatar)) {
-                // Remover imagem personalizada anterior se existir
+                // Remove previous custom image if it exists
                 if (user.profilePicture && !DEFAULT_AVATARS.includes(user.profilePicture)) {
                     const oldPath = path.join(__dirname, '../../public', user.profilePicture);
                     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
                 }
                 user.profilePicture = req.body.selectedAvatar;
             }
-            
-            // Processar upload de imagem personalizada
+
+            // Process custom image upload
             if (req.file) {
-                // Remover imagem anterior se existir
+                // Remove previous custom image if it exists
                 if (user.profilePicture && !DEFAULT_AVATARS.includes(user.profilePicture)) {
                     const oldPath = path.join(__dirname, '../../public', user.profilePicture);
                     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
                 }
                 user.profilePicture = '/uploads/profile-pictures/' + req.file.filename;
             }
-            
-            // Atualizar senha se fornecida
+
+            // Update password if provided
             if (newPassword) {
                 if (!(await user.authenticate(currentPassword))) {
-                    req.flash('error', 'Current password is incorrect');
-                    return res.redirect('/profile');
+                    console.error('Current password is incorrect');
+                    return res.redirect(`/profile?error=${encodeURIComponent('Current password is incorrect')}`);
                 }
-                
+
                 if (newPassword !== confirmPassword) {
-                    req.flash('error', 'New passwords do not match');
-                    return res.redirect('/profile');
+                    console.error('New passwords do not match');
+                    return res.redirect(`/profile?error=${encodeURIComponent('New passwords do not match')}`);
                 }
-                
+
                 await new Promise((resolve, reject) => {
                     user.setPassword(newPassword, (err) => {
                         if (err) return reject(err);
@@ -105,14 +105,13 @@ export const updateProfile = async (req, res) => {
                     });
                 });
             }
-            
+
             await user.save();
-            req.flash('success', 'Profile updated successfully');
-            res.redirect('/profile');
+            console.log('Profile updated successfully');
+            res.redirect(`/profile?success=${encodeURIComponent('Profile updated successfully')}`);
         });
     } catch (error) {
-        console.error('Profile update error:', error);
-        req.flash('error', error.message);
-        res.redirect('/profile');
+        console.error('Profile update error:', error.message);
+        res.redirect(`/profile?error=${encodeURIComponent(error.message)}`);
     }
 };
