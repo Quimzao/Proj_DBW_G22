@@ -78,12 +78,22 @@
     border: 2px solid var(--ready-color);
 }
 
-.player-avatar img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--primary-color);
+.user-avatar img {
+    width: 60px; /* Adjust size as needed */
+    height: 60px; /* Adjust size as needed */
+    object-fit: cover; /* Ensures the image fits inside the circle */
+    border-radius: 50%; /* Makes the image circular */
+    display: block; /* Ensures proper alignment */
+    margin: 0 auto; /* Centers the image inside the container */
+}
+
+.player-card img {
+    width: 60px; /* Adjust size as needed */
+    height: 60px; /* Adjust size as needed */
+    object-fit: cover; /* Ensures the image fits inside the circle */
+    border-radius: 50%; /* Makes the image circular */
+    display: block; /* Ensures proper alignment */
+    margin: 0 auto; /* Centers the image inside the container */
 }
 
 .player-name {
