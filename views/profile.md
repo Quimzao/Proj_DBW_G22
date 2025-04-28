@@ -21,15 +21,15 @@
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                         id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
-                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>" alt="User Avatar">
+                            <img src="<%= user.profilePic || '/images/default-avatar.png' %>" alt="User Avatar">
                         </div>
-                        <span class="text-white" id="header-username">
+                        <span class="text-white">
                             <%= user.username %>
                         </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold" id="dropdown-username"><%= user.username %></div>
+                            <div class="fw-bold"><%= user.username %></div>
                             <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -43,7 +43,7 @@
         </div>
     </nav>
 
-    <main class="container profile-container">
+    <main class="container profile-container" style="margin-top: 80px;">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card profile-card">
@@ -51,21 +51,18 @@
                         <h3 class="mb-0 text-white">Profile Settings</h3>
                     </div>
                     <div class="card-body">
-                        <div id="success-message" class="alert alert-success d-none">Profile updated successfully!</div>
-                        <div id="error-message" class="alert alert-danger d-none"></div>
-                        
-                        <form id="profile-form" enctype="multipart/form-data">
+                        <form action="/profile/update" method="POST" enctype="multipart/form-data" id="profile-form">
                             <input type="hidden" id="selected-avatar-input" name="selectedAvatar" value="<%= user.profilePicture %>">
 
                             <!-- Profile Picture and Username Section -->
                             <div class="row mb-4">
                                 <div class="col-md-4 text-center">
                                     <div class="profile-picture-container">
-                                        <img id="profile-picture-preview" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+                                        <img id="profile-picture-preview" src="<%= user.profilePicture %>"
                                             alt="Profile Picture" class="profile-image">
 
                                         <div class="mt-3">
-                                            <button type="button" class="btn btn-change-picture" id="change-avatar-btn">
+                                            <button type="button" class="btn btn-sm btn-change-picture" id="change-avatar-btn">
                                                 <i class="fas fa-camera me-1"></i> Change Avatar
                                             </button>
                                             <input type="file" id="profile-picture" name="profilePicture" accept="image/*" class="d-none">
@@ -74,26 +71,22 @@
                                 </div>
 
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
-                                    <h4 class="text-white mb-0" id="profile-username"><%= user.username %></h4>
+                                    <h4 class="text-white mb-0"><%= user.username %></h4>
                                     <p class="text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
                                 </div>
                             </div>
 
                             <!-- Full Width Avatar Selection Section -->
-                            <div class="row mb-4 d-none" id="avatar-options">
+                            <div class="row mb-4">
                                 <div class="col-12">
-                                    <div class="avatar-scroll-container">
-                                        <div class="avatar-grid">
-                                            <h6 class="text-white mb-2">Choose an avatar:</h6>
-                                            <div class="avatar-options-container">
-                                                <% DEFAULT_AVATARS.forEach(avatar => { %>
-                                                    <div class="avatar-item">
-                                                        <img src="<%= avatar %>"
-                                                            class="avatar-option <%= user.profilePicture === avatar ? 'selected-avatar' : '' %>"
-                                                            data-avatar="<%= avatar %>">
-                                                    </div>
-                                                <% }); %>
-                                            </div>
+                                    <div class="avatar-options" id="avatar-options">
+                                        <h6 class="text-white mb-2">Choose an avatar:</h6>
+                                        <div class="avatar-options-container">
+                                            <% DEFAULT_AVATARS.forEach(avatar => { %>
+                                                <img src="<%= avatar %>"
+                                                    class="avatar-option <%= user.profilePicture === avatar ? 'selected-avatar' : '' %>"
+                                                    data-avatar="<%= avatar %>">
+                                            <% }); %>
                                         </div>
                                     </div>
                                 </div>
@@ -101,15 +94,15 @@
 
                             <!-- Personal Info Section -->
                             <div class="mb-4">
-                                <h5 class="section-title">Personal Information</h5>
+                                <h5 class="section-title text-white">Personal Information</h5>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="username" class="form-label">Username</label>
+                                        <label for="username" class="form-label text-white">Username</label>
                                         <input type="text" class="form-control" id="username" name="username"
                                             value="<%= user.username %>" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="email" class="form-label">Email</label>
+                                        <label for="email" class="form-label text-white">Email</label>
                                         <input type="email" class="form-control" id="email" name="email"
                                             value="<%= user.email %>" required>
                                     </div>
@@ -118,21 +111,21 @@
 
                             <!-- Password Change Section -->
                             <div class="mb-4">
-                                <h5 class="section-title">Change Password</h5>
+                                <h5 class="section-title text-white">Change Password</h5>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="current-password" class="form-label">Current Password</label>
+                                        <label for="current-password" class="form-label text-white">Current Password</label>
                                         <input type="password" class="form-control" id="current-password"
                                             name="currentPassword">
                                         <small class="text-muted">Required only if changing password</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="new-password" class="form-label">New Password</label>
+                                        <label for="new-password" class="form-label text-white">New Password</label>
                                         <input type="password" class="form-control" id="new-password"
                                             name="newPassword">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                        <label for="confirm-password" class="form-label text-white">Confirm New Password</label>
                                         <input type="password" class="form-control" id="confirm-password"
                                             name="confirmPassword">
                                         <div id="password-error" class="invalid-feedback">Passwords don't match!</div>
@@ -157,7 +150,7 @@
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer mt-4">
         <div class="container">
             <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %></p>
         </div>
@@ -174,20 +167,11 @@
         document.querySelectorAll('.avatar-option').forEach(avatar => {
             avatar.addEventListener('click', function () {
                 const avatarPath = this.dataset.avatar;
-                
-                // Update profile preview
                 document.getElementById('profile-picture-preview').src = avatarPath;
                 document.getElementById('selected-avatar-input').value = avatarPath;
-                
-                // Update header avatar
-                document.getElementById('header-avatar').src = avatarPath;
-                
-                // Update selected state
+
                 document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 this.classList.add('selected-avatar');
-                
-                // Hide options
-                document.getElementById('avatar-options').classList.add('d-none');
             });
         });
 
@@ -197,95 +181,34 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
-                    // Update profile preview
                     document.getElementById('profile-picture-preview').src = event.target.result;
-                    document.getElementById('selected-avatar-input').value = event.target.result;
-                    
-                    // Update header avatar
-                    document.getElementById('header-avatar').src = event.target.result;
-                    
-                    // Clear any selected avatar
                     document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Form submission with AJAX
-        document.getElementById('profile-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            
+        // Password validation
+        document.getElementById('profile-form').addEventListener('submit', function (e) {
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
             if (newPassword && newPassword !== confirmPassword) {
+                e.preventDefault();
                 document.getElementById('confirm-password').classList.add('is-invalid');
                 return false;
             }
 
-            // Show loading state
-            const saveButton = document.getElementById('save-button');
-            const saveText = document.getElementById('save-text');
-            const saveSpinner = document.getElementById('save-spinner');
-            
-            saveText.classList.add('d-none');
-            saveSpinner.classList.remove('d-none');
-            saveButton.disabled = true;
-
-            // Hide messages
-            document.getElementById('success-message').classList.add('d-none');
-            document.getElementById('error-message').classList.add('d-none');
-
-            try {
-                const formData = new FormData(this);
-                
-                const response = await fetch('/profile/update', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Update all username fields
-                    const username = result.username || document.getElementById('username').value;
-                    document.getElementById('header-username').textContent = username;
-                    document.getElementById('dropdown-username').textContent = username;
-                    document.getElementById('profile-username').textContent = username;
-                    
-                    // Update avatar in header
-                    if (result.profilePicture) {
-                        document.getElementById('header-avatar').src = result.profilePicture;
-                    }
-                    
-                    // Show success message
-                    document.getElementById('success-message').classList.remove('d-none');
-                } else {
-                    // Show error message
-                    const errorMessage = document.getElementById('error-message');
-                    errorMessage.textContent = result.message || 'Error updating profile';
-                    errorMessage.classList.remove('d-none');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = 'An error occurred while updating profile';
-                errorMessage.classList.remove('d-none');
-            } finally {
-                // Restore button state
-                saveText.classList.remove('d-none');
-                saveSpinner.classList.add('d-none');
-                saveButton.disabled = false;
-            }
+            document.getElementById('save-text').classList.add('d-none');
+            document.getElementById('save-spinner').classList.remove('d-none');
+            document.getElementById('save-button').disabled = true;
         });
 
         // Live username update
         document.getElementById('username').addEventListener('input', function () {
-            document.getElementById('profile-username').textContent = this.value;
+            document.querySelector('h4').textContent = this.value;
         });
     </script>
 </body>
+
 </html>

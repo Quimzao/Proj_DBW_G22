@@ -60,16 +60,11 @@ export const updateProfile = async (req, res) => {
         upload(req, res, async function (err) {
             if (err) {
                 console.error('Error during file upload:', err.message);
-                if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                    return res.status(400).json({ 
-                        success: false, 
-                        message: err.message 
-                    });
-                }
                 return res.redirect(`/profile?error=${encodeURIComponent(err.message)}`);
             }
 
             const { username, email, currentPassword, newPassword, confirmPassword, selectedAvatar } = req.body;
+            console.log('Selected Avatar:', selectedAvatar);
             const user = await User.findById(req.user._id);
 
             // Update basic information
@@ -78,7 +73,7 @@ export const updateProfile = async (req, res) => {
 
             // Check if a predefined avatar was selected
             if (selectedAvatar && DEFAULT_AVATARS.includes(selectedAvatar)) {
-                user.profilePicture = selectedAvatar;
+                user.profilePicture = selectedAvatar; // Save the selected avatar
             }
 
             // Process custom image upload
@@ -94,19 +89,13 @@ export const updateProfile = async (req, res) => {
             // Update password if provided
             if (newPassword) {
                 if (!(await user.authenticate(currentPassword))) {
-                    const message = 'Current password is incorrect';
-                    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                        return res.status(400).json({ success: false, message });
-                    }
-                    return res.redirect(`/profile?error=${encodeURIComponent(message)}`);
+                    console.error('Current password is incorrect');
+                    return res.redirect(`/profile?error=${encodeURIComponent('Current password is incorrect')}`);
                 }
 
                 if (newPassword !== confirmPassword) {
-                    const message = 'New passwords do not match';
-                    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                        return res.status(400).json({ success: false, message });
-                    }
-                    return res.redirect(`/profile?error=${encodeURIComponent(message)}`);
+                    console.error('New passwords do not match');
+                    return res.redirect(`/profile?error=${encodeURIComponent('New passwords do not match')}`);
                 }
 
                 await new Promise((resolve, reject) => {
@@ -118,43 +107,12 @@ export const updateProfile = async (req, res) => {
             }
 
             await user.save();
-
-            // Prepare response data
-            const responseData = {
-                success: true,
-                profilePicture: user.profilePicture,
-                username: user.username
-            };
-
-            // Update session
-            req.login(user, (err) => {
-                if (err) {
-                    console.error('Error updating session:', err);
-                    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                        return res.status(500).json({ 
-                            success: false, 
-                            message: 'Error updating session' 
-                        });
-                    }
-                    return res.redirect(`/profile?error=${encodeURIComponent('Error updating session')}`);
-                }
-
-                // Check if it's an AJAX request
-                if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-                    return res.json(responseData);
-                } else {
-                    return res.redirect(`/profile?success=${encodeURIComponent('Profile updated successfully')}`);
-                }
-            });
+            console.log('Profile updated successfully');
+            console.log("User profilePicture:", req.user.profilePicture);
+            res.redirect(`/profile?success=${encodeURIComponent('Profile updated successfully')}`);
         });
     } catch (error) {
         console.error('Profile update error:', error.message);
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-            return res.status(500).json({ 
-                success: false, 
-                message: error.message 
-            });
-        }
-        return res.redirect(`/profile?error=${encodeURIComponent(error.message)}`);
+        res.redirect(`/profile?error=${encodeURIComponent(error.message)}`);
     }
 };

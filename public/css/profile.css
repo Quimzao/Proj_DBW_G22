@@ -97,24 +97,24 @@ body {
     border-radius: 10px;
     border: 1px solid var(--border-color);
     margin-top: 1rem;
-    width: 100%; /* Make the avatar options bar span the full width */
+    width: 100%;
     display: flex;
-    justify-content: center; /* Center the avatars horizontally */
+    justify-content: center;
     align-items: center;
-    flex-wrap: wrap; /* Allow avatars to wrap if needed */
+    flex-wrap: wrap;
 }
 
 .avatar-options-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px; /* space between avatars */
-    justify-content: center; /* optional: center them */
+    gap: 10px;
+    justify-content: center;
 }
 
 .avatar-scroll-container {
     width: 100%;
     overflow-x: auto;
-    padding-bottom: 10px; /* Space for scrollbar */
+    padding-bottom: 10px;
 }
 
 .avatar-grid {
