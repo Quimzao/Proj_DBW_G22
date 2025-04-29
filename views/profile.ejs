@@ -75,7 +75,7 @@
 
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
                                     <h4 class="text-white mb-0" id="profile-username"><%= user.username %></h4>
-                                    <p class="text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                                    <p class="text-white mb-0">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
                                 </div>
                             </div>
 
@@ -84,7 +84,6 @@
                                 <div class="col-12">
                                     <div class="avatar-scroll-container">
                                         <div class="avatar-grid">
-                                            <h6 class="text-white mb-2">Choose an avatar:</h6>
                                             <div class="avatar-options-container">
                                                 <% DEFAULT_AVATARS.forEach(avatar => { %>
                                                     <div class="avatar-item">
@@ -124,7 +123,7 @@
                                         <label for="current-password" class="form-label">Current Password</label>
                                         <input type="password" class="form-control" id="current-password"
                                             name="currentPassword">
-                                        <small class="text-muted">Required only if changing password</small>
+                                        <small class="text-white mb-0">Required only if changing password</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="new-password" class="form-label">New Password</label>

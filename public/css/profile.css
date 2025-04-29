@@ -48,8 +48,8 @@ body {
 
 /* Main Content */
 .profile-container {
-    padding-top: 80px;
-    padding-bottom: 40px;
+    padding-top: 100px;
+    padding-bottom: 30px;
     flex: 1;
 }
 
@@ -279,4 +279,20 @@ body {
     .avatar-options-container {
         gap: 0.5rem;
     }
+}
+
+.dropdown-menu {
+    background-color: #ffffff; /* White background */
+    color: #000000; /* Black text color */
+    border: 1px solid var(--border-color); /* Optional: Add a border for consistency */
+    border-radius: 0.25rem; /* Rounded corners */
+}
+
+.dropdown-menu .dropdown-item {
+    color: #000000; /* Black text color for dropdown items */
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: var(--primary-color); /* Highlight color on hover */
+    color: #ffffff; /* White text color on hover */
 }

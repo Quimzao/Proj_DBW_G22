@@ -12,18 +12,21 @@ function showIntro(req, res) {
 }
 
 function showLobby(req, res) {
-    // Se vier com código, usa ele, senão gera um novo
-    const username = req.user?.username || 'Guest'; // Example: Fetch from session or database
-    const memberSince = req.user?.memberSince || 'N/A'; // Example: Fetch from session or database
+    // Use the user object from req.user or provide default values
+    const user = {
+        username: req.user?.username || 'Guest',
+        profilePicture: req.user?.profilePicture || '/images/default-avatar.png',
+        memberSince: req.user?.memberSince || 'N/A'
+    };
+
     const roomCode = req.query.code || generateRoomCode();
-    
+
     res.render('lobby', {
-        username: username,
-        memberSince: memberSince,
+        user: user, // Pass the user object to the template
         roomCode: roomCode,
-        roomName: "Sala Criativa" // Pode ser dinâmico
+        roomName: "Sala Criativa" // Can be dynamic
     });
-};
+}
 
 function generateRoomCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
