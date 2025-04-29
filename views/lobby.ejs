@@ -42,15 +42,15 @@
 
     <main class="container-fluid lobby-container">
         <div class="row h-100">
-            <!-- Sala de espera -->
+            <!-- Waiting Room -->
             <div class="col-lg-8">
                 <div class="card lobby-room h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Sala: <span id="room-name"><%= roomName %></span> <span id="player-count"></span></h4>
+                        <h4 class="mb-0">Room: <span id="room-name"><%= roomName %></span> <span id="player-count"></span></h4>
                         <div class="room-code">
-                            <span>Código da Sala:</span>
+                            <span>Room Code:</span>
                             <strong id="room-code"><%= roomCode %></strong>
-                            <button class="btn btn-sm btn-copy" title="Copiar código">
+                            <button class="btn btn-sm btn-copy" title="Copy code">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
@@ -73,7 +73,7 @@
                 </div>
             </div>
 
-            <!-- Chat e configurações -->
+            <!-- Chat and Settings -->
             <div class="col-lg-4 h-100">
                 <div class="d-flex flex-column h-100">
                     <!-- Tabs Header -->
@@ -159,7 +159,7 @@
         };
         const roomCode = '<%= roomCode %>';
         
-        // Entrar no lobby quando a página carregar
+        // Join lobby when page loads
         document.addEventListener('DOMContentLoaded', () => {
             socket.emit('joinLobby', {
                 roomCode: roomCode,
@@ -167,15 +167,15 @@
             });
         });
         
-        // Atualizar a lista de jogadores
+        // Update player list
         socket.on('updateLobby', (data) => {
             const playersContainer = document.getElementById('players-container');
             playersContainer.innerHTML = '';
             
-            // Atualizar contagem de jogadores
+            // Update player count
             document.getElementById('player-count').textContent = `(${data.playerCount})`;
             
-            // Adicionar jogadores
+            // Add players
             data.players.forEach(player => {
                 const isCurrentUser = player.id === socket.id;
                 const playerCard = document.createElement('div');
@@ -192,7 +192,7 @@
                 playersContainer.appendChild(playerCard);
             });
             
-            // Atualizar botão ready do usuário atual
+            // Update ready button for current user
             const currentPlayer = data.players.find(p => p.id === socket.id);
             if (currentPlayer) {
                 const readyBtn = document.getElementById('toggle-ready');
@@ -202,7 +202,7 @@
                     : '<i class="fas fa-times-circle me-2"></i>Not Ready';
             }
             
-            // Atualizar botão de iniciar jogo (só disponível para o primeiro jogador)
+            // Update start game button (only available for first player)
             const startButton = document.getElementById('start-game');
             if (data.players.length > 0 && data.players[0].id === socket.id) {
                 startButton.disabled = false;
@@ -211,23 +211,23 @@
             }
         });
         
-        // Lidar com mensagens do sistema
+        // Handle system messages
         socket.on('systemMessage', (message) => {
             addMessage('System', message, 'system');
         });
         
-        // Lidar com lobby cheio
+        // Handle full lobby
         socket.on('lobbyFull', () => {
             alert('This lobby is full!');
             window.location.href = '/lobbyinicial';
         });
         
-        // Lidar com novas mensagens de chat
+        // Handle new chat messages
         socket.on('newMessage', (data) => {
-            addMessage(data.username, data.message, 'user');
+            addMessage(data.username, data.message, data.isSelf ? 'self' : 'other');
         });
         
-        // Lógica do botão Ready
+        // Ready button logic
         document.getElementById('toggle-ready').addEventListener('click', function() {
             socket.emit('toggleReady', {
                 roomCode: roomCode,
@@ -235,7 +235,7 @@
             });
         });
         
-        // Lógica do chat
+        // Chat logic
         document.getElementById('send-message').addEventListener('click', sendMessage);
         document.getElementById('message-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
@@ -246,6 +246,8 @@
             const message = input.value.trim();
             
             if (message) {
+                // Add message locally first (as 'self')
+                
                 socket.emit('sendMessage', {
                     roomCode: roomCode,
                     message: message,
@@ -255,19 +257,26 @@
             }
         }
         
-        function addMessage(sender, content, type = 'user') {
+        function addMessage(sender, content, type = 'other') {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
-            messageElement.className = `message ${type}`;
-            messageElement.innerHTML = `
-                ${type === 'user' ? `<div class="message-sender">${sender}:</div>` : ''}
-                <div class="message-content">${content}</div>
-            `;
+            
+            if (type === 'system') {
+                messageElement.className = 'message system';
+                messageElement.innerHTML = `<div class="message-content">${content}</div>`;
+            } else {
+                messageElement.className = `message ${type}`;
+                messageElement.innerHTML = `
+                    <div class="message-sender">${sender}:</div>
+                    <div class="message-content">${content}</div>
+                `;
+            }
+            
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         
-        // Lógica para sair do lobby
+        // Leave lobby logic
         document.getElementById('leave-room').addEventListener('click', function() {
             socket.emit('leaveLobby', {
                 roomCode: roomCode,
@@ -276,7 +285,7 @@
             window.location.href = '/lobbyinicial';
         });
         
-        // Lógica para atualizar configurações
+        // Update settings logic
         document.getElementById('game-settings').addEventListener('change', function() {
             const settings = {
                 rounds: document.getElementById('rounds').value,
@@ -290,7 +299,7 @@
             });
         });
         
-        // Lógica para iniciar o jogo
+        // Start game logic
         document.getElementById('start-game').addEventListener('click', function() {
             socket.emit('startGame', roomCode, (response) => {
                 if (response.success) {
@@ -316,7 +325,7 @@
             document.getElementById('chat-card').classList.add('d-none');
         });
         
-        // Copiar código da sala
+        // Copy room code
         document.querySelector('.btn-copy').addEventListener('click', function() {
             navigator.clipboard.writeText(roomCode);
             const tooltip = new bootstrap.Tooltip(this, {

@@ -21,7 +21,7 @@ function showLobby(req, res) {
     };
 
     const roomCode = req.query.code || generateRoomCode();
-    const roomName = "Creative Room"; // Pode ser dinâmico
+    const roomName = "Creative Room";
 
     res.render('lobby', {
         user: user,

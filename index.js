@@ -188,9 +188,18 @@ io.on("connection", function (socket) {
     
     // Evento para enviar mensagem no chat
     socket.on('sendMessage', ({ roomCode, message, user }) => {
-        io.to(roomCode).emit('newMessage', {
+        // Envia a mensagem para todos exceto o remetente
+        socket.to(roomCode).emit('newMessage', {
             username: user.username,
-            message: message
+            message: message,
+            isSelf: false
+        });
+        
+        // Envia a mensagem apenas para o remetente (com isSelf=true)
+        socket.emit('newMessage', {
+            username: 'You',
+            message: message,
+            isSelf: true
         });
     });
     
