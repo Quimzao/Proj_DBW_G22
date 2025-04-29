@@ -368,16 +368,6 @@
     }
 }
 
-@media (max-width: 576px) {
-    .players-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .room-code {
-        font-size: 0.9rem;
-    }
-}
-
 /* Add this to ensure text color is applied globally */
 body {
     color: var(--text-color);
@@ -541,4 +531,66 @@ body {
     cursor: not-allowed;
     background-color: var(--input-bg);
     color: var(--text-color);
+}
+
+/* Difficulty level buttons */
+.btn-group.difficulty-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.btn-group.difficulty-buttons .btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px 5px;
+    font-size: 0.9rem;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: #121212;
+}
+
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--primary-color);
+    color: #121212;
+    border-color: var(--primary-color);
+}
+
+/* Custom settings */
+.custom-settings {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.custom-settings .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.custom-settings label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-group.difficulty-buttons .btn {
+        min-width: 80px;
+        font-size: 0.8rem;
+        padding: 6px 3px;
+    }
+    
+    .custom-settings .row > div {
+        margin-bottom: 10px;
+    }
 }

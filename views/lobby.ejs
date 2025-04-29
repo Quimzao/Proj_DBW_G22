@@ -101,40 +101,57 @@
                         </div>
                     </div>
             
-                    <!-- Settings Card -->
-                    <div class="card settings-card flex-grow-1 d-none" id="settings-card">
-                        <div class="card-body">
-                            <form id="game-settings">
-                                <div class="mb-3">
-                                    <label for="rounds" class="form-label">Rounds</label>
-                                    <select class="form-select" id="rounds">
-                                        <option value="3">3</option>
-                                        <option value="5" selected>5</option>
-                                        <option value="7">7</option>
-                                        <option value="10">10</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="draw-time" class="form-label">Drawing Time (seconds)</label>
-                                    <select class="form-select" id="draw-time">
-                                        <option value="30">30</option>
-                                        <option value="60" selected>60</option>
-                                        <option value="90">90</option>
-                                        <option value="120">120</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="private-room" checked>
-                                    <label class="form-check-label" for="private-room">Private Room</label>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="button" id="start-game" class="btn btn-start" disabled>
-                                        <i class="fas fa-play me-2"></i>Start Game
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+<!-- Settings Card -->
+<div class="card settings-card flex-grow-1 d-none" id="settings-card">
+    <div class="card-body">
+        <form id="game-settings">
+            <div class="mb-3">
+                <label class="form-label">Difficulty Level</label>
+                <div class="btn-group w-100" role="group" id="difficulty-level">
+                    <input type="radio" class="btn-check" name="difficulty" id="easy" autocomplete="off" value="easy" checked>
+                    <label class="btn btn-outline-primary" for="easy">Easy (12s)</label>
+
+                    <input type="radio" class="btn-check" name="difficulty" id="medium" autocomplete="off" value="medium">
+                    <label class="btn btn-outline-primary" for="medium">Medium (10s)</label>
+
+                    <input type="radio" class="btn-check" name="difficulty" id="hard" autocomplete="off" value="hard">
+                    <label class="btn btn-outline-primary" for="hard">Hard (8s)</label>
+
+                    <input type="radio" class="btn-check" name="difficulty" id="custom" autocomplete="off" value="custom">
+                    <label class="btn btn-outline-primary" for="custom">Custom</label>
+                </div>
+            </div>
+
+            <div class="mb-3 custom-settings" id="custom-settings" style="display: none;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="custom-time" class="form-label">Idea Time (seconds)</label>
+                        <input type="number" class="form-control" id="custom-time" min="5" max="30" value="10">
                     </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="rounds" class="form-label">Rounds</label>
+                <select class="form-select" id="rounds">
+                    <option value="3">3</option>
+                    <option value="5" selected>5</option>
+                    <option value="7">7</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="private-room" checked>
+                <label class="form-check-label" for="private-room">Private Room</label>
+            </div>
+            <div class="d-grid">
+                <button type="button" id="start-game" class="btn btn-start" disabled>
+                    <i class="fas fa-play me-2"></i>Start Game
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
                 </div>
             </div>
         </div>
@@ -352,6 +369,42 @@
             });
             tooltip.show();
             setTimeout(() => tooltip.hide(), 1000);
+        });
+        
+        // Difficulty level logic
+        document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const customSettings = document.getElementById('custom-settings');
+                if (this.value === 'custom') {
+                    customSettings.style.display = 'block';
+                } else {
+                    customSettings.style.display = 'none';
+
+                    // Update settings based on difficulty
+                    const settings = {
+                        difficulty: this.value,
+                        ideaTime: this.value === 'easy' ? 12 : this.value === 'medium' ? 10 : 8
+                    };
+
+                    socket.emit('updateSettings', {
+                        roomCode: roomCode,
+                        settings: settings
+                    });
+                }
+            });
+        });
+
+        // Custom settings logic
+        document.getElementById('custom-time').addEventListener('change', function() {
+            const settings = {
+                difficulty: 'custom',
+                ideaTime: this.value
+            };
+
+            socket.emit('updateSettings', {
+                roomCode: roomCode,
+                settings: settings
+            });
         });
     </script>
 </body>
