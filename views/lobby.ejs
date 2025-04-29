@@ -202,10 +202,18 @@
                     : '<i class="fas fa-times-circle me-2"></i>Not Ready';
             }
             
-            // Update start game button (only available for first player)
+            // Update start game button (only available for first player and if all are ready)
             const startButton = document.getElementById('start-game');
             if (data.players.length > 0 && data.players[0].id === socket.id) {
-                startButton.disabled = false;
+                const allReady = data.players.every(p => p.ready);
+                startButton.disabled = !allReady;
+                
+                // Add tooltip if not all players are ready
+                if (!allReady) {
+                    startButton.title = "All players must be ready to start";
+                } else {
+                    startButton.title = "";
+                }
             } else {
                 startButton.disabled = true;
             }
@@ -301,11 +309,21 @@
         
         // Start game logic
         document.getElementById('start-game').addEventListener('click', function() {
+            const startButton = this;
+            startButton.disabled = true; // Desabilita o botão temporariamente para evitar múltiplos cliques
+            startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
+            
             socket.emit('startGame', roomCode, (response) => {
                 if (response.success) {
                     window.location.href = `/game?room=${roomCode}`;
                 } else {
                     addMessage('System', response.message, 'system');
+                    
+                    // Reativa o botão após um breve delay
+                    setTimeout(() => {
+                        startButton.disabled = false;
+                        startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
+                    }, 2000);
                 }
             });
         });

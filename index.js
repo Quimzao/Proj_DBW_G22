@@ -220,7 +220,11 @@ io.on("connection", function (socket) {
         // Verificar se todos estão prontos
         const allReady = lobby.players.every(player => player.ready);
         if (!allReady) {
-            callback({ success: false, message: 'Not all players are ready!' });
+            const notReadyPlayers = lobby.players.filter(p => !p.ready).map(p => p.username);
+            callback({ 
+                success: false, 
+                message: `The following players are not ready: ${notReadyPlayers.join(', ')}`
+            });
             return;
         }
         
@@ -232,8 +236,7 @@ io.on("connection", function (socket) {
         
         callback({ success: true });
         
-        // Aqui você pode adicionar lógica adicional para iniciar o jogo
-        // Por exemplo, redirecionar todos os jogadores para a página do jogo
+        // Notificar todos que o jogo está começando
         io.to(roomCode).emit('gameStarting', { 
             roomCode: roomCode,
             settings: lobby.settings
