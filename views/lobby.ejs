@@ -6,7 +6,6 @@
     <title>Game Lobby | Brainstorm</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/lobby.css">
-
 </head>
 <body>
     <nav class="navbar navbar-expand-lg fixed-top">
@@ -47,7 +46,7 @@
             <div class="col-lg-8">
                 <div class="card lobby-room h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Sala: <span id="room-name"><%= roomName %></span></h4>
+                        <h4 class="mb-0">Sala: <span id="room-name"><%= roomName %></span> <span id="player-count"></span></h4>
                         <div class="room-code">
                             <span>Código da Sala:</span>
                             <strong id="room-code"><%= roomCode %></strong>
@@ -59,14 +58,6 @@
                     <div class="card-body">
                         <div class="players-grid" id="players-container">
                             <!-- Players will be added here dynamically -->
-                            <div class="player-card ready">
-                                <div class="player-avatar">
-                                    <img src="/images/default-avatar.png" alt="Player Avatar">
-                                </div>
-                                <div class="player-name">You</div>
-                                <div class="player-status ready">Ready</div>
-                            </div>
-                            <!-- More players will appear here -->
                         </div>
                     </div>
                     <div class="card-footer">
@@ -95,13 +86,10 @@
                         </button>
                     </div>
                     
-                    <!-- Chat Card (visível por padrão) -->
+                    <!-- Chat Card -->
                     <div class="card chat-card flex-grow-1" id="chat-card">
                         <div class="card-body chat-messages" id="chat-messages">
                             <!-- Messages will appear here -->
-                            <div class="message system">
-                                <div class="message-content">Welcome to the room!</div>
-                            </div>
                         </div>
                         <div class="card-footer chat-input">
                             <div class="input-group">
@@ -113,7 +101,7 @@
                         </div>
                     </div>
             
-                    <!-- Settings Card (oculto por padrão) -->
+                    <!-- Settings Card -->
                     <div class="card settings-card flex-grow-1 d-none" id="settings-card">
                         <div class="card-body">
                             <form id="game-settings">
@@ -163,64 +151,110 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Simulação de jogadores (remover em produção)
-        const samplePlayers = [
-            { name: "Player1", avatar: "/images/default-avatar.png", ready: true },
-            { name: "Player2", avatar: "/images/default-avatar.png", ready: false },
-            { name: "Player3", avatar: "/images/default-avatar.png", ready: true },
-            { name: "Player4", avatar: "/images/default-avatar.png", ready: false },
-            { name: "Player5", avatar: "/images/default-avatar.png", ready: false }
-        ];
-
-        // Adiciona jogadores de exemplo (remover em produção)
-        samplePlayers.forEach(player => {
-            const playerCard = document.createElement('div');
-            playerCard.className = `player-card ${player.ready ? 'ready' : ''}`;
-            playerCard.innerHTML = `
-                <div class="player-avatar">
-                    <img src="${player.avatar}" alt="${player.name} Avatar">
-                </div>
-                <div class="player-name">${player.name}</div>
-                <div class="player-status ${player.ready ? 'ready' : ''}">
-                    ${player.ready ? 'Ready' : 'Not Ready'}
-                </div>
-            `;
-            document.getElementById('players-container').appendChild(playerCard);
+        const socket = io();
+        const currentUser = {
+            id: '<%= user._id %>',
+            username: '<%= user.username %>',
+            profilePicture: '<%= user.profilePicture || "/images/default-avatar.png" %>'
+        };
+        const roomCode = '<%= roomCode %>';
+        
+        // Entrar no lobby quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            socket.emit('joinLobby', {
+                roomCode: roomCode,
+                user: currentUser
+            });
         });
-
-        // Lógica do botão Ready
-        document.getElementById('toggle-ready').addEventListener('click', function() {
-            this.classList.toggle('active');
-            const isReady = this.classList.contains('active');
+        
+        // Atualizar a lista de jogadores
+        socket.on('updateLobby', (data) => {
+            const playersContainer = document.getElementById('players-container');
+            playersContainer.innerHTML = '';
             
-            if (isReady) {
-                this.innerHTML = '<i class="fas fa-check-circle me-2"></i>Ready';
-                document.querySelector('.player-card.ready .player-status').textContent = 'Ready';
-            } else {
-                this.innerHTML = '<i class="fas fa-times-circle me-2"></i>Not Ready';
-                document.querySelector('.player-card.ready .player-status').textContent = 'Not Ready';
+            // Atualizar contagem de jogadores
+            document.getElementById('player-count').textContent = `(${data.playerCount})`;
+            
+            // Adicionar jogadores
+            data.players.forEach(player => {
+                const isCurrentUser = player.id === socket.id;
+                const playerCard = document.createElement('div');
+                playerCard.className = `player-card ${player.ready ? 'ready' : ''}`;
+                playerCard.innerHTML = `
+                    <div class="player-avatar">
+                        <img src="${player.profilePicture}" alt="${player.username} Avatar">
+                    </div>
+                    <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
+                    <div class="player-status ${player.ready ? 'ready' : ''}">
+                        ${player.ready ? 'Ready' : 'Not Ready'}
+                    </div>
+                `;
+                playersContainer.appendChild(playerCard);
+            });
+            
+            // Atualizar botão ready do usuário atual
+            const currentPlayer = data.players.find(p => p.id === socket.id);
+            if (currentPlayer) {
+                const readyBtn = document.getElementById('toggle-ready');
+                readyBtn.classList.toggle('active', currentPlayer.ready);
+                readyBtn.innerHTML = currentPlayer.ready 
+                    ? '<i class="fas fa-check-circle me-2"></i>Ready' 
+                    : '<i class="fas fa-times-circle me-2"></i>Not Ready';
             }
             
-            // Aqui você enviaria o status para o servidor via Socket.IO
+            // Atualizar botão de iniciar jogo (só disponível para o primeiro jogador)
+            const startButton = document.getElementById('start-game');
+            if (data.players.length > 0 && data.players[0].id === socket.id) {
+                startButton.disabled = false;
+            } else {
+                startButton.disabled = true;
+            }
         });
-
+        
+        // Lidar com mensagens do sistema
+        socket.on('systemMessage', (message) => {
+            addMessage('System', message, 'system');
+        });
+        
+        // Lidar com lobby cheio
+        socket.on('lobbyFull', () => {
+            alert('This lobby is full!');
+            window.location.href = '/lobbyinicial';
+        });
+        
+        // Lidar com novas mensagens de chat
+        socket.on('newMessage', (data) => {
+            addMessage(data.username, data.message, 'user');
+        });
+        
+        // Lógica do botão Ready
+        document.getElementById('toggle-ready').addEventListener('click', function() {
+            socket.emit('toggleReady', {
+                roomCode: roomCode,
+                userId: socket.id
+            });
+        });
+        
         // Lógica do chat
         document.getElementById('send-message').addEventListener('click', sendMessage);
         document.getElementById('message-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
         });
-
+        
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
             
             if (message) {
-                // Aqui você enviaria a mensagem para o servidor via Socket.IO
-                addMessage('You', message, 'user');
+                socket.emit('sendMessage', {
+                    roomCode: roomCode,
+                    message: message,
+                    user: currentUser
+                });
                 input.value = '';
             }
         }
-
+        
         function addMessage(sender, content, type = 'user') {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
@@ -232,16 +266,41 @@
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-
-        // Simulação de mensagens (remover em produção)
-        setTimeout(() => {
-            addMessage('Player1', 'Hello everyone!', 'user');
-        }, 1000);
         
-        setTimeout(() => {
-            addMessage('Player2', 'Ready to start!', 'user');
-        }, 2000);
-
+        // Lógica para sair do lobby
+        document.getElementById('leave-room').addEventListener('click', function() {
+            socket.emit('leaveLobby', {
+                roomCode: roomCode,
+                userId: socket.id
+            });
+            window.location.href = '/lobbyinicial';
+        });
+        
+        // Lógica para atualizar configurações
+        document.getElementById('game-settings').addEventListener('change', function() {
+            const settings = {
+                rounds: document.getElementById('rounds').value,
+                drawTime: document.getElementById('draw-time').value,
+                private: document.getElementById('private-room').checked
+            };
+            
+            socket.emit('updateSettings', {
+                roomCode: roomCode,
+                settings: settings
+            });
+        });
+        
+        // Lógica para iniciar o jogo
+        document.getElementById('start-game').addEventListener('click', function() {
+            socket.emit('startGame', roomCode, (response) => {
+                if (response.success) {
+                    window.location.href = `/game?room=${roomCode}`;
+                } else {
+                    addMessage('System', response.message, 'system');
+                }
+            });
+        });
+        
         // Tab switching functionality
         document.getElementById('chat-tab-btn').addEventListener('click', function() {
             this.classList.add('active');
@@ -249,12 +308,23 @@
             document.getElementById('chat-card').classList.remove('d-none');
             document.getElementById('settings-card').classList.add('d-none');
         });
-
+        
         document.getElementById('settings-tab-btn').addEventListener('click', function() {
             this.classList.add('active');
             document.getElementById('chat-tab-btn').classList.remove('active');
             document.getElementById('settings-card').classList.remove('d-none');
             document.getElementById('chat-card').classList.add('d-none');
+        });
+        
+        // Copiar código da sala
+        document.querySelector('.btn-copy').addEventListener('click', function() {
+            navigator.clipboard.writeText(roomCode);
+            const tooltip = new bootstrap.Tooltip(this, {
+                title: 'Copied!',
+                trigger: 'manual'
+            });
+            tooltip.show();
+            setTimeout(() => tooltip.hide(), 1000);
         });
     </script>
 </body>

@@ -84,15 +84,186 @@ app.use("/profile", profileRoutes);
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Objeto para armazenar os lobbies
+const lobbies = new Map();
+
 io.on("connection", function (socket) {
     console.log(`user connected: ${socket.id}`);
-    socket.on("chat", function (msg) {
-        const paraCliente = {
-            socketID: socket.id,
-            mensagem: msg,
+    
+    // Evento para entrar no lobby
+    socket.on('joinLobby', ({ roomCode, user }) => {
+        // Verificar se o lobby existe
+        if (!lobbies.has(roomCode)) {
+            // Criar novo lobby se não existir
+            lobbies.set(roomCode, {
+                players: [],
+                maxPlayers: 12,
+                settings: {
+                    rounds: 5,
+                    drawTime: 60,
+                    private: true
+                },
+                createdAt: new Date()
+            });
+        }
+        
+        const lobby = lobbies.get(roomCode);
+        
+        // Verificar se o lobby está cheio
+        if (lobby.players.length >= lobby.maxPlayers) {
+            socket.emit('lobbyFull');
+            return;
+        }
+        
+        // Verificar se o jogador já está no lobby
+        const existingPlayer = lobby.players.find(p => p.id === socket.id);
+        if (existingPlayer) {
+            return;
+        }
+        
+        // Adicionar jogador ao lobby
+        const player = {
+            id: socket.id,
+            userId: user.id,
+            username: user.username,
+            profilePicture: user.profilePicture || '/images/default-avatar.png',
+            ready: false
         };
-        io.sockets.emit("clientChat", paraCliente);
+        
+        lobby.players.push(player);
+        socket.join(roomCode);
+        
+        // Atualizar todos no lobby
+        updateLobby(roomCode);
+        
+        // Enviar mensagem de sistema
+        io.to(roomCode).emit('systemMessage', `${user.username} joined the lobby.`);
     });
+    
+    // Evento para mudar status de ready
+    socket.on('toggleReady', ({ roomCode, userId }) => {
+        const lobby = lobbies.get(roomCode);
+        if (!lobby) return;
+        
+        const player = lobby.players.find(p => p.id === socket.id);
+        if (player) {
+            player.ready = !player.ready;
+            updateLobby(roomCode);
+        }
+    });
+    
+    // Evento para sair do lobby
+    socket.on('leaveLobby', ({ roomCode, userId }) => {
+        const lobby = lobbies.get(roomCode);
+        if (!lobby) return;
+        
+        const playerIndex = lobby.players.findIndex(p => p.id === socket.id);
+        if (playerIndex !== -1) {
+            const player = lobby.players[playerIndex];
+            lobby.players.splice(playerIndex, 1);
+            
+            socket.leave(roomCode);
+            updateLobby(roomCode);
+            
+            io.to(roomCode).emit('systemMessage', `${player.username} left the lobby.`);
+            
+            // Se o lobby ficar vazio, removê-lo
+            if (lobby.players.length === 0) {
+                lobbies.delete(roomCode);
+            }
+        }
+    });
+    
+    // Evento para atualizar configurações
+    socket.on('updateSettings', ({ roomCode, settings }) => {
+        const lobby = lobbies.get(roomCode);
+        if (!lobby) return;
+        
+        // Apenas o primeiro jogador pode alterar as configurações
+        if (lobby.players.length > 0 && lobby.players[0].id === socket.id) {
+            lobby.settings = settings;
+            updateLobby(roomCode);
+        }
+    });
+    
+    // Evento para enviar mensagem no chat
+    socket.on('sendMessage', ({ roomCode, message, user }) => {
+        io.to(roomCode).emit('newMessage', {
+            username: user.username,
+            message: message
+        });
+    });
+    
+    // Evento para iniciar o jogo
+    socket.on('startGame', (roomCode, callback) => {
+        const lobby = lobbies.get(roomCode);
+        if (!lobby) {
+            callback({ success: false, message: 'Lobby not found' });
+            return;
+        }
+        
+        // Verificar se quem está tentando iniciar é o primeiro jogador
+        if (lobby.players.length === 0 || lobby.players[0].id !== socket.id) {
+            callback({ success: false, message: 'Only the room creator can start the game' });
+            return;
+        }
+        
+        // Verificar se todos estão prontos
+        const allReady = lobby.players.every(player => player.ready);
+        if (!allReady) {
+            callback({ success: false, message: 'Not all players are ready!' });
+            return;
+        }
+        
+        // Verificar número mínimo de jogadores
+        if (lobby.players.length < 2) {
+            callback({ success: false, message: 'Need at least 2 players to start' });
+            return;
+        }
+        
+        callback({ success: true });
+        
+        // Aqui você pode adicionar lógica adicional para iniciar o jogo
+        // Por exemplo, redirecionar todos os jogadores para a página do jogo
+        io.to(roomCode).emit('gameStarting', { 
+            roomCode: roomCode,
+            settings: lobby.settings
+        });
+    });
+    
+    // Lidar com desconexões
+    socket.on('disconnect', () => {
+        // Encontrar e remover o jogador de todos os lobbies
+        for (const [roomCode, lobby] of lobbies) {
+            const playerIndex = lobby.players.findIndex(p => p.id === socket.id);
+            if (playerIndex !== -1) {
+                const player = lobby.players[playerIndex];
+                lobby.players.splice(playerIndex, 1);
+                
+                io.to(roomCode).emit('systemMessage', `${player.username} disconnected.`);
+                updateLobby(roomCode);
+                
+                // Se o lobby ficar vazio, removê-lo
+                if (lobby.players.length === 0) {
+                    lobbies.delete(roomCode);
+                }
+                
+                break;
+            }
+        }
+    });
+    
+    // Função auxiliar para atualizar o estado do lobby para todos os jogadores
+    function updateLobby(roomCode) {
+        const lobby = lobbies.get(roomCode);
+        if (!lobby) return;
+        
+        io.to(roomCode).emit('updateLobby', {
+            players: lobby.players,
+            playerCount: `${lobby.players.length}/${lobby.maxPlayers}`,
+            settings: lobby.settings
+        });
+    }
 });
 
 const port = 3000;

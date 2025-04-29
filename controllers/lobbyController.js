@@ -2,9 +2,6 @@ function showIntro(req, res) {
     const username = req.user?.username || 'Guest';
     const memberSince = req.user?.memberSince || 'N/A';
 
-    console.log('Username:', username); // Debugging
-    console.log('Member Since:', memberSince); // Debugging
-
     res.render('game-intro', {
         username: username,
         memberSince: memberSince
@@ -12,19 +9,24 @@ function showIntro(req, res) {
 }
 
 function showLobby(req, res) {
-    // Use the user object from req.user or provide default values
+    if (!req.user) {
+        return res.redirect('/login');
+    }
+
     const user = {
-        username: req.user?.username || 'Guest',
-        profilePicture: req.user?.profilePicture || '/images/default-avatar.png',
-        memberSince: req.user?.memberSince || 'N/A'
+        _id: req.user._id,
+        username: req.user.username,
+        profilePicture: req.user.profilePicture || '/images/default-avatar.png',
+        createdAt: req.user.createdAt || new Date()
     };
 
     const roomCode = req.query.code || generateRoomCode();
+    const roomName = "Creative Room"; // Pode ser dinâmico
 
     res.render('lobby', {
-        user: user, // Pass the user object to the template
+        user: user,
         roomCode: roomCode,
-        roomName: "Sala Criativa" // Can be dynamic
+        roomName: roomName
     });
 }
 
