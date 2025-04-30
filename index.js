@@ -76,7 +76,7 @@ import userRouter from "./routes/userRoutes.js";
 app.use(userRouter);
 
 app.get('/intro', (req, res) => {
-    res.render('game-intro'); // Certifique-se de que o arquivo EJS existe
+    res.render('game-intro', { user: req.user || {} });
 });
 
 import profileRoutes from "./routes/profileRoutes.js";

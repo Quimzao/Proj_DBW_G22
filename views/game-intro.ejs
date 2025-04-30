@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,31 +9,45 @@
     <link rel="stylesheet" href="/css/lobby.css"> <!-- Estilo base do lobby -->
     <link rel="stylesheet" href="/css/game-intro.css"> <!-- Estilos específicos -->
 </head>
+
 <body>
     <!-- Navbar igual ao do lobby -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="/intro">
                 <h3 class="logo">Brainstorm</h3>
             </a>
             <div class="d-flex align-items-center">
                 <div class="dropdown">
-                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
+                        id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
-                            <img src="/images/default-avatar.png" alt="User Avatar" class="rounded-circle">
+                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+                                alt="User Avatar">
                         </div>
-                        <span class="text-white">Username</span>
+                        <span class="text-white" id="header-username">
+                            <%= user.username %>
+                        </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold">Username</div>
-                            <div class="small text-muted">Member since 01/01/2020</div>
+                            <div class="fw-bold" id="dropdown-username">
+                                <%= user.username %>
+                            </div>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
+                                    %>
+                            </div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                         <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i
+                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -46,33 +61,33 @@
                     <div class="card-header">
                         <h2 class="text-center mb-0">Como Jogar Brainstorm</h2>
                     </div>
-                    
+
                     <div class="card-body rule-section">
                         <div>
                             <h4><i class="fas fa-users rule-icon"></i>Jogo em Grupo</h4>
                             <p>Reúna seus amigos para uma sessão de criatividade coletiva.</p>
                         </div>
-                        
+
                         <div>
                             <h4><i class="fas fa-lightbulb rule-icon"></i>Geração de Ideias</h4>
                             <p>Cada jogador contribui com ideias inovadoras a cada rodada.</p>
                         </div>
-                        
+
                         <div>
                             <h4><i class="fas fa-trophy rule-icon"></i>Competição Amigável</h4>
                             <p>As melhores ideias são votadas e o vencedor é coroado.</p>
                         </div>
                     </div>
-                    
+
                     <div class="card-footer text-center">
                         <div class="mb-3">
                             <button id="create-room" class="btn btn-enter">
                                 <i class="fas fa-plus me-2"></i>Criar Nova Sala
                             </button>
                         </div>
-                        
+
                         <p class="divider">OU</p>
-                        
+
                         <div class="code-input input-group">
                             <input type="text" class="form-control" id="room-code" placeholder="Código da Sala">
                             <button class="btn btn-primary" id="join-room">
@@ -94,14 +109,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        const socket = io();
+        const currentUser = {
+            id: '<%= user._id %>',
+            username: '<%= user.username %>',
+            profilePicture: '<%= user.profilePicture || "/images/default-avatar.png" %>'
+        };
+
         document.getElementById('create-room').addEventListener('click', () => {
             window.location.href = '/lobby';
         });
 
         document.getElementById('join-room').addEventListener('click', () => {
             const code = document.getElementById('room-code').value.trim();
-            if(code) {
+            if (code) {
                 window.location.href = `/lobby?code=${code}`;
             } else {
                 alert('Por favor, insira um código de sala válido');
@@ -109,10 +132,11 @@
         });
 
         document.getElementById('room-code').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') {
+            if (e.key === 'Enter') {
                 document.getElementById('join-room').click();
             }
         });
     </script>
 </body>
+
 </html>
