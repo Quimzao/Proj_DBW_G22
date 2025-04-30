@@ -20,8 +20,8 @@
         }
 
         #game-settings {
-            min-height: 554px;
-            max-height: 554px; /* Adjust the height as needed */
+            min-height: 493px;
+            max-height: 493px; /* Adjust the height as needed */
             overflow-y: auto;
         }
 /* Custom scrollbar styling */

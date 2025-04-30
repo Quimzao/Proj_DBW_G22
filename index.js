@@ -63,12 +63,6 @@ passport.deserializeUser(user.deserializeUser());
 import mainRoutes from "./routes/mainRoutes.js";
 app.use("/", mainRoutes);
 
-import lobbyinicialRoutes from "./routes/lobbyinicialRoutes.js";
-app.use("/lobbyinicial", lobbyinicialRoutes);
-
-import lobbyfinderRoutes from "./routes/lobbyfinderRoutes.js";
-app.use("/lobbyfinder", lobbyfinderRoutes);
-
 import getlobbyRoutes from "./routes/lobbyRoutes.js";
 app.use("/lobby", getlobbyRoutes);
 
@@ -89,6 +83,9 @@ const io = new Server(server);
 
 // Objeto para armazenar os lobbies
 const lobbies = new Map();
+
+// Object to store game rooms
+const gameRooms = {};
 
 io.on("connection", function (socket) {
     console.log(`user connected: ${socket.id}`);
@@ -245,6 +242,102 @@ io.on("connection", function (socket) {
             settings: lobby.settings
         });
     });
+    
+    // Evento para obter jogadores do lobby
+    socket.on('getLobbyPlayers', (roomCode, callback) => {
+        const lobby = lobbies.get(roomCode);
+        if (lobby) {
+            callback(lobby.players.map(p => ({
+                id: p.id,
+                username: p.username,
+                profilePicture: p.profilePicture
+            })));
+        } else {
+            callback([]);
+        }
+    });
+
+    // Evento para obter histórico de chat
+    socket.on('getChatHistory', (roomCode, callback) => {
+        // Aqui você precisaria implementar a lógica para armazenar e recuperar
+        // o histórico de mensagens. Por enquanto, vamos retornar um array vazio
+        callback([]);
+    });
+
+    // Evento para submeter resposta
+    socket.on('submitResponse', ({ roomCode, userId, response }) => {
+        // Lógica para processar a resposta do jogador
+        console.log(`Player ${userId} submitted response: ${response}`);
+        // Você pode emitir um evento para atualizar outros jogadores se necessário
+        io.to(roomCode).emit('responseSubmitted', { userId, response });
+    });
+
+    // Handle joining game room
+    socket.on('joinGameRoom', ({ roomCode, user }) => {
+        socket.join(roomCode);
+        
+        // Initialize game room if it doesn't exist
+        if (!gameRooms[roomCode]) {
+            gameRooms[roomCode] = {
+                players: [],
+                chatHistory: [],
+                gameState: {}
+            };
+        }
+        
+        const room = gameRooms[roomCode];
+        
+        // Add player if not already in room
+        if (!room.players.some(p => p.id === socket.id)) {
+            room.players.push({
+                id: socket.id,
+                userId: user.id,
+                username: user.username,
+                profilePicture: user.profilePicture,
+                status: 'Playing'
+            });
+        }
+        
+        // Update all players in the room
+        updateGameRoom(roomCode);
+    });
+
+    // Handle game messages
+    socket.on('sendGameMessage', ({ roomCode, message, user }) => {
+        const room = gameRooms[roomCode];
+        if (room) {
+            const chatMessage = {
+                sender: user.username,
+                content: message,
+                type: 'other',
+                timestamp: new Date()
+            };
+            
+            room.chatHistory.push(chatMessage);
+            
+            // Broadcast to all in room except sender
+            socket.to(roomCode).emit('newMessage', chatMessage);
+            
+            // Send to sender with different type
+            socket.emit('newMessage', {
+                ...chatMessage,
+                sender: 'You',
+                type: 'self'
+            });
+        }
+    });
+
+    // Helper function to update game room
+    function updateGameRoom(roomCode) {
+        const room = gameRooms[roomCode];
+        if (room) {
+            // Send updated player list to all in room
+            io.to(roomCode).emit('updatePlayers', room.players);
+            
+            // Send chat history to all in room
+            io.to(roomCode).emit('updateChat', room.chatHistory);
+        }
+    }
     
     // Lidar com desconexões
     socket.on('disconnect', () => {
