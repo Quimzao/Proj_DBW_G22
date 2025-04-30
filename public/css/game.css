@@ -1,0 +1,36 @@
+:root {
+    --primary-color: #d7ba89;
+    --secondary-color: #1a1a1a;
+    --text-color: #ffffff;
+    --card-bg: #2d2d2d;
+}
+
+body {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.game-container {
+    margin-top: 80px;
+}
+
+.game-card {
+    background-color: var(--card-bg);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+textarea {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color);
+}

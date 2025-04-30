@@ -75,6 +75,9 @@ app.use("/lobby", getlobbyRoutes);
 import userRouter from "./routes/userRoutes.js";
 app.use(userRouter);
 
+import gameRoutes from './routes/gameRoutes.js';
+app.use('/game', gameRoutes);
+
 app.get('/intro', (req, res) => {
     res.render('game-intro', { user: req.user || {} });
 });
