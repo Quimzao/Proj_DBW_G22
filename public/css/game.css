@@ -127,8 +127,8 @@ body {
 
 /* Game Container */
 .game-container {
-    padding-top: 70px;
-    padding-bottom: 60px;
+    padding-top: 90px;
+    padding-bottom: 10px;
     height: calc(100vh - 130px);
 }
 

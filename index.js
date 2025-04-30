@@ -109,15 +109,19 @@ io.on("connection", function (socket) {
         
         const lobby = lobbies.get(roomCode);
         
-        // Verificar se o lobby está cheio
-        if (lobby.players.length >= lobby.maxPlayers) {
-            socket.emit('lobbyFull');
+        // Verificar se o jogador já está no lobby com base no userId
+        const existingPlayer = lobby.players.find(p => p.userId === user.id);
+        if (existingPlayer) {
+            // Atualizar o socket.id do jogador para a nova conexão
+            existingPlayer.id = socket.id;
+            socket.join(roomCode); // Garantir que o socket esteja na sala
+            updateLobby(roomCode); // Atualizar o lobby para todos
             return;
         }
         
-        // Verificar se o jogador já está no lobby
-        const existingPlayer = lobby.players.find(p => p.id === socket.id);
-        if (existingPlayer) {
+        // Verificar se o lobby está cheio
+        if (lobby.players.length >= lobby.maxPlayers) {
+            socket.emit('lobbyFull');
             return;
         }
         
