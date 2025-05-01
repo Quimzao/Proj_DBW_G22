@@ -271,7 +271,7 @@
         // Handle full lobby
         socket.on('lobbyFull', () => {
             alert('This lobby is full!');
-            window.location.href = '/lobbyinicial';
+            window.location.href = '/intro';
         });
 
         // Handle new chat messages
@@ -334,7 +334,7 @@
                 roomCode: roomCode,
                 userId: socket.id
             });
-            window.location.href = '/lobbyinicial';
+            window.location.href = '/intro';
         });
 
         // Update settings logic
