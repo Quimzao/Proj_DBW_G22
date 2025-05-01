@@ -1,0 +1,1 @@
+export const LM_STUDIO_URL = "http://89.109.76.139:1234/v1/chat/completions";

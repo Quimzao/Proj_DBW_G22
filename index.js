@@ -23,6 +23,7 @@ const __dirname = path.dirname(__filename);
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride("_method"));
 
 mongoose.set("debug", true);
@@ -71,6 +72,9 @@ app.use(userRouter);
 
 import gameRoutes from './routes/gameRoutes.js';
 app.use('/game', gameRoutes);
+
+import chatRoutes from "./routes/chatRoutes.js";
+app.use("/chat", chatRoutes);
 
 app.get('/intro', (req, res) => {
     res.render('game-intro', { user: req.user || {} });

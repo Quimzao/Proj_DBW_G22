@@ -79,6 +79,7 @@
                         <p id="prompt-text" class="text-center">Here is your prompt. Type your response below:</p>
                         <textarea id="response-input" class="form-control" rows="5"
                             placeholder="Type your response here..."></textarea>
+                        <div id="generated-response" class="mt-3 text-center text-success d-none"></div> <!-- New -->
                     </div>
                     <div class="card-footer text-center bg-dark">
                         <button id="submit-response" class="btn btn-primary">Submit</button>
@@ -214,15 +215,40 @@
         }
 
         // Game submission
-        document.getElementById('submit-response').addEventListener('click', () => {
-            const response = document.getElementById('response-input').value.trim();
-            if (response) {
-                socket.emit('submitResponse', {
-                    roomCode: roomCode,
-                    response: response
-                });
-            } else {
+        document.getElementById('submit-response').addEventListener('click', async () => {
+            const responseInput = document.getElementById('response-input');
+            const generatedResponseContainer = document.getElementById('generated-response');
+            const prompt = responseInput.value.trim(); // Get the user's input
+
+            if (!prompt) {
                 alert('Please type a response before submitting.');
+                return;
+            }
+
+            console.log("Prompt being sent:", prompt); // Debugging: Log the prompt
+
+            try {
+                // Send the prompt to the API
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt }), // Pass the prompt correctly
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Display the generated response
+                    generatedResponseContainer.textContent = result.response.choices[0].message.content;
+                    generatedResponseContainer.classList.remove('d-none');
+                } else {
+                    alert('Failed to generate response: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while generating the response.');
             }
         });
     </script>
