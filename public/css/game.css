@@ -5,6 +5,7 @@
     --card-bg: #2d2d2d;
     --input-bg: #3d3d3d;
     --border-color: #444;
+    --gold-color: #e0c28c;
 }
 /* Navbar Styles */
 .navbar {
@@ -22,11 +23,11 @@
 /* Footer */
 .footer {
     background-color: var(--card-bg);
-    padding: 1.25rem 0;
-    text-align: center;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+    padding: 1rem 0;
+    margin-top: auto; /* Empurra o footer para baixo */
+    position: relative;
+    z-index: 10;
 }
-
 /* User Avatar in Header */
 .user-avatar {
     width: 40px;
@@ -121,15 +122,22 @@
 
 /* Add this to ensure text color is applied globally */
 body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     color: var(--text-color);
     background-color: var(--secondary-color);
 }
 
-/* Game Container */
 .game-container {
+    flex: 1;
     padding-top: 90px;
-    padding-bottom: 10px;
-    height: calc(100vh - 130px);
+    padding-bottom: 20px;
+}
+
+.players-card, .game-card, .chat-card {
+    height: calc(100vh - 180px); /* Ajuste baseado na altura total */
+    min-height: 400px; /* Altura mínima garantida */
 }
 
 /* Players Column */
@@ -138,12 +146,17 @@ body {
     border: none;
     border-radius: 8px;
     overflow: hidden;
+    height: 100%; /* Garante que o card ocupe toda a altura */
+    display: flex;
+    flex-direction: column;
 }
 
 .players-list {
-    height: calc(100% - 56px);
+    flex: 1;
     overflow-y: auto;
     padding: 10px;
+    max-height: calc(100vh - 180px); /* Altura máxima baseada na viewport */
+    min-height: 200px; /* Altura mínima */
 }
 
 .player-item {
@@ -154,6 +167,7 @@ body {
     background-color: var(--input-bg);
     border-radius: 6px;
     transition: all 0.2s;
+    flex-shrink: 0; /* Impede que os itens encolham */
 }
 
 .player-item.current-user {
@@ -187,11 +201,22 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 2px;
+    color: white;
 }
 
 .player-status {
     font-size: 0.75rem;
     color: var(--primary-color);
+}
+
+#prompt-text {
+    color: white !important;
+    opacity: 0.9; /* Opcional: ajuste a opacidade se necessário */
+}
+
+/* Se estiver usando classes do Bootstrap que podem estar sobrescrevendo */
+.text-center {
+    color: white !important;
 }
 
 /* Game Column */
@@ -207,6 +232,40 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.bg-gold {
+    background-color: #e0c28c;
+    color: #121212;
+}
+
+
+#submit-response {
+    background-color: #e0c28c;
+    color: #121212;
+    border: none;
+    padding: 10px 25px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+/* Estados do botão */
+#submit-response:hover {
+    background-color: #d4b67e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#submit-response:active {
+    background-color: #c9ab77;
+    transform: translateY(0);
+}
+
+#submit-response:disabled {
+    background-color: #a0a0a0;
+    color: #e0e0e0;
+    cursor: not-allowed;
 }
 
 #prompt-text {
@@ -229,12 +288,21 @@ body {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
+    height: 100%; /* Ocupa toda a altura disponível */
+}
+
+.chat-card .card-body {
+    flex: 1;
+    min-height: 0; /* Importante para o flex funcionar com overflow */
+    padding: 0; /* Removemos o padding padrão */
 }
 
 .chat-messages {
-    flex: 1;
-    padding: 15px;
+    height: calc(100vh - 250px); /* Altura baseada na viewport */
+    min-height: 200px; /* Altura mínima */
+    max-height: 600px; /* Altura máxima */
     overflow-y: auto;
+    padding: 15px;
 }
 
 .message {
@@ -256,6 +324,7 @@ body {
     margin-right: auto;
     background-color: var(--input-bg);
     border-bottom-left-radius: 0;
+    color: white;
 }
 
 .message.system {
@@ -282,9 +351,65 @@ body {
 }
 
 .chat-input {
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--card-bg); /* Same as chat background */
     border-top: 1px solid var(--border-color);
+    padding: 10px;
+}
+
+#message-input {
+    background-color: var(--input-bg); /* Slightly darker than chat background */
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+/* Message input focus state */
+#message-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(215, 186, 137, 0.25);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+#send-message {
+    background-color: #e0c28c;
+    color: #121212;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    transition: all 0.2s;
+}
+
+/* Send button hover state */
+#send-message:hover {
+    background-color: #d7ba89;
+    transform: translateY(-1px);
+}
+
+/* Send button active state */
+#send-message:active {
+    background-color: #c9ab77;
+    transform: translateY(0);
+}
+
+/* Ensure the input group looks cohesive */
+.input-group {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.input-group .form-control {
+    border-right: none;
+}
+
+.input-group .btn {
+    border-left: none;
+}
+
+.form-control::placeholder {
+    color: #ffffff !important;
+    opacity: 0.7;
 }
 
 /* Scrollbars */
@@ -302,4 +427,53 @@ body {
 .chat-messages::-webkit-scrollbar-thumb {
     background: rgba(215, 186, 137, 0.5);
     border-radius: 3px;
+}
+
+@media (max-height: 800px) {
+    .players-list {
+        max-height: calc(100vh - 150px); /* Ajuste para telas menores */
+    }
+}
+
+@media (max-width: 992px) {
+    .players-card {
+        height: auto;
+        max-height: 300px;
+    }
+    .players-list {
+        max-height: 250px;
+    }
+}
+
+@media (max-height: 800px) {
+    .chat-messages {
+        height: calc(100vh - 220px);
+    }
+}
+
+@media (max-width: 992px) {
+    .chat-card {
+        height: auto;
+        max-height: 400px;
+    }
+    .chat-messages {
+        height: 300px;
+    }
+}
+
+@media (max-height: 800px) {
+    .players-card, .game-card, .chat-card {
+        height: calc(100vh - 160px);
+    }
+}
+
+@media (max-width: 992px) {
+    .players-card, .chat-card {
+        height: auto;
+        max-height: 300px;
+    }
+    .game-card {
+        height: auto;
+        min-height: 500px;
+    }
 }

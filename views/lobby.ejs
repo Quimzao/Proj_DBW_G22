@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/lobby.css">
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
@@ -18,7 +20,8 @@
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                         id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
-                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>" alt="User Avatar">
+                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+                                alt="User Avatar">
                         </div>
                         <span class="text-white" id="header-username">
                             <%= user.username %>
@@ -26,14 +29,23 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold" id="dropdown-username"><%= user.username %></div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></div>
+                            <div class="fw-bold" id="dropdown-username">
+                                <%= user.username %>
+                            </div>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
+                                    %>
+                            </div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                         <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i
+                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -46,10 +58,14 @@
             <div class="col-lg-8">
                 <div class="card lobby-room h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Room: <span id="room-name"><%= roomName %></span> <span id="player-count"></span></h4>
+                        <h4 class="mb-0">Room: <span id="room-name">
+                                <%= roomName %>
+                            </span> <span id="player-count"></span></h4>
                         <div class="room-code">
                             <span>Room Code:</span>
-                            <strong id="room-code"><%= roomCode %></strong>
+                            <strong id="room-code">
+                                <%= roomCode %>
+                            </strong>
                             <button class="btn btn-sm btn-copy" title="Copy code">
                                 <i class="fas fa-copy"></i>
                             </button>
@@ -85,7 +101,7 @@
                             <i class="fas fa-cog me-2"></i>Settings
                         </button>
                     </div>
-                    
+
                     <!-- Chat Card -->
                     <div class="card chat-card flex-grow-1" id="chat-card">
                         <div class="card-body chat-messages" id="chat-messages">
@@ -93,68 +109,75 @@
                         </div>
                         <div class="card-footer chat-input">
                             <div class="input-group">
-                                <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                                <input type="text" class="form-control" id="message-input"
+                                    placeholder="Type your message...">
                                 <button class="btn btn-send" id="send-message">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-            
-<!-- Settings Card -->
-<div class="card settings-card flex-grow-1 d-none" id="settings-card">
-    <div class="card-body">
-        <form id="game-settings">
-            <div class="mb-3">
-                <label class="form-label">Difficulty Level</label>
-                <div class="btn-group w-100" role="group" id="difficulty-level">
-                    <input type="radio" class="btn-check" name="difficulty" id="easy" autocomplete="off" value="easy" checked>
-                    <label class="btn btn-outline-primary" for="easy">Easy (12s)</label>
 
-                    <input type="radio" class="btn-check" name="difficulty" id="medium" autocomplete="off" value="medium">
-                    <label class="btn btn-outline-primary" for="medium">Medium (10s)</label>
+                    <!-- Settings Card -->
+                    <div class="card settings-card flex-grow-1 d-none" id="settings-card">
+                        <div class="card-body">
+                            <form id="game-settings">
+                                <div class="mb-3">
+                                    <label class="form-label">Difficulty Level</label>
+                                    <div class="btn-group w-100" role="group" id="difficulty-level">
+                                        <input type="radio" class="btn-check" name="difficulty" id="easy"
+                                            autocomplete="off" value="easy" checked>
+                                        <label class="btn btn-outline-primary" for="easy">Easy (12s)</label>
 
-                    <input type="radio" class="btn-check" name="difficulty" id="hard" autocomplete="off" value="hard">
-                    <label class="btn btn-outline-primary" for="hard">Hard (8s)</label>
+                                        <input type="radio" class="btn-check" name="difficulty" id="medium"
+                                            autocomplete="off" value="medium">
+                                        <label class="btn btn-outline-primary" for="medium">Medium (10s)</label>
 
-                    <input type="radio" class="btn-check" name="difficulty" id="custom" autocomplete="off" value="custom">
-                    <label class="btn btn-outline-primary" for="custom">Custom</label>
-                </div>
-            </div>
+                                        <input type="radio" class="btn-check" name="difficulty" id="hard"
+                                            autocomplete="off" value="hard">
+                                        <label class="btn btn-outline-primary" for="hard">Hard (8s)</label>
 
-            <div class="mb-3 custom-settings" id="custom-settings" style="display: none;">
-                <div class="row">
-                    <div class="col-md-12">
-                        <label for="custom-time" class="form-label">Idea Time (seconds)</label>
-                        <input type="number" class="form-control" id="custom-time" min="5" max="30" value="10">
+                                        <input type="radio" class="btn-check" name="difficulty" id="custom"
+                                            autocomplete="off" value="custom">
+                                        <label class="btn btn-outline-primary" for="custom">Custom</label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 custom-settings" id="custom-settings" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="custom-time" class="form-label">Idea Time (seconds)</label>
+                                            <input type="number" class="form-control" id="custom-time" min="5" max="30"
+                                                value="10">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="rounds" class="form-label">Rounds</label>
+                                    <select class="form-select" id="rounds">
+                                        <option value="3">3</option>
+                                        <option value="5" selected>5</option>
+                                        <option value="7">7</option>
+                                        <option value="10">10</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="private-room" checked>
+                                    <label class="form-check-label" for="private-room">Private Room</label>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="button" id="start-game" class="btn btn-start" disabled>
+                                        <i class="fas fa-play me-2"></i>Start Game
+                                    </button>
+                                </div>
+                            </form>
+                            <div class="text-center mt-4">
+                                <button onclick="window.location.href='/game'" class="btn btn-success">Start
+                                    Game</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="rounds" class="form-label">Rounds</label>
-                <select class="form-select" id="rounds">
-                    <option value="3">3</option>
-                    <option value="5" selected>5</option>
-                    <option value="7">7</option>
-                    <option value="10">10</option>
-                </select>
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="private-room" checked>
-                <label class="form-check-label" for="private-room">Private Room</label>
-            </div>
-            <div class="d-grid">
-                <button type="button" id="start-game" class="btn btn-start" disabled>
-                    <i class="fas fa-play me-2"></i>Start Game
-                </button>
-            </div>
-        </form>
-        <div class="text-center mt-4">
-            <button onclick="window.location.href='/game'" class="btn btn-success">Start Game</button>
-        </div>
-    </div>
-</div>
                 </div>
             </div>
         </div>
@@ -162,7 +185,8 @@
 
     <footer class="footer">
         <div class="container">
-            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %></p>
+            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %>
+            </p>
         </div>
     </footer>
 
@@ -178,7 +202,7 @@
             profilePicture: '<%= user.profilePicture || "/images/default-avatar.png" %>'
         };
         const roomCode = '<%= roomCode %>';
-        
+
         // Join lobby when page loads
         document.addEventListener('DOMContentLoaded', () => {
             socket.emit('joinLobby', {
@@ -186,15 +210,15 @@
                 user: currentUser
             });
         });
-        
+
         // Update player list
         socket.on('updateLobby', (data) => {
             const playersContainer = document.getElementById('players-container');
             playersContainer.innerHTML = '';
-            
+
             // Update player count
             document.getElementById('player-count').textContent = `(${data.playerCount})`;
-            
+
             // Add players
             data.players.forEach(player => {
                 const isCurrentUser = player.id === socket.id;
@@ -211,23 +235,23 @@
                 `;
                 playersContainer.appendChild(playerCard);
             });
-            
+
             // Update ready button for current user
             const currentPlayer = data.players.find(p => p.id === socket.id);
             if (currentPlayer) {
                 const readyBtn = document.getElementById('toggle-ready');
                 readyBtn.classList.toggle('active', currentPlayer.ready);
-                readyBtn.innerHTML = currentPlayer.ready 
-                    ? '<i class="fas fa-check-circle me-2"></i>Ready' 
+                readyBtn.innerHTML = currentPlayer.ready
+                    ? '<i class="fas fa-check-circle me-2"></i>Ready'
                     : '<i class="fas fa-times-circle me-2"></i>Not Ready';
             }
-            
+
             // Update start game button (only available for first player and if all are ready)
             const startButton = document.getElementById('start-game');
             if (data.players.length > 0 && data.players[0].id === socket.id) {
                 const allReady = data.players.every(p => p.ready);
                 startButton.disabled = !allReady;
-                
+
                 // Add tooltip if not all players are ready
                 if (!allReady) {
                     startButton.title = "All players must be ready to start";
@@ -238,44 +262,44 @@
                 startButton.disabled = true;
             }
         });
-        
+
         // Handle system messages
         socket.on('systemMessage', (message) => {
             addMessage('System', message, 'system');
         });
-        
+
         // Handle full lobby
         socket.on('lobbyFull', () => {
             alert('This lobby is full!');
             window.location.href = '/lobbyinicial';
         });
-        
+
         // Handle new chat messages
         socket.on('newMessage', (data) => {
             addMessage(data.username, data.message, data.isSelf ? 'self' : 'other');
         });
-        
+
         // Ready button logic
-        document.getElementById('toggle-ready').addEventListener('click', function() {
+        document.getElementById('toggle-ready').addEventListener('click', function () {
             socket.emit('toggleReady', {
                 roomCode: roomCode,
                 userId: socket.id
             });
         });
-        
+
         // Chat logic
         document.getElementById('send-message').addEventListener('click', sendMessage);
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
+        document.getElementById('message-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
-        
+
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
-            
+
             if (message) {
                 // Add message locally first (as 'self')
-                
+
                 socket.emit('sendMessage', {
                     roomCode: roomCode,
                     message: message,
@@ -284,11 +308,11 @@
                 input.value = '';
             }
         }
-        
+
         function addMessage(sender, content, type = 'other') {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
-            
+
             if (type === 'system') {
                 messageElement.className = 'message system';
                 messageElement.innerHTML = `<div class="message-content">${content}</div>`;
@@ -299,46 +323,46 @@
                     <div class="message-content">${content}</div>
                 `;
             }
-            
+
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-        
+
         // Leave lobby logic
-        document.getElementById('leave-room').addEventListener('click', function() {
+        document.getElementById('leave-room').addEventListener('click', function () {
             socket.emit('leaveLobby', {
                 roomCode: roomCode,
                 userId: socket.id
             });
             window.location.href = '/lobbyinicial';
         });
-        
+
         // Update settings logic
-        document.getElementById('game-settings').addEventListener('change', function() {
+        document.getElementById('game-settings').addEventListener('change', function () {
             const settings = {
                 rounds: document.getElementById('rounds').value,
                 drawTime: document.getElementById('draw-time').value,
                 private: document.getElementById('private-room').checked
             };
-            
+
             socket.emit('updateSettings', {
                 roomCode: roomCode,
                 settings: settings
             });
         });
-        
+
         // Start game logic
-        document.getElementById('start-game').addEventListener('click', function() {
+        document.getElementById('start-game').addEventListener('click', function () {
             const startButton = this;
             startButton.disabled = true; // Desabilita o botão temporariamente para evitar múltiplos cliques
             startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
-            
+
             socket.emit('startGame', roomCode, (response) => {
                 if (response.success) {
                     window.location.href = `/game?room=${roomCode}`;
                 } else {
                     addMessage('System', response.message, 'system');
-                    
+
                     // Reativa o botão após um breve delay
                     setTimeout(() => {
                         startButton.disabled = false;
@@ -347,24 +371,24 @@
                 }
             });
         });
-        
+
         // Tab switching functionality
-        document.getElementById('chat-tab-btn').addEventListener('click', function() {
+        document.getElementById('chat-tab-btn').addEventListener('click', function () {
             this.classList.add('active');
             document.getElementById('settings-tab-btn').classList.remove('active');
             document.getElementById('chat-card').classList.remove('d-none');
             document.getElementById('settings-card').classList.add('d-none');
         });
-        
-        document.getElementById('settings-tab-btn').addEventListener('click', function() {
+
+        document.getElementById('settings-tab-btn').addEventListener('click', function () {
             this.classList.add('active');
             document.getElementById('chat-tab-btn').classList.remove('active');
             document.getElementById('settings-card').classList.remove('d-none');
             document.getElementById('chat-card').classList.add('d-none');
         });
-        
+
         // Copy room code
-        document.querySelector('.btn-copy').addEventListener('click', function() {
+        document.querySelector('.btn-copy').addEventListener('click', function () {
             navigator.clipboard.writeText(roomCode);
             const tooltip = new bootstrap.Tooltip(this, {
                 title: 'Copied!',
@@ -373,10 +397,10 @@
             tooltip.show();
             setTimeout(() => tooltip.hide(), 1000);
         });
-        
+
         // Difficulty level logic
         document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
-            radio.addEventListener('change', function() {
+            radio.addEventListener('change', function () {
                 const customSettings = document.getElementById('custom-settings');
                 if (this.value === 'custom') {
                     customSettings.style.display = 'block';
@@ -398,7 +422,7 @@
         });
 
         // Custom settings logic
-        document.getElementById('custom-time').addEventListener('change', function() {
+        document.getElementById('custom-time').addEventListener('change', function () {
             const settings = {
                 difficulty: 'custom',
                 ideaTime: this.value
@@ -411,4 +435,5 @@
         });
     </script>
 </body>
+
 </html>

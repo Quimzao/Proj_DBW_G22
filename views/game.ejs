@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,10 +57,11 @@
             <!-- Players Column - Vertical List -->
             <div class="col-md-2">
                 <div class="card players-card h-100">
-                    <div class="card-header bg-dark">
-                        <h5 class="mb-0 text-white">Players (<span id="player-count">0</span>)</h5>
+                    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-white">Players</h5>
+                        <span class="badge bg-gold" id="player-count"></span>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-0 d-flex flex-column">
                         <div class="players-list" id="players-list">
                             <!-- Players will be added here dynamically -->
                         </div>
@@ -75,7 +77,8 @@
                     </div>
                     <div class="card-body">
                         <p id="prompt-text" class="text-center">Here is your prompt. Type your response below:</p>
-                        <textarea id="response-input" class="form-control" rows="5" placeholder="Type your response here..."></textarea>
+                        <textarea id="response-input" class="form-control" rows="5"
+                            placeholder="Type your response here..."></textarea>
                     </div>
                     <div class="card-footer text-center bg-dark">
                         <button id="submit-response" class="btn btn-primary">Submit</button>
@@ -96,7 +99,8 @@
                     </div>
                     <div class="card-footer p-0 bg-dark">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                            <input type="text" class="form-control" id="message-input"
+                                placeholder="Type your message...">
                             <button class="btn btn-primary" id="send-message">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
@@ -137,23 +141,26 @@
         socket.on('updatePlayers', (players) => {
             const playersList = document.getElementById('players-list');
             const playerCount = document.getElementById('player-count');
-            
+
             playersList.innerHTML = '';
             playerCount.textContent = players.length;
-            
-            players.forEach(player => {
+
+            // Limitar a exibição se quiser (opcional)
+            const displayPlayers = players; // ou players.slice(0, 10) para limitar
+
+            displayPlayers.forEach(player => {
                 const isCurrentUser = player.id === currentUser.id;
                 const playerElement = document.createElement('div');
                 playerElement.className = `player-item ${isCurrentUser ? 'current-user' : ''}`;
                 playerElement.innerHTML = `
-                    <div class="player-avatar">
-                        <img src="${player.profilePicture}" alt="${player.username}">
-                    </div>
-                    <div class="player-info">
-                        <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
-                        <div class="player-status">${player.status || 'Playing'}</div>
-                    </div>
-                `;
+            <div class="player-avatar">
+                <img src="${player.profilePicture}" alt="${player.username}">
+            </div>
+            <div class="player-info">
+                <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
+                <div class="player-status small">${player.status || 'Playing'}</div>
+            </div>
+        `;
                 playersList.appendChild(playerElement);
             });
         });
@@ -162,7 +169,7 @@
         socket.on('updateChat', (messages) => {
             const chatMessages = document.getElementById('chat-messages');
             chatMessages.innerHTML = '';
-            
+
             messages.forEach(msg => {
                 addMessage(msg.sender, msg.content, msg.type);
             });
@@ -175,27 +182,27 @@
         function addMessage(sender, content, type = 'other') {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
-            
+
             messageElement.className = `message ${type}`;
             messageElement.innerHTML = `
                 <div class="message-sender">${sender}:</div>
                 <div class="message-content">${content}</div>
             `;
-            
+
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         // Chat functionality
         document.getElementById('send-message').addEventListener('click', sendMessage);
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
+        document.getElementById('message-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
 
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
-            
+
             if (message) {
                 socket.emit('sendGameMessage', {
                     roomCode: roomCode,
@@ -220,4 +227,5 @@
         });
     </script>
 </body>
+
 </html>
