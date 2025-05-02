@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Lobby | Brainstorm</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/css/lobby.css">
 </head>
 
@@ -210,7 +211,6 @@
             profilePicture: '<%= user.profilePicture || "/images/default-avatar.png" %>'
         };
         const roomCode = '<%= roomCode %>';
-        const lobbies = new Map();
 
         // Join lobby when page loads
         document.addEventListener('DOMContentLoaded', () => {
@@ -220,29 +220,69 @@
             });
         });
 
-        // Update player list
+        // Update player list without duplication
         socket.on('updateLobby', (data) => {
             const playersContainer = document.getElementById('players-container');
-            playersContainer.innerHTML = '';
+            
+            // Clear container if player count changed or order is different
+            let shouldClear = false;
+            const currentCards = Array.from(playersContainer.children);
+            
+            if (currentCards.length !== data.players.length) {
+                shouldClear = true;
+            } else {
+                currentCards.forEach((card, index) => {
+                    if (card.dataset.playerId !== data.players[index].id) {
+                        shouldClear = true;
+                    }
+                });
+            }
+            
+            if (shouldClear) {
+                playersContainer.innerHTML = '';
+            }
 
             // Update player count
-            document.getElementById('player-count').textContent = `(${data.playerCount})`;
+            document.getElementById('player-count').textContent = `(${data.players.length}${data.maxPlayers ? '/' + data.maxPlayers : ''})`;
 
-            // Add players
-            data.players.forEach(player => {
+            // Add/update players
+            data.players.forEach((player, index) => {
                 const isCurrentUser = player.id === socket.id;
-                const playerCard = document.createElement('div');
-                playerCard.className = `player-card ${player.ready ? 'ready' : ''} ${!player.ready ? 'not-ready-highlight' : ''}`;
-                playerCard.innerHTML = `
-                    <div class="player-avatar">
-                        <img src="${player.profilePicture}" alt="${player.username} Avatar">
-                    </div>
-                    <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
-                    <div class="player-status ${player.ready ? 'ready' : ''}">
-                        ${player.ready ? 'Ready' : 'Not Ready'}
-                    </div>
-                `;
-                playersContainer.appendChild(playerCard);
+                const isLeader = index === 0;
+                
+                // Check if card already exists
+                let playerCard = playersContainer.querySelector(`[data-player-id="${player.id}"]`);
+                
+                if (!playerCard) {
+                    // Create new card
+                    playerCard = document.createElement('div');
+                    playerCard.className = `player-card ${player.ready ? 'ready' : ''} ${!player.ready ? 'not-ready-highlight' : ''}`;
+                    playerCard.dataset.playerId = player.id;
+                    playerCard.innerHTML = `
+                        ${isLeader ? '<div class="leader-icon" title="Room Leader"><i class="fas fa-crown"></i></div>' : ''}
+                        <div class="player-avatar">
+                            <img src="${player.profilePicture}" alt="${player.username} Avatar">
+                        </div>
+                        <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
+                        <div class="player-status ${player.ready ? 'ready' : ''}">
+                            ${player.ready ? 'Ready' : 'Not Ready'}
+                        </div>
+                    `;
+                    playersContainer.appendChild(playerCard);
+                } else {
+                    // Update existing card
+                    playerCard.className = `player-card ${player.ready ? 'ready' : ''} ${!player.ready ? 'not-ready-highlight' : ''}`;
+                    playerCard.innerHTML = `
+                        ${isLeader ? '<div class="leader-icon" title="Room Leader"><i class="fas fa-crown"></i></div>' : ''}
+                        <div class="player-avatar">
+                            <img src="${player.profilePicture}" alt="${player.username} Avatar">
+                        </div>
+                        <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
+                        <div class="player-status ${player.ready ? 'ready' : ''}">
+                            ${player.ready ? 'Ready' : 'Not Ready'}
+                        </div>
+                    `;
+                }
             });
 
             // Update ready button for current user
@@ -255,18 +295,12 @@
                     : '<i class="fas fa-times-circle me-2"></i>Not Ready';
             }
 
-            // Update start game button (only available for first player and if all are ready)
+            // Update start game button
             const startButton = document.getElementById('start-game');
             if (data.players.length > 0 && data.players[0].id === socket.id) {
                 const allReady = data.players.every(p => p.ready);
                 startButton.disabled = !allReady;
-
-                // Add tooltip if not all players are ready
-                if (!allReady) {
-                    startButton.title = "All players must be ready to start";
-                } else {
-                    startButton.title = "";
-                }
+                startButton.title = allReady ? "" : "All players must be ready to start";
             } else {
                 startButton.disabled = true;
             }
@@ -286,12 +320,6 @@
         // Handle new chat messages
         socket.on('newMessage', (data) => {
             addMessage(data.username, data.message, data.isSelf ? 'self' : 'other');
-        });
-
-        // Listen for readiness status updates
-        socket.on('updateReadyStatus', ({ allReady }) => {
-            const startGameButton = document.getElementById('start-game');
-            startGameButton.disabled = !allReady;
         });
 
         // Ready button logic

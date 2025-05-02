@@ -96,12 +96,11 @@ io.on("connection", function (socket) {
     
     // Evento para entrar no lobby
     socket.on('joinLobby', ({ roomCode, user }) => {
-        // Verificar se o lobby existe
         if (!lobbies.has(roomCode)) {
             // Criar novo lobby se não existir
             lobbies.set(roomCode, {
                 players: [],
-                maxPlayers: 12,
+                maxPlayers: 12, // Definir o valor máximo de jogadores
                 settings: {
                     rounds: 5,
                     drawTime: 60,
@@ -380,7 +379,7 @@ io.on("connection", function (socket) {
         
         io.to(roomCode).emit('updateLobby', {
             players: lobby.players,
-            playerCount: `${lobby.players.length}/${lobby.maxPlayers}`,
+            maxPlayers: lobby.maxPlayers, // Certifique-se que está enviando isso
             settings: lobby.settings
         });
     }
