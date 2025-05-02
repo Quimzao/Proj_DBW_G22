@@ -288,3 +288,21 @@
     background-color: var(--primary-color); /* Highlight color on hover */
     color: #ffffff; /* White text color on hover */
 }
+
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+}
+
+#errorModal .modal-header {
+    background-color: var(--danger-color);
+}

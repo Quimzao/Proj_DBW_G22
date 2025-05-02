@@ -85,6 +85,16 @@ app.use("/profile", profileRoutes);
 const server = http.createServer(app);
 const io = new Server(server);
 
+app.get('/api/lobby/exists', (req, res) => {
+    const roomCode = req.query.code;
+    const exists = lobbies.has(roomCode);
+    
+    res.json({
+        exists: exists,
+        roomCode: roomCode
+    });
+});
+
 // Objeto para armazenar os lobbies
 const lobbies = new Map();
 
