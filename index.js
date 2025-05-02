@@ -152,11 +152,15 @@ io.on("connection", function (socket) {
     socket.on('toggleReady', ({ roomCode, userId }) => {
         const lobby = lobbies.get(roomCode);
         if (!lobby) return;
-        
+    
         const player = lobby.players.find(p => p.id === socket.id);
         if (player) {
             player.ready = !player.ready;
             updateLobby(roomCode);
+    
+            // Emit readiness status to all players in the lobby
+            const allReady = lobby.players.every(p => p.ready);
+            io.to(roomCode).emit('updateReadyStatus', { allReady });
         }
     });
     

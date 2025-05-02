@@ -172,10 +172,12 @@
                                     </button>
                                 </div>
                             </form>
+                             <!--
                             <div class="text-center mt-4">
                                 <button onclick="window.location.href='/game'" class="btn btn-success">Start
                                     Game</button>
                             </div>
+                            -->
                         </div>
                     </div>
                 </div>
@@ -279,6 +281,12 @@
             addMessage(data.username, data.message, data.isSelf ? 'self' : 'other');
         });
 
+        // Listen for readiness status updates
+        socket.on('updateReadyStatus', ({ allReady }) => {
+            const startGameButton = document.getElementById('start-game');
+            startGameButton.disabled = !allReady; // Disable button if not all players are ready
+        });
+
         // Ready button logic
         document.getElementById('toggle-ready').addEventListener('click', function () {
             socket.emit('toggleReady', {
@@ -354,16 +362,16 @@
         // Start game logic
         document.getElementById('start-game').addEventListener('click', function () {
             const startButton = this;
-            startButton.disabled = true; // Desabilita o botão temporariamente para evitar múltiplos cliques
+            startButton.disabled = true; // Temporarily disable to prevent multiple clicks
             startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
 
             socket.emit('startGame', roomCode, (response) => {
                 if (response.success) {
                     window.location.href = `/game?room=${roomCode}`;
                 } else {
-                    addMessage('System', response.message, 'system');
+                    alert(response.message);
 
-                    // Reativa o botão após um breve delay
+                    // Re-enable the button after a delay
                     setTimeout(() => {
                         startButton.disabled = false;
                         startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
