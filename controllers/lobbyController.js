@@ -25,10 +25,10 @@ function showLobby(req, res) {
 
     // Configurações padrão do jogo
     const defaultSettings = {
-        difficulty: 'medium', // medium é o padrão
-        ideaTime: 10, // tempo padrão para nível médio
-        rounds: 5, // número padrão de rodadas
-        private: true // sala privada por padrão
+        difficulty: 'medium',
+        ideaTime: 10,
+        rounds: 5,
+        private: true
     };
 
     res.render('lobby', {

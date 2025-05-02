@@ -120,6 +120,18 @@
 
                     <!-- Settings Card -->
                     <div class="card settings-card flex-grow-1 d-none" id="settings-card">
+                        <!-- Error Messages -->
+                        <div id="error-popup" class="alert alert-danger d-none mb-3">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span id="error-message"></span>
+                        </div>
+
+                        <div id="not-ready-players-popup" class="alert alert-warning d-none">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            The following players are not ready:
+                            <div id="not-ready-players-list" class="mt-2"></div>
+                        </div>
+
                         <div class="card-body">
                             <form id="game-settings">
                                 <div class="mb-3">
@@ -172,12 +184,6 @@
                                     </button>
                                 </div>
                             </form>
-                             <!--
-                            <div class="text-center mt-4">
-                                <button onclick="window.location.href='/game'" class="btn btn-success">Start
-                                    Game</button>
-                            </div>
-                            -->
                         </div>
                     </div>
                 </div>
@@ -204,6 +210,7 @@
             profilePicture: '<%= user.profilePicture || "/images/default-avatar.png" %>'
         };
         const roomCode = '<%= roomCode %>';
+        const lobbies = new Map();
 
         // Join lobby when page loads
         document.addEventListener('DOMContentLoaded', () => {
@@ -225,7 +232,7 @@
             data.players.forEach(player => {
                 const isCurrentUser = player.id === socket.id;
                 const playerCard = document.createElement('div');
-                playerCard.className = `player-card ${player.ready ? 'ready' : ''}`;
+                playerCard.className = `player-card ${player.ready ? 'ready' : ''} ${!player.ready ? 'not-ready-highlight' : ''}`;
                 playerCard.innerHTML = `
                     <div class="player-avatar">
                         <img src="${player.profilePicture}" alt="${player.username} Avatar">
@@ -284,14 +291,14 @@
         // Listen for readiness status updates
         socket.on('updateReadyStatus', ({ allReady }) => {
             const startGameButton = document.getElementById('start-game');
-            startGameButton.disabled = !allReady; // Disable button if not all players are ready
+            startGameButton.disabled = !allReady;
         });
 
         // Ready button logic
         document.getElementById('toggle-ready').addEventListener('click', function () {
             socket.emit('toggleReady', {
                 roomCode: roomCode,
-                userId: socket.id
+                userId: currentUser.id
             });
         });
 
@@ -306,8 +313,6 @@
             const message = input.value.trim();
 
             if (message) {
-                // Add message locally first (as 'self')
-
                 socket.emit('sendMessage', {
                     roomCode: roomCode,
                     message: message,
@@ -340,37 +345,55 @@
         document.getElementById('leave-room').addEventListener('click', function () {
             socket.emit('leaveLobby', {
                 roomCode: roomCode,
-                userId: socket.id
+                userId: currentUser.id
             });
             window.location.href = '/intro';
-        });
-
-        // Update settings logic
-        document.getElementById('game-settings').addEventListener('change', function () {
-            const settings = {
-                rounds: document.getElementById('rounds').value,
-                drawTime: document.getElementById('draw-time').value,
-                private: document.getElementById('private-room').checked
-            };
-
-            socket.emit('updateSettings', {
-                roomCode: roomCode,
-                settings: settings
-            });
         });
 
         // Start game logic
         document.getElementById('start-game').addEventListener('click', function () {
             const startButton = this;
-            startButton.disabled = true; // Temporarily disable to prevent multiple clicks
+            startButton.disabled = true;
             startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
-
+            
+            // Hide any previous error messages
+            document.getElementById('error-popup').classList.add('d-none');
+            document.getElementById('not-ready-players-popup').classList.add('d-none');
+            
             socket.emit('startGame', roomCode, (response) => {
                 if (response.success) {
                     window.location.href = `/game?room=${roomCode}`;
                 } else {
-                    alert(response.message);
-
+                    // Show appropriate error message
+                    const errorPopup = document.getElementById('error-popup');
+                    const errorMessage = document.getElementById('error-message');
+                    const notReadyPopup = document.getElementById('not-ready-players-popup');
+                    const notReadyList = document.getElementById('not-ready-players-list');
+                    
+                    errorMessage.textContent = response.message;
+                    
+                    if (response.message.includes('not ready')) {
+                        // Show not ready players
+                        notReadyList.innerHTML = '';
+                        socket.emit('getLobbyPlayers', roomCode, (players) => {
+                            const notReadyPlayers = players.filter(p => !p.ready);
+                            notReadyPlayers.forEach(player => {
+                                const playerEl = document.createElement('div');
+                                playerEl.className = 'not-ready-player';
+                                playerEl.innerHTML = `
+                                    <img src="${player.profilePicture}" alt="${player.username}">
+                                    <span>${player.username}</span>
+                                `;
+                                notReadyList.appendChild(playerEl);
+                            });
+                        });
+                        
+                        notReadyPopup.classList.remove('d-none');
+                    } else {
+                        // Show other errors
+                        errorPopup.classList.remove('d-none');
+                    }
+                    
                     // Re-enable the button after a delay
                     setTimeout(() => {
                         startButton.disabled = false;
@@ -443,5 +466,4 @@
         });
     </script>
 </body>
-
 </html>
