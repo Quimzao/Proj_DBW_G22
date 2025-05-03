@@ -10,46 +10,9 @@
 </head>
 
 <body>
+    <!-- Your existing navbar code remains the same -->
     <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/intro">
-                <h3 class="logo">Brainstorm</h3>
-            </a>
-            <div class="d-flex align-items-center">
-                <div class="dropdown">
-                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
-                        id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-avatar me-2">
-                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
-                                alt="User Avatar">
-                        </div>
-                        <span class="text-white" id="header-username">
-                            <%= user.username %>
-                        </span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold" id="dropdown-username">
-                                <%= user.username %>
-                            </div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
-                                    %>
-                            </div>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i
-                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        <!-- ... existing navbar code ... -->
     </nav>
 
     <main class="container-fluid game-container">
@@ -71,7 +34,15 @@
 
             <!-- Game Column -->
             <div class="col-md-7">
-                <div class="card game-card h-100">
+                <div class="card game-card h-100 position-relative">
+                    <!-- Round and Timer Info -->
+                    <div class="round-info" id="round-info">
+                        Round: <span id="current-round">1</span>/<span id="total-rounds">5</span>
+                    </div>
+                    <div class="timer-container" id="timer-container">
+                        Time: <span id="timer-display">60</span>s
+                    </div>
+
                     <div class="card-header text-center bg-dark text-white">
                         <h2 id="prompt-title">Prompt</h2>
                     </div>
@@ -79,7 +50,7 @@
                         <p id="prompt-text" class="text-center">Here is your prompt. Type your response below:</p>
                         <textarea id="response-input" class="form-control" rows="5"
                             placeholder="Type your response here..."></textarea>
-                        <div id="generated-response" class="mt-3 text-center text-success d-none"></div> <!-- New -->
+                        <div id="generated-response" class="mt-3 text-center text-success d-none"></div>
                     </div>
                     <div class="card-footer text-center bg-dark">
                         <button id="submit-response" class="btn btn-primary">Submit</button>
@@ -112,6 +83,45 @@
         </div>
     </main>
 
+    <!-- Round Transition Modal -->
+    <div class="modal fade" id="roundTransitionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="transitionModalTitle">Round Complete!</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <h3 id="transitionMessage">Get ready for the next round!</h3>
+                    <div class="spinner-border text-primary mt-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p id="next-round-timer" class="mt-2">Starting in: <span id="next-round-countdown">5</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal fade" id="gameOverModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Game Over!</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <h3>Thanks for playing!</h3>
+                    <p>Your creative ideas were amazing!</p>
+                    <div id="game-results">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="return-to-lobby" class="btn btn-primary">Return to Lobby</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer mt-auto py-3 bg-dark">
         <div class="container text-center">
             <span class="text-white mb-0">Brainstorm Game &copy; 2023</span>
@@ -130,15 +140,202 @@
         };
         const roomCode = new URLSearchParams(window.location.search).get('room');
 
+        // Game state variables
+        let gameState = {
+            currentRound: 1,
+            totalRounds: 5,
+            timePerRound: 60, // in seconds
+            timer: null,
+            timeRemaining: 0,
+            isGameActive: false
+        };
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer-display');
+        const timerContainer = document.getElementById('timer-container');
+        const currentRoundDisplay = document.getElementById('current-round');
+        const totalRoundsDisplay = document.getElementById('total-rounds');
+        const responseInput = document.getElementById('response-input');
+        const submitButton = document.getElementById('submit-response');
+        const roundTransitionModal = new bootstrap.Modal(document.getElementById('roundTransitionModal'));
+        const gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'));
+        const nextRoundCountdown = document.getElementById('next-round-countdown');
+        const transitionMessage = document.getElementById('transitionMessage');
+
         // When page loads, join the game room
         document.addEventListener('DOMContentLoaded', () => {
             socket.emit('joinGameRoom', {
                 roomCode: roomCode,
                 user: currentUser
             });
+
+            // Initialize game display
+            updateRoundDisplay();
+
+            // When game starts
+            socket.on('gameStarted', (settings) => {
+                // Initialize game state
+                gameState = {
+                    currentRound: 1,
+                    totalRounds: settings.rounds,
+                    timePerRound: settings.ideaTime,
+                    isGameActive: true
+                };
+
+                // Update UI
+                updateRoundDisplay();
+                startRound(1);
+            });
+
+            // When round updates come from server
+            socket.on('nextRound', (data) => {
+                gameState.currentRound = data.roundNumber;
+                gameState.timeRemaining = data.timeRemaining;
+
+                updateRoundDisplay();
+                startTimer(data.timeRemaining);
+            });
+
+            // When timer updates come from server
+            socket.on('updateTimer', (time) => {
+                updateTimer(time);
+            });
+
+            // When round ends
+            socket.on('roundEnded', () => {
+                endRound();
+            });
+
+            // When game ends
+            socket.on('gameOver', () => {
+                endGame();
+            });
+
+            // Modified timer function
+            function startTimer(initialTime) {
+                if (gameState.timer) {
+                    clearInterval(gameState.timer);
+                }
+
+                gameState.timeRemaining = initialTime;
+                updateTimer(initialTime);
+
+                gameState.timer = setInterval(() => {
+                    // This is just for local display - server is authoritative
+                    gameState.timeRemaining--;
+                    updateTimer(gameState.timeRemaining);
+                }, 1000);
+            }
         });
 
-        // Handle player list updates
+        // Start the game with settings
+        function startGame(settings) {
+            gameState.isGameActive = true;
+            gameState.totalRounds = settings.rounds || 5;
+            gameState.timePerRound = settings.ideaTime || 60;
+
+            totalRoundsDisplay.textContent = gameState.totalRounds;
+            startRound(1);
+        }
+
+        // Start a new round
+        function startRound(roundNumber) {
+            gameState.currentRound = roundNumber;
+            updateRoundDisplay();
+
+            // Reset UI for new round
+            responseInput.value = '';
+            responseInput.disabled = false;
+            submitButton.disabled = false;
+            document.getElementById('generated-response').classList.add('d-none');
+
+            // Start the timer
+            gameState.timeRemaining = gameState.timePerRound;
+            updateTimer(gameState.timeRemaining);
+
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+
+            gameState.timer = setInterval(() => {
+                gameState.timeRemaining--;
+                updateTimer(gameState.timeRemaining);
+
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timer);
+                    endRound();
+                }
+            }, 1000);
+        }
+
+        // Update the timer display
+        function updateTimer(seconds) {
+            timerDisplay.textContent = seconds;
+
+            // Change color based on time remaining
+            if (seconds <= 10) {
+                timerContainer.classList.add('timer-danger');
+                timerContainer.classList.remove('timer-warning');
+            } else if (seconds <= 30) {
+                timerContainer.classList.add('timer-warning');
+                timerContainer.classList.remove('timer-danger');
+            } else {
+                timerContainer.classList.remove('timer-warning', 'timer-danger');
+            }
+        }
+
+        // Update round display
+        function updateRoundDisplay() {
+            currentRoundDisplay.textContent = gameState.currentRound;
+        }
+
+        // End the current round
+        function endRound() {
+            responseInput.disabled = true;
+            submitButton.disabled = true;
+
+            if (gameState.currentRound < gameState.totalRounds) {
+                // Show round transition
+                transitionMessage.textContent = `Round ${gameState.currentRound} complete!`;
+                roundTransitionModal.show();
+
+                // Start countdown to next round
+                let countdown = 5;
+                nextRoundCountdown.textContent = countdown;
+
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    nextRoundCountdown.textContent = countdown;
+
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        roundTransitionModal.hide();
+                        gameState.currentRound++;
+                        startRound(gameState.currentRound);
+                    }
+                }, 1000);
+            } else {
+                endGame();
+            }
+        }
+
+        // End the game
+        function endGame() {
+            gameState.isGameActive = false;
+            clearInterval(gameState.timer);
+            responseInput.disabled = true;
+            submitButton.disabled = true;
+
+            // Show game over modal
+            gameOverModal.show();
+        }
+
+        // Return to lobby button
+        document.getElementById('return-to-lobby').addEventListener('click', () => {
+            window.location.href = '/lobby';
+        });
+
+        // Your existing socket and chat functionality remains the same
         socket.on('updatePlayers', (players) => {
             const playersList = document.getElementById('players-list');
             const playerCount = document.getElementById('player-count');
@@ -146,27 +343,23 @@
             playersList.innerHTML = '';
             playerCount.textContent = players.length;
 
-            // Limitar a exibição se quiser (opcional)
-            const displayPlayers = players; // ou players.slice(0, 10) para limitar
-
-            displayPlayers.forEach(player => {
+            players.forEach(player => {
                 const isCurrentUser = player.id === currentUser.id;
                 const playerElement = document.createElement('div');
                 playerElement.className = `player-item ${isCurrentUser ? 'current-user' : ''}`;
                 playerElement.innerHTML = `
-            <div class="player-avatar">
-                <img src="${player.profilePicture}" alt="${player.username}">
-            </div>
-            <div class="player-info">
-                <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
-                <div class="player-status small">${player.status || 'Playing'}</div>
-            </div>
-        `;
+                    <div class="player-avatar">
+                        <img src="${player.profilePicture}" alt="${player.username}">
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">${isCurrentUser ? 'You' : player.username}</div>
+                        <div class="player-status small">${player.status || 'Playing'}</div>
+                    </div>
+                `;
                 playersList.appendChild(playerElement);
             });
         });
 
-        // Handle chat messages
         socket.on('updateChat', (messages) => {
             const chatMessages = document.getElementById('chat-messages');
             chatMessages.innerHTML = '';
@@ -218,37 +411,50 @@
         document.getElementById('submit-response').addEventListener('click', async () => {
             const responseInput = document.getElementById('response-input');
             const generatedResponseContainer = document.getElementById('generated-response');
-            const prompt = responseInput.value.trim(); // Get the user's input
+            const prompt = responseInput.value.trim();
 
             if (!prompt) {
                 alert('Please type a response before submitting.');
                 return;
             }
 
-            console.log("Prompt being sent:", prompt); // Debugging: Log the prompt
+            console.log("Prompt being sent:", prompt);
 
             try {
-                // Send the prompt to the API
+                // Disable input and button while waiting for response
+                responseInput.disabled = true;
+                submitButton.disabled = true;
+
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ prompt }), // Pass the prompt correctly
+                    body: JSON.stringify({ prompt }),
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    // Display the generated response
                     generatedResponseContainer.textContent = result.response.choices[0].message.content;
                     generatedResponseContainer.classList.remove('d-none');
+
+                    // Notify server that response was submitted
+                    socket.emit('submitResponse', {
+                        roomCode: roomCode,
+                        userId: currentUser.id,
+                        response: prompt
+                    });
                 } else {
                     alert('Failed to generate response: ' + result.message);
+                    responseInput.disabled = false;
+                    submitButton.disabled = false;
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while generating the response.');
+                responseInput.disabled = false;
+                submitButton.disabled = false;
             }
         });
     </script>
