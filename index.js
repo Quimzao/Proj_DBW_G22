@@ -253,14 +253,14 @@ io.on("connection", function (socket) {
             callback({ success: false, message: 'Lobby not found' });
             return;
         }
-
-        // Verify room creator
+    
+        // Verificar se é o criador da sala
         if (lobby.players.length === 0 || lobby.players[0].id !== socket.id) {
             callback({ success: false, message: 'Only the room creator can start the game' });
             return;
         }
-
-        // Verify all players ready
+    
+        // Verificar se todos estão prontos
         const allReady = lobby.players.every(player => player.ready);
         if (!allReady) {
             const notReadyPlayers = lobby.players.filter(p => !p.ready).map(p => p.username);
@@ -270,16 +270,19 @@ io.on("connection", function (socket) {
             });
             return;
         }
-
-        // Verify minimum players
+    
+        // Verificar número mínimo de jogadores
         if (lobby.players.length < 2) {
             callback({ success: false, message: 'Need at least 2 players to start' });
             return;
         }
-
+    
         callback({ success: true });
-
-        // Start the game with timer system
+    
+        // Emitir evento para todos os jogadores na sala para redirecionar
+        io.to(roomCode).emit('redirectToGame', { roomCode });
+    
+        // Iniciar o jogo
         socket.emit('startGameWithTimer', roomCode);
     });
 
@@ -421,7 +424,7 @@ io.on("connection", function (socket) {
             currentRound: 1,
             totalRounds: 5,
             timePerRound: 60,
-            prompts: room.gameState.prompts,
+            prompts: generatePrompts(5), // Gerar prompts para o jogo
             responses: {},
             responseChain: []
         };

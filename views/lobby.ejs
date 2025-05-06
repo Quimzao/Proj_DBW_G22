@@ -379,57 +379,56 @@
         });
 
         // Start game logic
-        document.getElementById('start-game').addEventListener('click', function () {
-            const startButton = this;
-            startButton.disabled = true;
-            startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
+        document.getElementById('start-game').addEventListener('click', function() {
+    const startButton = this;
+    startButton.disabled = true;
+    startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
+    
+    // Esconder mensagens de erro anteriores
+    document.getElementById('error-popup').classList.add('d-none');
+    document.getElementById('not-ready-players-popup').classList.add('d-none');
+    
+    socket.emit('startGame', roomCode, (response) => {
+        if (!response.success) {
+            // Mostrar mensagem de erro se houver
+            const errorPopup = document.getElementById('error-popup');
+            const errorMessage = document.getElementById('error-message');
+            const notReadyPopup = document.getElementById('not-ready-players-popup');
+            const notReadyList = document.getElementById('not-ready-players-list');
             
-            // Hide any previous error messages
-            document.getElementById('error-popup').classList.add('d-none');
-            document.getElementById('not-ready-players-popup').classList.add('d-none');
+            errorMessage.textContent = response.message;
             
-            socket.emit('startGame', roomCode, (response) => {
-                if (response.success) {
-                    window.location.href = `/game?room=${roomCode}`;
-                } else {
-                    // Show appropriate error message
-                    const errorPopup = document.getElementById('error-popup');
-                    const errorMessage = document.getElementById('error-message');
-                    const notReadyPopup = document.getElementById('not-ready-players-popup');
-                    const notReadyList = document.getElementById('not-ready-players-list');
-                    
-                    errorMessage.textContent = response.message;
-                    
-                    if (response.message.includes('not ready')) {
-                        // Show not ready players
-                        notReadyList.innerHTML = '';
-                        socket.emit('getLobbyPlayers', roomCode, (players) => {
-                            const notReadyPlayers = players.filter(p => !p.ready);
-                            notReadyPlayers.forEach(player => {
-                                const playerEl = document.createElement('div');
-                                playerEl.className = 'not-ready-player';
-                                playerEl.innerHTML = `
-                                    <img src="${player.profilePicture}" alt="${player.username}">
-                                    <span>${player.username}</span>
-                                `;
-                                notReadyList.appendChild(playerEl);
-                            });
-                        });
-                        
-                        notReadyPopup.classList.remove('d-none');
-                    } else {
-                        // Show other errors
-                        errorPopup.classList.remove('d-none');
-                    }
-                    
-                    // Re-enable the button after a delay
-                    setTimeout(() => {
-                        startButton.disabled = false;
-                        startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
-                    }, 2000);
-                }
-            });
-        });
+            if (response.message.includes('not ready')) {
+                notReadyList.innerHTML = '';
+                socket.emit('getLobbyPlayers', roomCode, (players) => {
+                    const notReadyPlayers = players.filter(p => !p.ready);
+                    notReadyPlayers.forEach(player => {
+                        const playerEl = document.createElement('div');
+                        playerEl.className = 'not-ready-player';
+                        playerEl.innerHTML = `
+                            <img src="${player.profilePicture}" alt="${player.username}">
+                            <span>${player.username}</span>
+                        `;
+                        notReadyList.appendChild(playerEl);
+                    });
+                });
+                
+                notReadyPopup.classList.remove('d-none');
+            } else {
+                errorPopup.classList.remove('d-none');
+            }
+            
+            // Reativar o botão após mostrar o erro
+            startButton.disabled = false;
+            startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
+        }
+        // Se for sucesso, não fazemos nada aqui - o redirecionamento será feito pelo evento 'redirectToGame'
+    });
+});
+
+        socket.on('redirectToGame', ({ roomCode }) => {
+    window.location.href = `/game?room=${roomCode}`;
+});
 
         // Tab switching functionality
         document.getElementById('chat-tab-btn').addEventListener('click', function () {
