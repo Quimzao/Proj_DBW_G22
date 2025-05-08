@@ -67,6 +67,7 @@
 
                         <!-- Prompt Screen -->
                         <div id="prompt-screen" class="d-none h-100 d-flex flex-column">
+                            <div id="problem-box" class="alert alert-info text-dark mb-3 d-none"></div>
                             <p id="prompt-text" class="text-center mb-4 fs-5"></p>
                             <textarea id="response-input" class="form-control flex-grow-1" 
                                 placeholder="Type your creative response here..."></textarea>
@@ -115,7 +116,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
-                    <h5 class="modal-title">Generated Story</h5>
+                    <h5 class="modal-title">Generated Text</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -217,7 +218,14 @@
             gameState.totalRounds = settings.rounds;
             gameState.timePerRound = settings.ideaTime;
             totalRoundsDisplay.textContent = settings.rounds;
-            
+
+            // Show the problem if provided
+            if (settings.problem) {
+                const problemBox = document.getElementById('problem-box');
+                problemBox.textContent = "Problem: " + settings.problem;
+                problemBox.classList.remove('d-none');
+            }
+
             waitingScreen.classList.add('d-none');
             promptScreen.classList.remove('d-none');
             gameState.isGameActive = true;
@@ -239,6 +247,13 @@
             responseInput.disabled = false;
             submitButton.disabled = false;
             
+            // Show the problem if provided
+            if (data.problem) {
+                const problemBox = document.getElementById('problem-box');
+                problemBox.textContent = "Problem: " + data.problem;
+                problemBox.classList.remove('d-none');
+            }
+
             // Show timer
             timerContainer.style.display = 'block';
         });

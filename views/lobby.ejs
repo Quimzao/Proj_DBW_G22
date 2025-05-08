@@ -179,6 +179,10 @@
                                     <input type="checkbox" class="form-check-input" id="private-room" checked>
                                     <label class="form-check-label" for="private-room">Private Room</label>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="problem-input" class="form-label">Problem for this game</label>
+                                    <textarea class="form-control" id="problem-input" rows="2" maxlength="300" placeholder="Type the problem players will solve..."></textarea>
+                                </div>
                                 <div class="d-grid">
                                     <button type="button" id="start-game" class="btn btn-start" disabled>
                                         <i class="fas fa-play me-2"></i>Start Game
@@ -483,9 +487,21 @@
         document.getElementById('custom-time').addEventListener('change', function () {
             const settings = {
                 difficulty: 'custom',
-                ideaTime: this.value
+                ideaTime: this.value,
+                problem: document.getElementById('problem-input').value // Add this line
             };
 
+            socket.emit('updateSettings', {
+                roomCode: roomCode,
+                settings: settings
+            });
+        });
+
+        // Also update the settings when the problem input changes
+        document.getElementById('problem-input').addEventListener('input', function () {
+            const settings = {
+                problem: this.value
+            };
             socket.emit('updateSettings', {
                 roomCode: roomCode,
                 settings: settings
