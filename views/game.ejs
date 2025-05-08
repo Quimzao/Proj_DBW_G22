@@ -280,25 +280,22 @@
             }
         });
 
-        socket.on('gameFinished', (responseChain) => {
-            // Hide timer
+        socket.on('gameFinished', ({ playerStories }) => {
+            // Hide timer and prompt screen
             timerContainer.style.display = 'none';
-            
             promptScreen.classList.add('d-none');
             resultsScreen.classList.remove('d-none');
-            
-            // Show all round results
-            roundResults.innerHTML = responseChain.map(round => `
-                <div class="round-result mb-4 p-3 bg-dark rounded">
-                    <h4 class="text-gold">Round ${round.round}</h4>
-                    ${round.responses.map(response => `
-                        <div class="player-response mb-2">
-                            <strong>${response.username}:</strong>
-                            <p class="mb-1">${response.response}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            `).join('');
+
+            // Display the generated stories
+            roundResults.innerHTML = Object.entries(playerStories).map(([userId, story]) => {
+                const player = gameState.players.find(p => p.userId === userId);
+                return `
+                    <div class="player-story mb-4 p-3 bg-dark rounded">
+                        <h4 class="text-gold">${player ? player.username : 'Unknown Player'}</h4>
+                        <p>${story}</p>
+                    </div>
+                `;
+            }).join('');
         });
 
         // UI Event handlers

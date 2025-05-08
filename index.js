@@ -566,7 +566,41 @@ io.on("connection", function (socket) {
         if (!room) return;
 
         room.gameState.status = 'finished';
-        io.to(roomCode).emit('gameFinished', room.gameState.responseChain);
+
+        // Generate a story for each player based on their responses
+        const playerStories = {};
+        const promises = room.players.map(async (player) => {
+            const playerResponses = room.gameState.responseChain.map(round => {
+                const response = round.responses.find(r => r.userId === player.userId);
+                return response ? response.response : "[No response]";
+            });
+
+            const prompt = `Create a structured text based on the following responses from ${player.username}:\n\n` +
+                playerResponses.map((response, index) => `Round ${index + 1}: ${response}`).join('\n') +
+                `\n\nMake it coherent and entertaining.`;
+
+            try {
+                const response = await fetch('http://localhost:3000/generate-story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    playerStories[player.userId] = result.response.choices[0].message.content;
+                } else {
+                    playerStories[player.userId] = "Failed to generate story.";
+                }
+            } catch (error) {
+                console.error(`Error generating story for ${player.username}:`, error);
+                playerStories[player.userId] = "Failed to generate story.";
+            }
+        });
+
+        // Wait for all stories to be generated
+        Promise.all(promises).then(() => {
+            io.to(roomCode).emit('gameFinished', { playerStories });
+        });
     }
 
     // Handle player response submissions
