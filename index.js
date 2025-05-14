@@ -80,6 +80,9 @@ app.use('/game', gameRoutes);
 import chatRoutes from "./routes/chatRoutes.js";
 app.use("/chat", chatRoutes);
 
+import historyRoutes from './routes/historyRoutes.js';
+app.use('/history', historyRoutes);
+
 app.get('/intro', (req, res) => {
     res.render('game-intro', { user: req.user || {} });
 });
@@ -104,6 +107,8 @@ const lobbies = new Map();
 
 // Object to store game rooms
 const gameRooms = {};
+
+const storyVotes = {};// { roomCode: { userId: { up: 0, down: 0 } } }
 
 function generatePrompts(count) {
     const prompts = [
@@ -470,6 +475,39 @@ io.on("connection", function (socket) {
         startRound(roomCode);
     });
 
+    socket.on('voteStory', ({ roomCode, userId, vote }) => {
+        if (!storyVotes[roomCode]) storyVotes[roomCode] = {};
+        if (!storyVotes[roomCode][userId]) {
+            storyVotes[roomCode][userId] = { up: 0, down: 0, voters: {} };
+        }
+        // Prevent double voting: use socket.id or currentUser.id as voterId
+        const voterId = socket.handshake.auth?.userId || socket.userId || socket.id;
+
+        // Only allow one upvote and one downvote per voter per story
+        if (!storyVotes[roomCode][userId].voters[voterId]) {
+            storyVotes[roomCode][userId].voters[voterId] = { up: false, down: false };
+        }
+
+        // If already voted this type, ignore
+        if (storyVotes[roomCode][userId].voters[voterId][vote]) return;
+
+        // Register the vote
+        if (vote === 'up') {
+            storyVotes[roomCode][userId].up++;
+            storyVotes[roomCode][userId].voters[voterId].up = true;
+        }
+        if (vote === 'down') {
+            storyVotes[roomCode][userId].down++;
+            storyVotes[roomCode][userId].voters[voterId].down = true;
+        }
+
+        io.to(roomCode).emit('updateVotes', {
+            userId,
+            upvotes: storyVotes[roomCode][userId].up,
+            downvotes: storyVotes[roomCode][userId].down
+        });
+    });
+
 
     function startRound(roomCode) {
         const room = gameRooms[roomCode];
@@ -561,7 +599,7 @@ io.on("connection", function (socket) {
         }
     });
 
-    function endGame(roomCode) {
+    async function endGame(roomCode) {
         const room = gameRooms[roomCode];
         if (!room) return;
 
@@ -569,38 +607,72 @@ io.on("connection", function (socket) {
 
         // Generate a story for each player based on their responses
         const playerStories = {};
-        const promises = room.players.map(async (player) => {
-            const playerResponses = room.gameState.responseChain.map(round => {
+        const axios = (await import('axios')).default; // Use axios for HTTP requests
+
+        // Prepare all player prompts
+        const playerPrompts = room.players.map(player => {
+            const responses = room.gameState.responseChain.map(round => {
                 const response = round.responses.find(r => r.userId === player.userId);
-                return response ? response.response : "[No response]";
-            });
+                return response && response.response !== "[SKIPPED]" ? response.response : null;
+            }).filter(Boolean);
 
-            const prompt = `Create a structured text based on the following responses from ${player.username}:\n\n` +
-                playerResponses.map((response, index) => `Round ${index + 1}: ${response}`).join('\n') +
-                `\n\nMake it coherent and entertaining.`;
-
-            try {
-                const response = await fetch('http://localhost:3000/generate-story', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    playerStories[player.userId] = result.response.choices[0].message.content;
-                } else {
-                    playerStories[player.userId] = "Failed to generate story.";
-                }
-            } catch (error) {
-                console.error(`Error generating story for ${player.username}:`, error);
-                playerStories[player.userId] = "Failed to generate story.";
+            if (responses.length === 0) {
+                playerStories[player.userId] = "No responses submitted.";
+                return;
             }
+            return {
+                userId: player.userId,
+                username: player.username,
+                prompt: `Write a creative and entertaining paragraph based on these responses from ${player.username}:\n\n` +
+                    responses.map((r, i) => `Round ${i + 1}: ${r}`).join('\n') +
+                    `\n\nMake it coherent and fun.`
+            };
         });
 
-        // Wait for all stories to be generated
-        Promise.all(promises).then(() => {
-            io.to(roomCode).emit('gameFinished', { playerStories });
-        });
+        // Generate stories in parallel
+        await Promise.all(
+            playerPrompts
+                .filter(Boolean)
+                .map(async ({ userId, username, prompt }) => {
+                    try {
+                        const response = await axios.post('http://localhost:3000/chat', { prompt });
+                        let story = "Failed to generate story.";
+                        if (response.data.success) {
+                            story = response.data.response.choices[0].message.content;
+                            playerStories[userId] = story;
+                        } else {
+                            playerStories[userId] = story;
+                        }
+
+                        // Get upvotes/downvotes
+                        const votes = (storyVotes[roomCode] && storyVotes[roomCode][userId]) || { up: 0, down: 0 };
+
+                        // Save to user history
+                        await User.findOneAndUpdate(
+                            { _id: userId },
+                            {
+                                $push: {
+                                    gameHistory: {
+                                        date: new Date(),
+                                        roomCode,
+                                        prompt,
+                                        generatedText: story,
+                                        upvotes: votes.up,
+                                        downvotes: votes.down
+                                    }
+                                }
+                            }
+                        );
+                    } catch (err) {
+                        playerStories[userId] = "Failed to generate story.";
+                    }
+
+
+                })
+        );
+
+        // Send the generated stories to all clients
+        io.to(roomCode).emit('gameFinished', { playerStories });
     }
 
     // Handle player response submissions
@@ -795,4 +867,3 @@ app.post('/generate-story', async (req, res) => {
         });
     }
 });
-

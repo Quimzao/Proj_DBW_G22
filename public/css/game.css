@@ -610,3 +610,27 @@ body {
     max-height: 60vh;
     overflow-y: auto;
 }
+
+.player-story {
+    color: #fff !important;
+}
+.player-story p, .player-story h4 {
+    color: #fff !important;
+}
+
+.vote-buttons .btn-vote {
+    min-width: 48px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+}
+.vote-buttons .btn-upvote .fa-thumbs-up {
+    color: #e0c28c;
+}
+.vote-buttons .btn-downvote .fa-thumbs-down {
+    color: #e0c28c;
+}
+.vote-count {
+    margin-left: 6px;
+    font-weight: bold;
+}

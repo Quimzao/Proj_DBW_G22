@@ -20,6 +20,16 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    gameHistory: [
+        {
+            date: { type: Date, default: Date.now },
+            roomCode: String,
+            prompt: String,
+            generatedText: String,
+            upvotes: Number,
+            downvotes: Number
+        }
+    ]
 });
 
 userSchema.plugin(passportLocalMongoose);
