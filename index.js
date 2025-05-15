@@ -636,11 +636,12 @@ io.on("connection", function (socket) {
                 .map(async ({ userId, username, prompt }) => {
                     try {
                         const response = await axios.post('http://localhost:3000/chat', { prompt });
-                        let story = "Failed to generate story.";
+                        let story;
                         if (response.data.success) {
-                            story = response.data.response.choices[0].message.content;
+                            story = response.data.choices[0].message.content;
                             playerStories[userId] = story;
                         } else {
+                            story = "Failed to generate story.";
                             playerStories[userId] = story;
                         }
 
@@ -648,7 +649,7 @@ io.on("connection", function (socket) {
                         const votes = (storyVotes[roomCode] && storyVotes[roomCode][userId]) || { up: 0, down: 0 };
 
                         // Save to user history
-                        await User.findOneAndUpdate(
+                        await user.findOneAndUpdate(
                             { _id: userId },
                             {
                                 $push: {
@@ -666,12 +667,10 @@ io.on("connection", function (socket) {
                     } catch (err) {
                         playerStories[userId] = "Failed to generate story.";
                     }
-
-
                 })
         );
 
-        // Send the generated stories to all clients
+        room.gameState.playerStories = playerStories;
         io.to(roomCode).emit('gameFinished', { playerStories });
     }
 
@@ -865,5 +864,42 @@ app.post('/generate-story', async (req, res) => {
             message: 'Failed to generate story',
             error: error.message
         });
+    }
+});
+
+
+app.post('/save-history', async (req, res) => {
+    try {
+        const { roomCode } = req.body;
+        const room = gameRooms[roomCode];
+        if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
+
+        // Save each player's story to their history
+        for (const player of room.players) {
+            const userId = player.userId;
+            const story = room.gameState.playerStories?.[userId] || "No story generated.";
+            const votes = (storyVotes[roomCode] && storyVotes[roomCode][userId]) || { up: 0, down: 0 };
+            const prompt = room.gameState.prompts ? room.gameState.prompts.join('\n') : '';
+
+            await User.findOneAndUpdate(
+                { _id: userId },
+                {
+                    $push: {
+                        gameHistory: {
+                            date: new Date(),
+                            roomCode,
+                            prompt,
+                            generatedText: story,
+                            upvotes: votes.up,
+                            downvotes: votes.down
+                        }
+                    }
+                }
+            );
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error saving game history:', err);
+        res.status(500).json({ success: false, message: 'Failed to save history' });
     }
 });

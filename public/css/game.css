@@ -634,3 +634,7 @@ body {
     margin-left: 6px;
     font-weight: bold;
 }
+
+#return-to-lobby {
+    margin-bottom: 1rem;
+}

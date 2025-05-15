@@ -83,6 +83,11 @@
                         <div id="results-screen" class="d-none h-100 d-flex flex-column">
                             <h3 class="text-center mb-4">Game Results</h3>
                             <div id="rounds-results" class="flex-grow-1 overflow-auto mb-3"></div>
+                            <div class="text-center mt-3">
+                                <button id="return-to-lobby" class="btn btn-gold btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Return to Lobby
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -283,6 +288,8 @@
         });
 
         socket.on('gameFinished', ({ playerStories }) => {
+            console.log('Received playerStories:', playerStories);
+            console.log('Current players:', gameState.players);
             timerContainer.style.display = 'none';
             promptScreen.classList.add('d-none');
             resultsScreen.classList.remove('d-none');
@@ -433,6 +440,22 @@
             if (gameState.timer) {
                 clearInterval(gameState.timer);
             }
+        });
+
+        document.getElementById('return-to-lobby').addEventListener('click', async () => {
+            // Save game history for this player
+            try {
+                const response = await fetch('/save-history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode })
+                });
+                // Optionally check for success/failure here
+            } catch (err) {
+                console.error('Failed to save game history:', err);
+            }
+            // Redirect to lobby
+            window.location.href = '/lobby';
         });
     </script>
 </body>
