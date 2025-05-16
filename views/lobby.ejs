@@ -98,7 +98,7 @@
                         <button class="tab-btn active" id="chat-tab-btn">
                             <i class="fas fa-comments me-2"></i>Chat
                         </button>
-                        <button class="tab-btn" id="settings-tab-btn">
+                        <button class="tab-btn d-none" id="settings-tab-btn">
                             <i class="fas fa-cog me-2"></i>Settings
                         </button>
                     </div>
@@ -139,16 +139,16 @@
                                     <label class="form-label">Difficulty Level</label>
                                     <div class="btn-group w-100" role="group" id="difficulty-level">
                                         <input type="radio" class="btn-check" name="difficulty" id="easy"
-                                            autocomplete="off" value="easy" checked>
-                                        <label class="btn btn-outline-primary" for="easy">Easy (12s)</label>
+                                            autocomplete="off" value="easy" data-time="60" checked>
+                                        <label class="btn btn-outline-primary" for="easy">Easy (60s)</label>
 
                                         <input type="radio" class="btn-check" name="difficulty" id="medium"
-                                            autocomplete="off" value="medium">
-                                        <label class="btn btn-outline-primary" for="medium">Medium (10s)</label>
+                                            autocomplete="off" value="medium" data-time="30">
+                                        <label class="btn btn-outline-primary" for="medium">Medium (30s)</label>
 
                                         <input type="radio" class="btn-check" name="difficulty" id="hard"
-                                            autocomplete="off" value="hard">
-                                        <label class="btn btn-outline-primary" for="hard">Hard (8s)</label>
+                                            autocomplete="off" value="hard" data-time="10">
+                                        <label class="btn btn-outline-primary" for="hard">Hard (10s)</label>
 
                                         <input type="radio" class="btn-check" name="difficulty" id="custom"
                                             autocomplete="off" value="custom">
@@ -166,22 +166,14 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="rounds" class="form-label">Rounds</label>
-                                    <select class="form-select" id="rounds">
-                                        <option value="3">3</option>
-                                        <option value="5" selected>5</option>
-                                        <option value="7">7</option>
-                                        <option value="10">10</option>
-                                    </select>
-                                </div>
                                 <div class="mb-3 form-check">
                                     <input type="checkbox" class="form-check-input" id="private-room" checked>
                                     <label class="form-check-label" for="private-room">Private Room</label>
                                 </div>
                                 <div class="mb-3">
                                     <label for="problem-input" class="form-label">Problem for this game</label>
-                                    <textarea class="form-control" id="problem-input" rows="2" maxlength="300" placeholder="Type the problem players will solve..."></textarea>
+                                    <textarea class="form-control" id="problem-input" rows="2" maxlength="300"
+                                        placeholder="Type the problem players will solve..."></textarea>
                                 </div>
                                 <div class="d-grid">
                                     <button type="button" id="start-game" class="btn btn-start" disabled>
@@ -227,11 +219,30 @@
         // Update player list without duplication
         socket.on('updateLobby', (data) => {
             const playersContainer = document.getElementById('players-container');
-            
+            const settingsCard = document.getElementById('settings-card');
+            const settingsTabBtn = document.getElementById('settings-tab-btn');
+
+            // Check if the current user is the host
+            const isHost = socket.id === data.hostId;
+
+            // Show or hide the settings tab and card based on host status
+            if (isHost) {
+                settingsTabBtn.classList.remove('d-none'); // Show tab
+                settingsCard.classList.remove('d-none');   // Show card
+            } else {
+                settingsTabBtn.classList.add('d-none');    // Hide tab
+                settingsCard.classList.add('d-none');      // Hide card
+                // Always show chat tab for non-hosts
+                document.getElementById('chat-tab-btn').classList.add('active');
+                settingsTabBtn.classList.remove('active');
+                document.getElementById('chat-card').classList.remove('d-none');
+                settingsCard.classList.add('d-none');
+            }
+
             // Clear container if player count changed or order is different
             let shouldClear = false;
             const currentCards = Array.from(playersContainer.children);
-            
+
             if (currentCards.length !== data.players.length) {
                 shouldClear = true;
             } else {
@@ -241,7 +252,7 @@
                     }
                 });
             }
-            
+
             if (shouldClear) {
                 playersContainer.innerHTML = '';
             }
@@ -253,10 +264,10 @@
             data.players.forEach((player, index) => {
                 const isCurrentUser = player.id === socket.id;
                 const isLeader = index === 0;
-                
+
                 // Check if card already exists
                 let playerCard = playersContainer.querySelector(`[data-player-id="${player.id}"]`);
-                
+
                 if (!playerCard) {
                     // Create new card
                     playerCard = document.createElement('div');
@@ -383,56 +394,61 @@
         });
 
         // Start game logic
-        document.getElementById('start-game').addEventListener('click', function() {
-    const startButton = this;
-    startButton.disabled = true;
-    startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
-    
-    // Esconder mensagens de erro anteriores
-    document.getElementById('error-popup').classList.add('d-none');
-    document.getElementById('not-ready-players-popup').classList.add('d-none');
-    
-    socket.emit('startGame', roomCode, (response) => {
-        if (!response.success) {
-            // Mostrar mensagem de erro se houver
-            const errorPopup = document.getElementById('error-popup');
-            const errorMessage = document.getElementById('error-message');
-            const notReadyPopup = document.getElementById('not-ready-players-popup');
-            const notReadyList = document.getElementById('not-ready-players-list');
-            
-            errorMessage.textContent = response.message;
-            
-            if (response.message.includes('not ready')) {
-                notReadyList.innerHTML = '';
-                socket.emit('getLobbyPlayers', roomCode, (players) => {
-                    const notReadyPlayers = players.filter(p => !p.ready);
-                    notReadyPlayers.forEach(player => {
-                        const playerEl = document.createElement('div');
-                        playerEl.className = 'not-ready-player';
-                        playerEl.innerHTML = `
+        document.getElementById('start-game').addEventListener('click', function () {
+            const problem = document.getElementById('problem-input').value.trim();
+            const startButton = this;
+            startButton.disabled = true;
+            startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
+
+            // Esconder mensagens de erro anteriores
+            document.getElementById('error-popup').classList.add('d-none');
+            document.getElementById('not-ready-players-popup').classList.add('d-none');
+
+            socket.emit('startGame', {
+                roomCode: roomCode,
+                timePerRound: selectedTime, // send the selected time
+                problem: problem
+            }, (response) => {
+                if (!response.success) {
+                    // Mostrar mensagem de erro se houver
+                    const errorPopup = document.getElementById('error-popup');
+                    const errorMessage = document.getElementById('error-message');
+                    const notReadyPopup = document.getElementById('not-ready-players-popup');
+                    const notReadyList = document.getElementById('not-ready-players-list');
+
+                    errorMessage.textContent = response.message;
+
+                    if (response.message.includes('not ready')) {
+                        notReadyList.innerHTML = '';
+                        socket.emit('getLobbyPlayers', roomCode, (players) => {
+                            const notReadyPlayers = players.filter(p => !p.ready);
+                            notReadyPlayers.forEach(player => {
+                                const playerEl = document.createElement('div');
+                                playerEl.className = 'not-ready-player';
+                                playerEl.innerHTML = `
                             <img src="${player.profilePicture}" alt="${player.username}">
                             <span>${player.username}</span>
                         `;
-                        notReadyList.appendChild(playerEl);
-                    });
-                });
-                
-                notReadyPopup.classList.remove('d-none');
-            } else {
-                errorPopup.classList.remove('d-none');
-            }
-            
-            // Reativar o botão após mostrar o erro
-            startButton.disabled = false;
-            startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
-        }
-        // Se for sucesso, não fazemos nada aqui - o redirecionamento será feito pelo evento 'redirectToGame'
-    });
-});
+                                notReadyList.appendChild(playerEl);
+                            });
+                        });
+
+                        notReadyPopup.classList.remove('d-none');
+                    } else {
+                        errorPopup.classList.remove('d-none');
+                    }
+
+                    // Reativar o botão após mostrar o erro
+                    startButton.disabled = false;
+                    startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
+                }
+                // Se for sucesso, não fazemos nada aqui - o redirecionamento será feito pelo evento 'redirectToGame'
+            });
+        });
 
         socket.on('redirectToGame', ({ roomCode }) => {
-    window.location.href = `/game?room=${roomCode}`;
-});
+            window.location.href = `/game?room=${roomCode}`;
+        });
 
         // Tab switching functionality
         document.getElementById('chat-tab-btn').addEventListener('click', function () {
@@ -461,18 +477,24 @@
         });
 
         // Difficulty level logic
+        let selectedTime = 60; // Default to Easy
+
+        // Listen for difficulty changes
         document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
             radio.addEventListener('change', function () {
                 const customSettings = document.getElementById('custom-settings');
                 if (this.value === 'custom') {
                     customSettings.style.display = 'block';
+                    // Set selectedTime to the current custom value
+                    selectedTime = parseInt(document.getElementById('custom-time').value, 10);
                 } else {
                     customSettings.style.display = 'none';
+                    selectedTime = parseInt(this.getAttribute('data-time'), 10);
 
                     // Update settings based on difficulty
                     const settings = {
                         difficulty: this.value,
-                        ideaTime: this.value === 'easy' ? 12 : this.value === 'medium' ? 10 : 8
+                        ideaTime: selectedTime
                     };
 
                     socket.emit('updateSettings', {
@@ -483,12 +505,15 @@
             });
         });
 
-        // Custom settings logic
-        document.getElementById('custom-time').addEventListener('change', function () {
+        // When custom time changes, update selectedTime if custom is selected
+        document.getElementById('custom-time').addEventListener('input', function () {
+            if (document.getElementById('custom').checked) {
+                selectedTime = parseInt(this.value, 10);
+            }
             const settings = {
                 difficulty: 'custom',
                 ideaTime: this.value,
-                problem: document.getElementById('problem-input').value // Add this line
+                problem: document.getElementById('problem-input').value
             };
 
             socket.emit('updateSettings', {
@@ -507,6 +532,13 @@
                 settings: settings
             });
         });
+
+        document.getElementById('custom').addEventListener('change', function () {
+            if (this.checked) {
+                selectedTime = parseInt(document.getElementById('custom-time').value, 10);
+            }
+        });
     </script>
 </body>
+
 </html>

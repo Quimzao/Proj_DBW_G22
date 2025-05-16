@@ -69,7 +69,6 @@
 
                         <!-- Prompt Screen -->
                         <div id="prompt-screen" class="d-none h-100 d-flex flex-column">
-                            <div id="problem-box" class="alert alert-info text-dark mb-3 d-none"></div>
                             <p id="prompt-text" class="text-center mb-4 fs-5"></p>
                             <textarea id="response-input" class="form-control flex-grow-1"
                                 placeholder="Type your creative response here..."></textarea>
@@ -226,11 +225,13 @@
             gameState.timePerRound = settings.ideaTime;
             totalRoundsDisplay.textContent = settings.rounds;
 
-            // Show the problem if provided
-            if (settings.problem) {
-                const problemBox = document.getElementById('problem-box');
-                problemBox.textContent = "Problem: " + settings.problem;
-                problemBox.classList.remove('d-none');
+            // Show the problem as the title if provided
+            const promptTitle = document.getElementById('prompt-title');
+            console.log("Problem received:", settings.problem); // Debugging log
+            if (settings.problem && settings.problem.trim() !== "") {
+                promptTitle.textContent = settings.problem;
+            } else {
+                promptTitle.textContent = "Creative Chain";
             }
 
             waitingScreen.classList.add('d-none');
@@ -259,6 +260,14 @@
                 const problemBox = document.getElementById('problem-box');
                 problemBox.textContent = "Problem: " + data.problem;
                 problemBox.classList.remove('d-none');
+            }
+
+            // Also update the title in case the problem changes
+            const promptTitle = document.getElementById('prompt-title');
+            if (data.problem && data.problem.trim() !== "") {
+                promptTitle.textContent = data.problem;
+            } else {
+                promptTitle.textContent = "Creative Chain";
             }
 
             // Show timer

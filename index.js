@@ -253,20 +253,22 @@ io.on("connection", function (socket) {
     });
 
     // Evento para iniciar o jogo
-    socket.on('startGame', (roomCode, callback) => {
+    socket.on('startGame', (data, callback) => {
+        const { roomCode, timePerRound, problem } = data; // Extract problem from data
         const lobby = lobbies.get(roomCode);
+
         if (!lobby) {
             callback({ success: false, message: 'Lobby not found' });
             return;
         }
 
-        // Verificar se é o criador da sala
+        // Verify if the user is the host
         if (lobby.players.length === 0 || lobby.players[0].id !== socket.id) {
             callback({ success: false, message: 'Only the room creator can start the game' });
             return;
         }
 
-        // Verificar se todos estão prontos
+        // Verify if all players are ready
         const allReady = lobby.players.every(player => player.ready);
         if (!allReady) {
             const notReadyPlayers = lobby.players.filter(p => !p.ready).map(p => p.username);
@@ -277,11 +279,12 @@ io.on("connection", function (socket) {
             return;
         }
 
-        // Verificar número mínimo de jogadores
+        // Verify minimum number of players
         if (lobby.players.length < 2) {
             callback({ success: false, message: 'Need at least 2 players to start' });
             return;
         }
+
         if (!gameRooms[roomCode]) {
             gameRooms[roomCode] = {
                 players: [],
@@ -290,7 +293,7 @@ io.on("connection", function (socket) {
                     status: 'waiting',
                     currentRound: 0,
                     totalRounds: 5,
-                    timePerRound: 60,
+                    timePerRound: timePerRound || lobby.settings.drawTime || 60,
                     prompts: generatePrompts(5),
                     responses: {},
                     responseChain: []
@@ -299,15 +302,14 @@ io.on("connection", function (socket) {
         }
 
         const room = gameRooms[roomCode];
-        room.problem = lobby.settings.problem || '';
+        room.problem = problem || ''; // Use the problem from the client
         callback({ success: true });
 
-        // Emitir evento para todos os jogadores na sala para redirecionar
+        // Emit event to redirect players to the game
         io.to(roomCode).emit('redirectToGame', { roomCode });
 
         // Pass problem to game room
-        if (!gameRooms[roomCode]) gameRooms[roomCode] = {};
-        gameRooms[roomCode].problem = lobby.settings.problem || '';
+        gameRooms[roomCode].problem = problem || '';
 
         // Emit to ALL sockets in the room
         io.to(roomCode).emit('startGameWithTimer', roomCode);
@@ -355,7 +357,7 @@ io.on("connection", function (socket) {
                     status: 'waiting',
                     currentRound: 0,
                     totalRounds: 5,
-                    timePerRound: 60,
+                    timePerRound: room.gameState.timePerRound || 60,
                     prompts: generatePrompts(5),
                     responses: {},
                     responseChain: []
@@ -459,7 +461,7 @@ io.on("connection", function (socket) {
             status: 'playing',
             currentRound: 1,
             totalRounds: 5,
-            timePerRound: 60,
+            timePerRound: room.gameState.timePerRound || 60,
             prompts: roundPrompts,
             responses: {},
             responseChain: [],
@@ -468,7 +470,7 @@ io.on("connection", function (socket) {
 
         io.to(roomCode).emit('gameStarted', {
             rounds: 5,
-            ideaTime: 60,
+            ideaTime: room.gameState.timePerRound,
             problem: room.problem || ''
         });
 
@@ -711,7 +713,8 @@ io.on("connection", function (socket) {
         io.to(roomCode).emit('updateLobby', {
             players: lobby.players,
             maxPlayers: lobby.maxPlayers, // Certifique-se que está enviando isso
-            settings: lobby.settings
+            settings: lobby.settings,
+            hostId: lobby.players[0]?.id
         });
     }
 
@@ -754,7 +757,7 @@ io.on("connection", function (socket) {
             status: 'playing',
             currentRound: 1,
             totalRounds: 5,
-            timePerRound: 60,
+            timePerRound: room.gameState.timePerRound || 60,
             prompts: roundPrompts, // <-- Always set this!
             responses: {},
             responseChain: []
@@ -762,7 +765,8 @@ io.on("connection", function (socket) {
 
         io.to(roomCode).emit('gameStarted', {
             rounds: 5,
-            ideaTime: 60
+            ideaTime: room.gameState.timePerRound,
+            problem: room.problem || ''
         });
 
         startRound(roomCode);
