@@ -80,6 +80,9 @@ app.use('/game', gameRoutes);
 import chatRoutes from "./routes/chatRoutes.js";
 app.use("/chat", chatRoutes);
 
+import historyRoutes from './routes/historyRoutes.js';
+app.use('/history', historyRoutes);
+
 app.get('/intro', (req, res) => {
     res.render('game-intro', { user: req.user || {} });
 });
@@ -104,6 +107,8 @@ const lobbies = new Map();
 
 // Object to store game rooms
 const gameRooms = {};
+
+const storyVotes = {};// { roomCode: { userId: { up: 0, down: 0 } } }
 
 function generatePrompts(count) {
     const prompts = [
@@ -248,20 +253,22 @@ io.on("connection", function (socket) {
     });
 
     // Evento para iniciar o jogo
-    socket.on('startGame', (roomCode, callback) => {
+    socket.on('startGame', (data, callback) => {
+        const { roomCode, timePerRound, problem } = data; // Extract problem from data
         const lobby = lobbies.get(roomCode);
+
         if (!lobby) {
             callback({ success: false, message: 'Lobby not found' });
             return;
         }
 
-        // Verificar se é o criador da sala
+        // Verify if the user is the host
         if (lobby.players.length === 0 || lobby.players[0].id !== socket.id) {
             callback({ success: false, message: 'Only the room creator can start the game' });
             return;
         }
 
-        // Verificar se todos estão prontos
+        // Verify if all players are ready
         const allReady = lobby.players.every(player => player.ready);
         if (!allReady) {
             const notReadyPlayers = lobby.players.filter(p => !p.ready).map(p => p.username);
@@ -272,11 +279,12 @@ io.on("connection", function (socket) {
             return;
         }
 
-        // Verificar número mínimo de jogadores
+        // Verify minimum number of players
         if (lobby.players.length < 2) {
             callback({ success: false, message: 'Need at least 2 players to start' });
             return;
         }
+
         if (!gameRooms[roomCode]) {
             gameRooms[roomCode] = {
                 players: [],
@@ -285,7 +293,7 @@ io.on("connection", function (socket) {
                     status: 'waiting',
                     currentRound: 0,
                     totalRounds: 5,
-                    timePerRound: 60,
+                    timePerRound: timePerRound || lobby.settings.drawTime || 60,
                     prompts: generatePrompts(5),
                     responses: {},
                     responseChain: []
@@ -294,15 +302,14 @@ io.on("connection", function (socket) {
         }
 
         const room = gameRooms[roomCode];
-        room.problem = lobby.settings.problem || '';
+        room.problem = problem || ''; // Use the problem from the client
         callback({ success: true });
 
-        // Emitir evento para todos os jogadores na sala para redirecionar
+        // Emit event to redirect players to the game
         io.to(roomCode).emit('redirectToGame', { roomCode });
 
         // Pass problem to game room
-        if (!gameRooms[roomCode]) gameRooms[roomCode] = {};
-        gameRooms[roomCode].problem = lobby.settings.problem || '';
+        gameRooms[roomCode].problem = problem || '';
 
         // Emit to ALL sockets in the room
         io.to(roomCode).emit('startGameWithTimer', roomCode);
@@ -350,7 +357,7 @@ io.on("connection", function (socket) {
                     status: 'waiting',
                     currentRound: 0,
                     totalRounds: 5,
-                    timePerRound: 60,
+                    timePerRound: room.gameState.timePerRound || 60,
                     prompts: generatePrompts(5),
                     responses: {},
                     responseChain: []
@@ -454,7 +461,7 @@ io.on("connection", function (socket) {
             status: 'playing',
             currentRound: 1,
             totalRounds: 5,
-            timePerRound: 60,
+            timePerRound: room.gameState.timePerRound || 60,
             prompts: roundPrompts,
             responses: {},
             responseChain: [],
@@ -463,11 +470,66 @@ io.on("connection", function (socket) {
 
         io.to(roomCode).emit('gameStarted', {
             rounds: 5,
-            ideaTime: 60,
+            ideaTime: room.gameState.timePerRound,
             problem: room.problem || ''
         });
 
         startRound(roomCode);
+    });
+
+    socket.on('voteStory', ({ roomCode, userId, vote }) => {
+        if (!storyVotes[roomCode]) {
+            storyVotes[roomCode] = {};
+        }
+        if (!storyVotes[roomCode][userId]) {
+            storyVotes[roomCode][userId] = { up: 0, down: 0 };
+        }
+
+        const voterId = socket.id; // Usando socket.id como identificador único do votante
+
+        // Verifica se este votante já votou neste usuário
+        if (!storyVotes[roomCode][userId].voters) {
+            storyVotes[roomCode][userId].voters = {};
+        }
+
+        // Se já votou neste tipo, remove o voto anterior
+        if (storyVotes[roomCode][userId].voters[voterId]) {
+            const previousVote = storyVotes[roomCode][userId].voters[voterId];
+            storyVotes[roomCode][userId][previousVote]--;
+        }
+
+        // Registra o novo voto
+        storyVotes[roomCode][userId][vote]++;
+        storyVotes[roomCode][userId].voters[voterId] = vote;
+
+        // Atualiza todos os jogadores
+        io.to(roomCode).emit('updateVotes', {
+            userId,
+            upvotes: storyVotes[roomCode][userId].up,
+            downvotes: storyVotes[roomCode][userId].down
+        });
+    });
+
+    socket.on('updateVotes', ({ userId, upvotes, downvotes }) => {
+        // Update vote counts in UI
+        const playerStory = document.querySelector(`.player-story[data-user-id="${userId}"]`);
+        if (playerStory) {
+            playerStory.querySelector('.vote-count[data-type="up"]').textContent = upvotes;
+            playerStory.querySelector('.vote-count[data-type="down"]').textContent = downvotes;
+        }
+
+        // Update leaderboard in gameState if it exists
+        if (gameState.leaderboard) {
+            const playerIndex = gameState.leaderboard.findIndex(p => p.userId === userId);
+            if (playerIndex !== -1) {
+                gameState.leaderboard[playerIndex].upvotes = upvotes;
+                gameState.leaderboard[playerIndex].downvotes = downvotes;
+                gameState.leaderboard[playerIndex].score = upvotes - downvotes;
+
+                // Re-sort leaderboard
+                gameState.leaderboard.sort((a, b) => b.score - a.score);
+            }
+        }
     });
 
 
@@ -561,12 +623,117 @@ io.on("connection", function (socket) {
         }
     });
 
-    function endGame(roomCode) {
+    async function endGame(roomCode) {
         const room = gameRooms[roomCode];
         if (!room) return;
 
         room.gameState.status = 'finished';
-        io.to(roomCode).emit('gameFinished', room.gameState.responseChain);
+
+        // Inicializa storyVotes para a sala se não existir
+        if (!storyVotes[roomCode]) {
+            storyVotes[roomCode] = {};
+        }
+
+        const playerStories = {};
+        const playerScores = {};
+        const axios = (await import('axios')).default;
+
+        // Prepare all player prompts
+        const playerPrompts = room.players.map(player => {
+            // Inicializa votos para o jogador se não existir
+            if (!storyVotes[roomCode][player.userId]) {
+                storyVotes[roomCode][player.userId] = { up: 0, down: 0 };
+            }
+
+            const responses = room.gameState.responseChain.map(round => {
+                const response = round.responses.find(r => r.userId === player.userId);
+                return response && response.response !== "[SKIPPED]" ? response.response : null;
+            }).filter(Boolean);
+
+            if (responses.length === 0) {
+                playerStories[player.userId] = "No responses submitted.";
+                return;
+            }
+            return {
+                userId: player.userId,
+                username: player.username,
+                prompt: `Write a creative and entertaining paragraph based on these responses from ${player.username}:\n\n` +
+                    responses.map((r, i) => `Round ${i + 1}: ${r}`).join('\n') +
+                    `\n\nMake it coherent and fun.`
+            };
+        });
+
+        // Generate stories in parallel
+        await Promise.all(
+            playerPrompts
+                .filter(Boolean)
+                .map(async ({ userId, username, prompt }) => {
+                    try {
+                        const response = await axios.post('http://localhost:3000/chat', { prompt });
+                        let story;
+                        if (response.data.success) {
+                            story = response.data.choices[0].message.content;
+                            playerStories[userId] = story;
+                        } else {
+                            story = "Failed to generate story.";
+                            playerStories[userId] = story;
+                        }
+
+                        // Get upvotes/downvotes - garantindo que existem
+                        const votes = storyVotes[roomCode][userId] || { up: 0, down: 0 };
+
+                        // Calculate score
+                        playerScores[userId] = {
+                            username: username,
+                            score: votes.up - votes.down,
+                            upvotes: votes.up,
+                            downvotes: votes.down,
+                            userId: userId // Adicionando userId para referência
+                        };
+
+                        // Save to user history
+                        await user.findOneAndUpdate(
+                            { _id: userId },
+                            {
+                                $push: {
+                                    gameHistory: {
+                                        date: new Date(),
+                                        roomCode,
+                                        prompt,
+                                        generatedText: story,
+                                        upvotes: votes.up,
+                                        downvotes: votes.down,
+                                        score: votes.up - votes.down
+                                    }
+                                }
+                            }
+                        );
+                    } catch (err) {
+                        console.error('Error generating story:', err);
+                        playerStories[userId] = "Failed to generate story.";
+                        playerScores[userId] = {
+                            username: username,
+                            score: 0,
+                            upvotes: 0,
+                            downvotes: 0,
+                            userId: userId
+                        };
+                    }
+                })
+        );
+
+        // Sort players by score
+        const sortedPlayers = Object.values(playerScores)
+            .sort((a, b) => b.score - a.score);
+
+        room.gameState.playerStories = playerStories;
+        room.gameState.leaderboard = sortedPlayers;
+
+        io.to(roomCode).emit('gameFinished', {
+            playerStories,
+            leaderboard: sortedPlayers,
+            votes: storyVotes[roomCode] // Envia os votos atuais
+        });
     }
 
     // Handle player response submissions
@@ -606,7 +773,8 @@ io.on("connection", function (socket) {
         io.to(roomCode).emit('updateLobby', {
             players: lobby.players,
             maxPlayers: lobby.maxPlayers, // Certifique-se que está enviando isso
-            settings: lobby.settings
+            settings: lobby.settings,
+            hostId: lobby.players[0]?.id
         });
     }
 
@@ -649,7 +817,7 @@ io.on("connection", function (socket) {
             status: 'playing',
             currentRound: 1,
             totalRounds: 5,
-            timePerRound: 60,
+            timePerRound: room.gameState.timePerRound || 60,
             prompts: roundPrompts, // <-- Always set this!
             responses: {},
             responseChain: []
@@ -657,7 +825,8 @@ io.on("connection", function (socket) {
 
         io.to(roomCode).emit('gameStarted', {
             rounds: 5,
-            ideaTime: 60
+            ideaTime: room.gameState.timePerRound,
+            problem: room.problem || ''
         });
 
         startRound(roomCode);
@@ -762,3 +931,39 @@ app.post('/generate-story', async (req, res) => {
     }
 });
 
+
+app.post('/save-history', async (req, res) => {
+    try {
+        const { roomCode } = req.body;
+        const room = gameRooms[roomCode];
+        if (!room) return res.status(404).json({ success: false, message: 'Room not found' });
+
+        // Save each player's story to their history
+        for (const player of room.players) {
+            const userId = player.userId;
+            const story = room.gameState.playerStories?.[userId] || "No story generated.";
+            const votes = (storyVotes[roomCode] && storyVotes[roomCode][userId]) || { up: 0, down: 0 };
+            const prompt = room.gameState.prompts ? room.gameState.prompts.join('\n') : '';
+
+            await User.findOneAndUpdate(
+                { _id: userId },
+                {
+                    $push: {
+                        gameHistory: {
+                            date: new Date(),
+                            roomCode,
+                            prompt,
+                            generatedText: story,
+                            upvotes: votes.up,
+                            downvotes: votes.down
+                        }
+                    }
+                }
+            );
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error saving game history:', err);
+        res.status(500).json({ success: false, message: 'Failed to save history' });
+    }
+});

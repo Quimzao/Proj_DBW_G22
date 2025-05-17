@@ -27,7 +27,7 @@ export const handleChatCompletion = async (req, res) => {
         console.log("Sending payload to LM Studio:", JSON.stringify(payload, null, 2));
 
         const response = await axios.post(LM_STUDIO_URL, payload, {
-            timeout: 30000 // 30 segundos timeout
+            timeout: 30000
         });
 
         if (!response.data.choices || !response.data.choices[0]) {
@@ -39,17 +39,13 @@ export const handleChatCompletion = async (req, res) => {
         console.log("Story generated successfully");
         res.json({ 
             success: true, 
-            response: {
-                choices: [{
-                    message: { content: story }
-                }]
-            }
+            choices: [{
+                message: { content: story }
+            }]
         });
 
     } catch (error) {
         console.error("Error in chat completion:", error.response?.data || error.message);
-        
-        // Mensagem mais amigável para o usuário
         let errorMessage = "Error generating story. Please try again.";
         if (error.code === 'ECONNABORTED') {
             errorMessage = "The story generation took too long. Please try again.";

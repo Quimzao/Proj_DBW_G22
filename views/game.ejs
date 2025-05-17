@@ -18,7 +18,9 @@
                 <div class="user-avatar me-2">
                     <img src="<%= user.profilePicture || '/images/default-avatar.png' %>" alt="<%= user.username %>">
                 </div>
-                <span class="text-white me-3"><%= user.username %></span>
+                <span class="text-white me-3">
+                    <%= user.username %>
+                </span>
                 <a href="/logout" class="btn btn-sm btn-outline-light">Logout</a>
             </div>
         </div>
@@ -67,9 +69,8 @@
 
                         <!-- Prompt Screen -->
                         <div id="prompt-screen" class="d-none h-100 d-flex flex-column">
-                            <div id="problem-box" class="alert alert-info text-dark mb-3 d-none"></div>
                             <p id="prompt-text" class="text-center mb-4 fs-5"></p>
-                            <textarea id="response-input" class="form-control flex-grow-1" 
+                            <textarea id="response-input" class="form-control flex-grow-1"
                                 placeholder="Type your creative response here..."></textarea>
                             <div class="d-flex justify-content-between mt-3">
                                 <button id="skip-round" class="btn btn-outline-warning">Skip</button>
@@ -81,8 +82,10 @@
                         <div id="results-screen" class="d-none h-100 d-flex flex-column">
                             <h3 class="text-center mb-4">Game Results</h3>
                             <div id="rounds-results" class="flex-grow-1 overflow-auto mb-3"></div>
-                            <div class="text-center">
-                                <button id="generate-story" class="btn btn-gold">Create Story</button>
+                            <div class="text-center mt-3">
+                                <button id="return-to-lobby" class="btn btn-gold btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Return to Lobby
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -100,7 +103,8 @@
                     </div>
                     <div class="card-footer p-0 bg-dark">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                            <input type="text" class="form-control" id="message-input"
+                                placeholder="Type your message...">
                             <button class="btn btn-primary" id="send-message">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
@@ -117,7 +121,8 @@
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
                     <h5 class="modal-title">Generated Text</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="generated-story" class="story-content"></div>
@@ -182,12 +187,13 @@
 
         // Socket event handlers
         socket.on('updatePlayers', (players) => {
+            gameState.players = players;
             const playersList = document.getElementById('players-list');
             const playerCount = document.getElementById('player-count');
-            
+
             playersList.innerHTML = '';
             playerCount.textContent = players.length;
-            
+
             players.forEach(player => {
                 const isCurrent = player.userId === currentUser.id;
                 const playerEl = document.createElement('div');
@@ -206,7 +212,7 @@
         });
 
         socket.on('gameWaiting', (needed) => {
-            document.getElementById('waiting-message').textContent = 
+            document.getElementById('waiting-message').textContent =
                 `Waiting for ${needed} more player${needed > 1 ? 's' : ''} to start...`;
         });
 
@@ -219,11 +225,13 @@
             gameState.timePerRound = settings.ideaTime;
             totalRoundsDisplay.textContent = settings.rounds;
 
-            // Show the problem if provided
-            if (settings.problem) {
-                const problemBox = document.getElementById('problem-box');
-                problemBox.textContent = "Problem: " + settings.problem;
-                problemBox.classList.remove('d-none');
+            // Show the problem as the title if provided
+            const promptTitle = document.getElementById('prompt-title');
+            console.log("Problem received:", settings.problem); // Debugging log
+            if (settings.problem && settings.problem.trim() !== "") {
+                promptTitle.textContent = settings.problem;
+            } else {
+                promptTitle.textContent = "Creative Chain";
             }
 
             waitingScreen.classList.add('d-none');
@@ -241,17 +249,25 @@
             gameState.currentRound = data.round;
             gameState.currentPrompt = data.prompt;
             currentRoundDisplay.textContent = data.round;
-            
+
             document.getElementById('prompt-text').textContent = data.prompt;
             responseInput.value = '';
             responseInput.disabled = false;
             submitButton.disabled = false;
-            
+
             // Show the problem if provided
             if (data.problem) {
                 const problemBox = document.getElementById('problem-box');
                 problemBox.textContent = "Problem: " + data.problem;
                 problemBox.classList.remove('d-none');
+            }
+
+            // Also update the title in case the problem changes
+            const promptTitle = document.getElementById('prompt-title');
+            if (data.problem && data.problem.trim() !== "") {
+                promptTitle.textContent = data.problem;
+            } else {
+                promptTitle.textContent = "Creative Chain";
             }
 
             // Show timer
@@ -261,7 +277,7 @@
         socket.on('updateTimer', (time) => {
             gameState.timeRemaining = time;
             timerDisplay.textContent = time;
-            
+
             if (time <= 10) {
                 timerContainer.classList.add('timer-danger');
                 timerContainer.classList.remove('timer-warning');
@@ -280,27 +296,165 @@
             }
         });
 
-        socket.on('gameFinished', (responseChain) => {
-            // Hide timer
+        socket.on('gameFinished', ({ playerStories, leaderboard, votes }) => {
+            console.log('Game finished data:', { playerStories, leaderboard, votes });
             timerContainer.style.display = 'none';
-            
             promptScreen.classList.add('d-none');
             resultsScreen.classList.remove('d-none');
-            
-            // Show all round results
-            roundResults.innerHTML = responseChain.map(round => `
-                <div class="round-result mb-4 p-3 bg-dark rounded">
-                    <h4 class="text-gold">Round ${round.round}</h4>
-                    ${round.responses.map(response => `
-                        <div class="player-response mb-2">
-                            <strong>${response.username}:</strong>
-                            <p class="mb-1">${response.response}</p>
+
+            // Store data in gameState
+            gameState.playerStories = playerStories;
+            gameState.leaderboard = leaderboard;
+            gameState.votes = votes || {};
+
+            // Render stories with current vote counts
+            roundResults.innerHTML = `
+        <div class="stories-container">
+            ${Object.entries(playerStories).map(([userId, story]) => {
+                const player = (gameState.players || []).find(p => p.userId === userId);
+                const votes = gameState.votes[userId] || { up: 0, down: 0 };
+                return `
+                    <div class="player-story mb-4 p-3 bg-dark rounded" data-user-id="${userId}">
+                        <h4 class="text-gold">${player ? player.username : userId}</h4>
+                        <p>${story}</p>
+                        <div class="vote-buttons mt-3">
+                            <button class="btn btn-gold btn-vote btn-upvote me-2" data-vote="up" title="Upvote">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span class="vote-count" data-type="up">${votes.up || 0}</span>
+                            </button>
+                            <button class="btn btn-outline-warning btn-vote btn-downvote" data-vote="down" title="Downvote">
+                                <i class="fas fa-thumbs-down"></i>
+                                <span class="vote-count" data-type="down">${votes.down || 0}</span>
+                            </button>
                         </div>
-                    `).join('')}
-                </div>
-            `).join('');
+                        <div class="score-display mt-2">
+                            <small>Score: <span class="text-gold">${(votes.up || 0) - (votes.down || 0)}</span></small>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="text-center mt-4">
+            <button id="show-leaderboard" class="btn btn-gold btn-lg">
+                <i class="fas fa-trophy me-2"></i>Show Final Results
+            </button>
+        </div>
+        <div id="leaderboard-container" class="d-none"></div>
+    `;
         });
 
+        function showLeaderboard() {
+            if (!gameState.leaderboard) return;
+
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            leaderboardContainer.classList.remove('d-none');
+
+            // Atualiza o leaderboard com os votos mais recentes
+            const updatedLeaderboard = [...gameState.leaderboard].sort((a, b) => b.score - a.score);
+
+            leaderboardContainer.innerHTML = `
+        <div class="leaderboard mt-4 p-3 bg-dark rounded">
+            <h3 class="text-center text-gold mb-3">Final Ranking</h3>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Player</th>
+                            <th>Score</th>
+                            <th>Upvotes</th>
+                            <th>Downvotes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${updatedLeaderboard.map((player, index) => {
+                const playerData = gameState.leaderboard.find(p => p.userId === player.userId) || player;
+                return `
+                                <tr class="${getRankingClass(index)}">
+                                    <td>${getPositionIcon(index + 1)} ${index + 1}</td>
+                                    <td>${playerData.username}</td>
+                                    <td>${playerData.upvotes - playerData.downvotes}</td>
+                                    <td>${playerData.upvotes}</td>
+                                    <td>${playerData.downvotes}</td>
+                                </tr>
+                            `;
+            }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+            leaderboardContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getPositionIcon(position) {
+            if (position === 1) return '<i class="fas fa-crown text-warning"></i>';
+            if (position === 2) return '<i class="fas fa-medal text-secondary"></i>';
+            if (position === 3) return '<i class="fas fa-medal text-danger"></i>';
+            return '';
+        }
+
+        function getRankingClass(index) {
+            if (index === 0) return 'first-place';
+            if (index === 1) return 'second-place';
+            if (index === 2) return 'third-place';
+            return '';
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.id === 'show-leaderboard') {
+                showLeaderboard();
+            }
+        });
+
+        // Voting logic
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.btn-vote')) {
+                const btn = e.target.closest('.btn-vote');
+                const playerStory = btn.closest('.player-story');
+                const userId = playerStory.getAttribute('data-user-id');
+                const voteType = btn.getAttribute('data-vote');
+
+                // Prevent double click on client (visual only, server is authoritative)
+                btn.disabled = true;
+
+                socket.emit('voteStory', {
+                    roomCode,
+                    userId,
+                    vote: voteType
+                });
+            }
+        });
+
+        // Update votes when received from server
+        socket.on('updateVotes', ({ userId, upvotes, downvotes }) => {
+            // Update vote counts in UI
+            const playerStory = document.querySelector(`.player-story[data-user-id="${userId}"]`);
+            if (playerStory) {
+                playerStory.querySelector('.vote-count[data-type="up"]').textContent = upvotes;
+                playerStory.querySelector('.vote-count[data-type="down"]').textContent = downvotes;
+
+                // Update score display
+                const scoreDisplay = playerStory.querySelector('.score-display span');
+                if (scoreDisplay) {
+                    scoreDisplay.textContent = upvotes - downvotes;
+                }
+            }
+
+            // Update leaderboard in gameState if it exists
+            if (gameState.leaderboard) {
+                const playerIndex = gameState.leaderboard.findIndex(p => p.userId === userId);
+                if (playerIndex !== -1) {
+                    gameState.leaderboard[playerIndex].upvotes = upvotes;
+                    gameState.leaderboard[playerIndex].downvotes = downvotes;
+                    gameState.leaderboard[playerIndex].score = upvotes - downvotes;
+
+                    // Re-sort leaderboard
+                    gameState.leaderboard.sort((a, b) => b.score - a.score);
+                }
+            }
+        });
         // UI Event handlers
         submitButton.addEventListener('click', () => {
             const response = responseInput.value.trim();
@@ -322,44 +476,44 @@
         });
 
         generateStoryBtn.addEventListener('click', async () => {
-    generateStoryBtn.innerHTML = `
+            generateStoryBtn.innerHTML = `
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         Creating Story...
     `;
-    generateStoryBtn.disabled = true;
-    
-    try {
-        const response = await fetch('/generate-story', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ roomCode })
+            generateStoryBtn.disabled = true;
+
+            try {
+                const response = await fetch('/generate-story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode })
+                });
+
+                const result = await response.json();
+                const storyModal = new bootstrap.Modal('#storyModal');
+
+                if (result.success) {
+                    // Ajuste para a nova estrutura de resposta
+                    const storyContent = result.response.choices[0].message.content;
+                    document.getElementById('generated-story').innerHTML =
+                        storyContent.split('\n').map(para => `<p>${para}</p>`).join('');
+                } else {
+                    document.getElementById('generated-story').innerHTML =
+                        `<p class="text-danger">${result.message || 'Error generating story'}</p>`;
+                }
+
+                storyModal.show();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('generated-story').innerHTML =
+                    `<p class="text-danger">Network error. Please try again.</p>`;
+                const storyModal = new bootstrap.Modal('#storyModal');
+                storyModal.show();
+            } finally {
+                generateStoryBtn.innerHTML = 'Create Story';
+                generateStoryBtn.disabled = false;
+            }
         });
-        
-        const result = await response.json();
-        const storyModal = new bootstrap.Modal('#storyModal');
-        
-        if (result.success) {
-            // Ajuste para a nova estrutura de resposta
-            const storyContent = result.response.choices[0].message.content;
-            document.getElementById('generated-story').innerHTML = 
-                storyContent.split('\n').map(para => `<p>${para}</p>`).join('');
-        } else {
-            document.getElementById('generated-story').innerHTML = 
-                `<p class="text-danger">${result.message || 'Error generating story'}</p>`;
-        }
-        
-        storyModal.show();
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('generated-story').innerHTML = 
-            `<p class="text-danger">Network error. Please try again.</p>`;
-        const storyModal = new bootstrap.Modal('#storyModal');
-        storyModal.show();
-    } finally {
-        generateStoryBtn.innerHTML = 'Create Story';
-        generateStoryBtn.disabled = false;
-    }
-});
 
         // Chat functionality
         document.getElementById('send-message').addEventListener('click', sendMessage);
@@ -370,7 +524,7 @@
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
-            
+
             if (message) {
                 socket.emit('sendGameMessage', {
                     roomCode: roomCode,
@@ -384,13 +538,13 @@
         socket.on('newMessage', (message) => {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
-            
+
             messageElement.className = `message ${message.type}`;
             messageElement.innerHTML = `
                 <div class="message-sender">${message.sender}:</div>
                 <div class="message-content">${message.content}</div>
             `;
-            
+
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
@@ -401,6 +555,25 @@
                 clearInterval(gameState.timer);
             }
         });
+
+        document.getElementById('return-to-lobby').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/save-history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomCode })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to save game history');
+                }
+            } catch (err) {
+                console.error('Error saving history:', err);
+            }
+
+            window.location.href = '/lobby';
+        });
     </script>
 </body>
+
 </html>
