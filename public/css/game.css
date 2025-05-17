@@ -638,3 +638,136 @@ body {
 #return-to-lobby {
     margin-bottom: 1rem;
 }
+/* Leaderboard styles */
+.leaderboard {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 15px rgba(215, 186, 137, 0.3);
+}
+
+.table-responsive {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.table-dark {
+    background-color: var(--card-bg);
+    color: white;
+}
+
+.table-dark th {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(215, 186, 137, 0.1);
+}
+
+/* Ranking positions */
+.first-place {
+    background-color: rgba(255, 215, 0, 0.15);
+}
+
+.first-place td {
+    font-weight: bold;
+    color: #ffd700 !important;
+}
+
+.second-place {
+    background-color: rgba(192, 192, 192, 0.15);
+}
+
+.second-place td {
+    color: #c0c0c0 !important;
+}
+
+.third-place {
+    background-color: rgba(205, 127, 50, 0.15);
+}
+
+.third-place td {
+    color: #cd7f32 !important;
+}
+
+#show-leaderboard {
+    transition: all 0.3s;
+}
+
+#show-leaderboard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.stories-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.score-display {
+    font-size: 0.9rem;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.btn-vote {
+    transition: all 0.2s;
+}
+
+.btn-vote:disabled {
+    opacity: 0.7;
+}
+
+.btn-upvote:not(:disabled):hover {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-downvote:not(:disabled):hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-upvote.active {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-downvote.active {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Botões dourados */
+#show-leaderboard, 
+#return-to-lobby {
+    background-color: #e0c28c;
+    color: #121212;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#show-leaderboard:hover,
+#return-to-lobby:hover {
+    background-color: #d7ba89;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#show-leaderboard:active,
+#return-to-lobby:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Ícones dentro dos botões */
+#show-leaderboard i,
+#return-to-lobby i {
+    color: #121212;
+}

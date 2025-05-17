@@ -478,36 +478,58 @@ io.on("connection", function (socket) {
     });
 
     socket.on('voteStory', ({ roomCode, userId, vote }) => {
-        if (!storyVotes[roomCode]) storyVotes[roomCode] = {};
+        if (!storyVotes[roomCode]) {
+            storyVotes[roomCode] = {};
+        }
         if (!storyVotes[roomCode][userId]) {
-            storyVotes[roomCode][userId] = { up: 0, down: 0, voters: {} };
-        }
-        // Prevent double voting: use socket.id or currentUser.id as voterId
-        const voterId = socket.handshake.auth?.userId || socket.userId || socket.id;
-
-        // Only allow one upvote and one downvote per voter per story
-        if (!storyVotes[roomCode][userId].voters[voterId]) {
-            storyVotes[roomCode][userId].voters[voterId] = { up: false, down: false };
+            storyVotes[roomCode][userId] = { up: 0, down: 0 };
         }
 
-        // If already voted this type, ignore
-        if (storyVotes[roomCode][userId].voters[voterId][vote]) return;
+        const voterId = socket.id; // Usando socket.id como identificador único do votante
 
-        // Register the vote
-        if (vote === 'up') {
-            storyVotes[roomCode][userId].up++;
-            storyVotes[roomCode][userId].voters[voterId].up = true;
-        }
-        if (vote === 'down') {
-            storyVotes[roomCode][userId].down++;
-            storyVotes[roomCode][userId].voters[voterId].down = true;
+        // Verifica se este votante já votou neste usuário
+        if (!storyVotes[roomCode][userId].voters) {
+            storyVotes[roomCode][userId].voters = {};
         }
 
+        // Se já votou neste tipo, remove o voto anterior
+        if (storyVotes[roomCode][userId].voters[voterId]) {
+            const previousVote = storyVotes[roomCode][userId].voters[voterId];
+            storyVotes[roomCode][userId][previousVote]--;
+        }
+
+        // Registra o novo voto
+        storyVotes[roomCode][userId][vote]++;
+        storyVotes[roomCode][userId].voters[voterId] = vote;
+
+        // Atualiza todos os jogadores
         io.to(roomCode).emit('updateVotes', {
             userId,
             upvotes: storyVotes[roomCode][userId].up,
             downvotes: storyVotes[roomCode][userId].down
         });
+    });
+
+    socket.on('updateVotes', ({ userId, upvotes, downvotes }) => {
+        // Update vote counts in UI
+        const playerStory = document.querySelector(`.player-story[data-user-id="${userId}"]`);
+        if (playerStory) {
+            playerStory.querySelector('.vote-count[data-type="up"]').textContent = upvotes;
+            playerStory.querySelector('.vote-count[data-type="down"]').textContent = downvotes;
+        }
+
+        // Update leaderboard in gameState if it exists
+        if (gameState.leaderboard) {
+            const playerIndex = gameState.leaderboard.findIndex(p => p.userId === userId);
+            if (playerIndex !== -1) {
+                gameState.leaderboard[playerIndex].upvotes = upvotes;
+                gameState.leaderboard[playerIndex].downvotes = downvotes;
+                gameState.leaderboard[playerIndex].score = upvotes - downvotes;
+
+                // Re-sort leaderboard
+                gameState.leaderboard.sort((a, b) => b.score - a.score);
+            }
+        }
     });
 
 
@@ -607,12 +629,22 @@ io.on("connection", function (socket) {
 
         room.gameState.status = 'finished';
 
-        // Generate a story for each player based on their responses
+        // Inicializa storyVotes para a sala se não existir
+        if (!storyVotes[roomCode]) {
+            storyVotes[roomCode] = {};
+        }
+
         const playerStories = {};
-        const axios = (await import('axios')).default; // Use axios for HTTP requests
+        const playerScores = {};
+        const axios = (await import('axios')).default;
 
         // Prepare all player prompts
         const playerPrompts = room.players.map(player => {
+            // Inicializa votos para o jogador se não existir
+            if (!storyVotes[roomCode][player.userId]) {
+                storyVotes[roomCode][player.userId] = { up: 0, down: 0 };
+            }
+
             const responses = room.gameState.responseChain.map(round => {
                 const response = round.responses.find(r => r.userId === player.userId);
                 return response && response.response !== "[SKIPPED]" ? response.response : null;
@@ -647,8 +679,17 @@ io.on("connection", function (socket) {
                             playerStories[userId] = story;
                         }
 
-                        // Get upvotes/downvotes
-                        const votes = (storyVotes[roomCode] && storyVotes[roomCode][userId]) || { up: 0, down: 0 };
+                        // Get upvotes/downvotes - garantindo que existem
+                        const votes = storyVotes[roomCode][userId] || { up: 0, down: 0 };
+
+                        // Calculate score
+                        playerScores[userId] = {
+                            username: username,
+                            score: votes.up - votes.down,
+                            upvotes: votes.up,
+                            downvotes: votes.down,
+                            userId: userId // Adicionando userId para referência
+                        };
 
                         // Save to user history
                         await user.findOneAndUpdate(
@@ -661,19 +702,38 @@ io.on("connection", function (socket) {
                                         prompt,
                                         generatedText: story,
                                         upvotes: votes.up,
-                                        downvotes: votes.down
+                                        downvotes: votes.down,
+                                        score: votes.up - votes.down
                                     }
                                 }
                             }
                         );
                     } catch (err) {
+                        console.error('Error generating story:', err);
                         playerStories[userId] = "Failed to generate story.";
+                        playerScores[userId] = {
+                            username: username,
+                            score: 0,
+                            upvotes: 0,
+                            downvotes: 0,
+                            userId: userId
+                        };
                     }
                 })
         );
 
+        // Sort players by score
+        const sortedPlayers = Object.values(playerScores)
+            .sort((a, b) => b.score - a.score);
+
         room.gameState.playerStories = playerStories;
-        io.to(roomCode).emit('gameFinished', { playerStories });
+        room.gameState.leaderboard = sortedPlayers;
+
+        io.to(roomCode).emit('gameFinished', {
+            playerStories,
+            leaderboard: sortedPlayers,
+            votes: storyVotes[roomCode] // Envia os votos atuais
+        });
     }
 
     // Handle player response submissions

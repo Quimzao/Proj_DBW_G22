@@ -296,33 +296,118 @@
             }
         });
 
-        socket.on('gameFinished', ({ playerStories }) => {
-            console.log('Received playerStories:', playerStories);
-            console.log('Current players:', gameState.players);
+        socket.on('gameFinished', ({ playerStories, leaderboard, votes }) => {
+            console.log('Game finished data:', { playerStories, leaderboard, votes });
             timerContainer.style.display = 'none';
             promptScreen.classList.add('d-none');
             resultsScreen.classList.remove('d-none');
 
-            roundResults.innerHTML = Object.entries(playerStories).map(([userId, story]) => {
+            // Store data in gameState
+            gameState.playerStories = playerStories;
+            gameState.leaderboard = leaderboard;
+            gameState.votes = votes || {};
+
+            // Render stories with current vote counts
+            roundResults.innerHTML = `
+        <div class="stories-container">
+            ${Object.entries(playerStories).map(([userId, story]) => {
                 const player = (gameState.players || []).find(p => p.userId === userId);
+                const votes = gameState.votes[userId] || { up: 0, down: 0 };
                 return `
-            <div class="player-story mb-4 p-3 bg-dark rounded" data-user-id="${userId}">
-                <h4 class="text-gold">${player ? player.username : userId}</h4>
-                <p>${story}</p>
-                <div class="vote-buttons mt-3">
-                    <button class="btn btn-gold btn-vote btn-upvote me-2" data-vote="up" title="Upvote">
-                        <i class="fas fa-thumbs-up"></i>
-                        <span class="vote-count" data-type="up">0</span>
-                    </button>
-                    <button class="btn btn-outline-warning btn-vote btn-downvote" data-vote="down" title="Downvote">
-                        <i class="fas fa-thumbs-down"></i>
-                        <span class="vote-count" data-type="down">0</span>
-                    </button>
-                </div>
-            </div>
-        `;
-            }).join('');
+                    <div class="player-story mb-4 p-3 bg-dark rounded" data-user-id="${userId}">
+                        <h4 class="text-gold">${player ? player.username : userId}</h4>
+                        <p>${story}</p>
+                        <div class="vote-buttons mt-3">
+                            <button class="btn btn-gold btn-vote btn-upvote me-2" data-vote="up" title="Upvote">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span class="vote-count" data-type="up">${votes.up || 0}</span>
+                            </button>
+                            <button class="btn btn-outline-warning btn-vote btn-downvote" data-vote="down" title="Downvote">
+                                <i class="fas fa-thumbs-down"></i>
+                                <span class="vote-count" data-type="down">${votes.down || 0}</span>
+                            </button>
+                        </div>
+                        <div class="score-display mt-2">
+                            <small>Score: <span class="text-gold">${(votes.up || 0) - (votes.down || 0)}</span></small>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="text-center mt-4">
+            <button id="show-leaderboard" class="btn btn-gold btn-lg">
+                <i class="fas fa-trophy me-2"></i>Show Final Results
+            </button>
+        </div>
+        <div id="leaderboard-container" class="d-none"></div>
+    `;
         });
+
+        function showLeaderboard() {
+            if (!gameState.leaderboard) return;
+
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            leaderboardContainer.classList.remove('d-none');
+
+            // Atualiza o leaderboard com os votos mais recentes
+            const updatedLeaderboard = [...gameState.leaderboard].sort((a, b) => b.score - a.score);
+
+            leaderboardContainer.innerHTML = `
+        <div class="leaderboard mt-4 p-3 bg-dark rounded">
+            <h3 class="text-center text-gold mb-3">Final Ranking</h3>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Player</th>
+                            <th>Score</th>
+                            <th>Upvotes</th>
+                            <th>Downvotes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${updatedLeaderboard.map((player, index) => {
+                const playerData = gameState.leaderboard.find(p => p.userId === player.userId) || player;
+                return `
+                                <tr class="${getRankingClass(index)}">
+                                    <td>${getPositionIcon(index + 1)} ${index + 1}</td>
+                                    <td>${playerData.username}</td>
+                                    <td>${playerData.upvotes - playerData.downvotes}</td>
+                                    <td>${playerData.upvotes}</td>
+                                    <td>${playerData.downvotes}</td>
+                                </tr>
+                            `;
+            }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+            leaderboardContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getPositionIcon(position) {
+            if (position === 1) return '<i class="fas fa-crown text-warning"></i>';
+            if (position === 2) return '<i class="fas fa-medal text-secondary"></i>';
+            if (position === 3) return '<i class="fas fa-medal text-danger"></i>';
+            return '';
+        }
+
+        function getRankingClass(index) {
+            if (index === 0) return 'first-place';
+            if (index === 1) return 'second-place';
+            if (index === 2) return 'third-place';
+            return '';
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.id === 'show-leaderboard') {
+                showLeaderboard();
+            }
+        });
+
         // Voting logic
         document.addEventListener('click', function (e) {
             if (e.target.closest('.btn-vote')) {
@@ -344,10 +429,30 @@
 
         // Update votes when received from server
         socket.on('updateVotes', ({ userId, upvotes, downvotes }) => {
+            // Update vote counts in UI
             const playerStory = document.querySelector(`.player-story[data-user-id="${userId}"]`);
             if (playerStory) {
                 playerStory.querySelector('.vote-count[data-type="up"]').textContent = upvotes;
                 playerStory.querySelector('.vote-count[data-type="down"]').textContent = downvotes;
+
+                // Update score display
+                const scoreDisplay = playerStory.querySelector('.score-display span');
+                if (scoreDisplay) {
+                    scoreDisplay.textContent = upvotes - downvotes;
+                }
+            }
+
+            // Update leaderboard in gameState if it exists
+            if (gameState.leaderboard) {
+                const playerIndex = gameState.leaderboard.findIndex(p => p.userId === userId);
+                if (playerIndex !== -1) {
+                    gameState.leaderboard[playerIndex].upvotes = upvotes;
+                    gameState.leaderboard[playerIndex].downvotes = downvotes;
+                    gameState.leaderboard[playerIndex].score = upvotes - downvotes;
+
+                    // Re-sort leaderboard
+                    gameState.leaderboard.sort((a, b) => b.score - a.score);
+                }
             }
         });
         // UI Event handlers
@@ -452,18 +557,20 @@
         });
 
         document.getElementById('return-to-lobby').addEventListener('click', async () => {
-            // Save game history for this player
             try {
                 const response = await fetch('/save-history', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roomCode })
                 });
-                // Optionally check for success/failure here
+
+                if (!response.ok) {
+                    console.error('Failed to save game history');
+                }
             } catch (err) {
-                console.error('Failed to save game history:', err);
+                console.error('Error saving history:', err);
             }
-            // Redirect to lobby
+
             window.location.href = '/lobby';
         });
     </script>
