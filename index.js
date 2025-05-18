@@ -1,3 +1,4 @@
+// Import required modules and dependencies
 import express from "express";
 const app = express();
 
@@ -19,17 +20,21 @@ import configurePassport from "./config/passportConfig.js";
 
 import { handleChatCompletion } from "./controllers/chatController.js";
 
+// Setup __dirname and __filename for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Initialize game timers map
 const gameTimers = new Map();
 
+// Express app configuration
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 
+// MongoDB connection setup
 mongoose.set("debug", true);
 const uri = "mongodb+srv://Quim:Euna0se!@cluster0.wbapltt.mongodb.net/?retryWrites=true&w=majority&appName=dbw";
 const local_uri = "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.4.2";
@@ -48,7 +53,7 @@ mongoose
         console.error("MongoDB connection error:", err);
     });
 
-// * Auth Config
+// Session and authentication configuration
 app.use(
     session({
         resave: false,
@@ -65,6 +70,7 @@ app.use(passport.session());
 passport.serializeUser(user.serializeUser());
 passport.deserializeUser(user.deserializeUser());
 
+// Import and use route modules
 import mainRoutes from "./routes/mainRoutes.js";
 app.use("/", mainRoutes);
 
@@ -83,15 +89,19 @@ app.use("/chat", chatRoutes);
 import historyRoutes from './routes/historyRoutes.js';
 app.use('/history', historyRoutes);
 
+// Route for the game intro page
 app.get('/intro', (req, res) => {
     res.render('game-intro', { user: req.user || {} });
 });
 
 import profileRoutes from "./routes/profileRoutes.js";
 app.use("/profile", profileRoutes);
+
+// Create HTTP server and Socket.io server
 const server = http.createServer(app);
 const io = new Server(server);
 
+// API endpoint to check if a lobby exists
 app.get('/api/lobby/exists', (req, res) => {
     const roomCode = req.query.code;
     const exists = lobbies.has(roomCode);
@@ -102,14 +112,12 @@ app.get('/api/lobby/exists', (req, res) => {
     });
 });
 
-// Objeto para armazenar os lobbies
+// In-memory storage for lobbies and game rooms
 const lobbies = new Map();
-
-// Object to store game rooms
 const gameRooms = {};
-
 const storyVotes = {};// { roomCode: { userId: { up: 0, down: 0 } } }
 
+// Helper function to generate random prompts for the game
 function generatePrompts(count) {
     const prompts = [
         "Describe the weirdest invention you can imagine",
@@ -128,16 +136,17 @@ function generatePrompts(count) {
     return prompts.sort(() => 0.5 - Math.random()).slice(0, count);
 }
 
+// Socket.io connection handler for real-time game logic
 io.on("connection", function (socket) {
     console.log(`user connected: ${socket.id}`);
 
-    // Evento para entrar no lobby
+    // Handle joining a lobby
     socket.on('joinLobby', ({ roomCode, user }) => {
         if (!lobbies.has(roomCode)) {
-            // Criar novo lobby se não existir
+            // Create new lobby if it doesn't exist
             lobbies.set(roomCode, {
                 players: [],
-                maxPlayers: 12, // Definir o valor máximo de jogadores
+                maxPlayers: 12,
                 settings: {
                     rounds: 5,
                     drawTime: 60,
@@ -149,23 +158,22 @@ io.on("connection", function (socket) {
 
         const lobby = lobbies.get(roomCode);
 
-        // Verificar se o jogador já está no lobby com base no userId
+        // Check if player is already in the lobby
         const existingPlayer = lobby.players.find(p => p.userId === user.id);
         if (existingPlayer) {
-            // Atualizar o socket.id do jogador para a nova conexão
             existingPlayer.id = socket.id;
-            socket.join(roomCode); // Garantir que o socket esteja na sala
-            updateLobby(roomCode); // Atualizar o lobby para todos
+            socket.join(roomCode); 
+            updateLobby(roomCode);
             return;
         }
 
-        // Verificar se o lobby está cheio
+        // Check if lobby is full
         if (lobby.players.length >= lobby.maxPlayers) {
             socket.emit('lobbyFull');
             return;
         }
 
-        // Adicionar jogador ao lobby
+        // Add player to lobby
         const player = {
             id: socket.id,
             userId: user.id,
@@ -177,14 +185,13 @@ io.on("connection", function (socket) {
         lobby.players.push(player);
         socket.join(roomCode);
 
-        // Atualizar todos no lobby
         updateLobby(roomCode);
 
-        // Enviar mensagem de sistema
+        // Notify all players in the lobby
         io.to(roomCode).emit('systemMessage', `${user.username} joined the lobby.`);
     });
 
-    // Evento para mudar status de ready
+    // Handle toggling ready status
     socket.on('toggleReady', ({ roomCode, userId }) => {
         const lobby = lobbies.get(roomCode);
         if (!lobby) return;
@@ -200,7 +207,7 @@ io.on("connection", function (socket) {
         }
     });
 
-    // Evento para sair do lobby
+    // Handle leaving the lobby
     socket.on('leaveLobby', ({ roomCode, userId }) => {
         const lobby = lobbies.get(roomCode);
         if (!lobby) return;
@@ -215,14 +222,14 @@ io.on("connection", function (socket) {
 
             io.to(roomCode).emit('systemMessage', `${player.username} left the lobby.`);
 
-            // Se o lobby ficar vazio, removê-lo
+            // Remove lobby if empty
             if (lobby.players.length === 0) {
                 lobbies.delete(roomCode);
             }
         }
     });
 
-    // Evento para atualizar configurações
+    // Handle updating lobby settings (only host can change)
     socket.on('updateSettings', ({ roomCode, settings }) => {
         const lobby = lobbies.get(roomCode);
         if (!lobby) return;
@@ -235,16 +242,16 @@ io.on("connection", function (socket) {
         }
     });
 
-    // Evento para enviar mensagem no chat
+    // Handle sending chat messages in the lobby
     socket.on('sendMessage', ({ roomCode, message, user }) => {
-        // Envia a mensagem para todos exceto o remetente
+        // Send to all except sender
         socket.to(roomCode).emit('newMessage', {
             username: user.username,
             message: message,
             isSelf: false
         });
 
-        // Envia a mensagem apenas para o remetente (com isSelf=true)
+        // Send to sender with isSelf=true
         socket.emit('newMessage', {
             username: 'You',
             message: message,
@@ -252,7 +259,7 @@ io.on("connection", function (socket) {
         });
     });
 
-    // Evento para iniciar o jogo
+    // Handle starting the game (only host can start)
     socket.on('startGame', (data, callback) => {
         const { roomCode, timePerRound, problem } = data; // Extract problem from data
         const lobby = lobbies.get(roomCode);
@@ -262,7 +269,7 @@ io.on("connection", function (socket) {
             return;
         }
 
-        // Verify if the user is the host
+        // Only host can start
         if (lobby.players.length === 0 || lobby.players[0].id !== socket.id) {
             callback({ success: false, message: 'Only the room creator can start the game' });
             return;
@@ -285,6 +292,7 @@ io.on("connection", function (socket) {
             return;
         }
 
+        // Initialize game room if not exists
         if (!gameRooms[roomCode]) {
             gameRooms[roomCode] = {
                 players: [],
@@ -305,17 +313,17 @@ io.on("connection", function (socket) {
         room.problem = problem || ''; // Use the problem from the client
         callback({ success: true });
 
-        // Emit event to redirect players to the game
+        // Notify all players to redirect to game
         io.to(roomCode).emit('redirectToGame', { roomCode });
 
         // Pass problem to game room
         gameRooms[roomCode].problem = problem || '';
 
-        // Emit to ALL sockets in the room
+        // Emit to all sockets in the room to start game with timer
         io.to(roomCode).emit('startGameWithTimer', roomCode);
     });
 
-    // Evento para obter jogadores do lobby
+    // Handle request for lobby players (for not-ready popup)
     socket.on('getLobbyPlayers', (roomCode, callback) => {
         const lobby = lobbies.get(roomCode);
         if (lobby) {
@@ -329,18 +337,15 @@ io.on("connection", function (socket) {
         }
     });
 
-    // Evento para obter histórico de chat
+    // Handle request for chat history (not implemented)
     socket.on('getChatHistory', (roomCode, callback) => {
-        // Aqui você precisaria implementar a lógica para armazenar e recuperar
-        // o histórico de mensagens. Por enquanto, vamos retornar um array vazio
         callback([]);
     });
 
-    // Evento para submeter resposta
+    // Handle player response submission (for game rounds)
     socket.on('submitResponse', ({ roomCode, userId, response }) => {
-        // Lógica para processar a resposta do jogador
+        // Log response for debugging
         console.log(`Player ${userId} submitted response: ${response}`);
-        // Você pode emitir um evento para atualizar outros jogadores se necessário
         io.to(roomCode).emit('responseSubmitted', { userId, response });
     });
 
@@ -382,7 +387,7 @@ io.on("connection", function (socket) {
         checkStartGame(roomCode);
     });
 
-    // Handle game messages
+    // Handle sending chat messages in the game room
     socket.on('sendGameMessage', ({ roomCode, message, user }) => {
         const room = gameRooms[roomCode];
         if (room) {
@@ -398,7 +403,7 @@ io.on("connection", function (socket) {
             // Broadcast to all in room except sender
             socket.to(roomCode).emit('newMessage', chatMessage);
 
-            // Send to sender with different type
+            // Send to sender with type 'self'
             socket.emit('newMessage', {
                 ...chatMessage,
                 sender: 'You',
@@ -407,7 +412,7 @@ io.on("connection", function (socket) {
         }
     });
 
-    // Helper function to update game room
+    // Helper function to update game room state for all players
     function updateGameRoom(roomCode) {
         const room = gameRooms[roomCode];
         if (!room) return;
@@ -415,9 +420,8 @@ io.on("connection", function (socket) {
         io.to(roomCode).emit('updatePlayers', room.players);
         io.to(roomCode).emit('updateChat', room.chatHistory);
     }
-    // Lidar com desconexões
     socket.on('disconnect', () => {
-        // Encontrar e remover o jogador de todos os lobbies
+        // Handle player disconnects: remove from lobbies and update state
         for (const [roomCode, lobby] of lobbies) {
             const playerIndex = lobby.players.findIndex(p => p.id === socket.id);
             if (playerIndex !== -1) {
@@ -427,7 +431,6 @@ io.on("connection", function (socket) {
                 io.to(roomCode).emit('systemMessage', `${player.username} disconnected.`);
                 updateLobby(roomCode);
 
-                // Se o lobby ficar vazio, removê-lo
                 if (lobby.players.length === 0) {
                     lobbies.delete(roomCode);
                 }
@@ -438,10 +441,8 @@ io.on("connection", function (socket) {
     });
 
     // Handle game start with timer
-    // Add this near the top with other game state variables
     const gameTimers = new Map();
 
-    // Replace the existing game start/round handlers with these:
 
     // Handle game start
     socket.on('startGameWithTimer', (roomCode) => {
@@ -477,6 +478,7 @@ io.on("connection", function (socket) {
         startRound(roomCode);
     });
 
+    // Voting logic for stories
     socket.on('voteStory', ({ roomCode, userId, vote }) => {
         if (!storyVotes[roomCode]) {
             storyVotes[roomCode] = {};
@@ -485,24 +487,24 @@ io.on("connection", function (socket) {
             storyVotes[roomCode][userId] = { up: 0, down: 0 };
         }
 
-        const voterId = socket.id; // Usando socket.id como identificador único do votante
+        const voterId = socket.id; 
 
-        // Verifica se este votante já votou neste usuário
+        // Track previous votes to prevent double voting
         if (!storyVotes[roomCode][userId].voters) {
             storyVotes[roomCode][userId].voters = {};
         }
 
-        // Se já votou neste tipo, remove o voto anterior
+        // Remove previous vote if exists
         if (storyVotes[roomCode][userId].voters[voterId]) {
             const previousVote = storyVotes[roomCode][userId].voters[voterId];
             storyVotes[roomCode][userId][previousVote]--;
         }
 
-        // Registra o novo voto
+        // Register new vote
         storyVotes[roomCode][userId][vote]++;
         storyVotes[roomCode][userId].voters[voterId] = vote;
 
-        // Atualiza todos os jogadores
+        // Update all players with new vote counts
         io.to(roomCode).emit('updateVotes', {
             userId,
             upvotes: storyVotes[roomCode][userId].up,
@@ -629,7 +631,6 @@ io.on("connection", function (socket) {
 
         room.gameState.status = 'finished';
 
-        // Inicializa storyVotes para a sala se não existir
         if (!storyVotes[roomCode]) {
             storyVotes[roomCode] = {};
         }
@@ -640,7 +641,6 @@ io.on("connection", function (socket) {
 
         // Prepare all player prompts
         const playerPrompts = room.players.map(player => {
-            // Inicializa votos para o jogador se não existir
             if (!storyVotes[roomCode][player.userId]) {
                 storyVotes[roomCode][player.userId] = { up: 0, down: 0 };
             }
@@ -679,7 +679,7 @@ io.on("connection", function (socket) {
                             playerStories[userId] = story;
                         }
 
-                        // Get upvotes/downvotes - garantindo que existem
+                        // Get upvotes/downvotes
                         const votes = storyVotes[roomCode][userId] || { up: 0, down: 0 };
 
                         // Calculate score
@@ -688,7 +688,7 @@ io.on("connection", function (socket) {
                             score: votes.up - votes.down,
                             upvotes: votes.up,
                             downvotes: votes.down,
-                            userId: userId // Adicionando userId para referência
+                            userId: userId
                         };
 
                         // Save to user history
@@ -732,7 +732,7 @@ io.on("connection", function (socket) {
         io.to(roomCode).emit('gameFinished', {
             playerStories,
             leaderboard: sortedPlayers,
-            votes: storyVotes[roomCode] // Envia os votos atuais
+            votes: storyVotes[roomCode] // Send current votes
         });
     }
 
@@ -765,14 +765,14 @@ io.on("connection", function (socket) {
         endRound(roomCode);
     });
 
-    // Função auxiliar para atualizar o estado do lobby para todos os jogadores
+    // Handle player leaving the game
     function updateLobby(roomCode) {
         const lobby = lobbies.get(roomCode);
         if (!lobby) return;
 
         io.to(roomCode).emit('updateLobby', {
             players: lobby.players,
-            maxPlayers: lobby.maxPlayers, // Certifique-se que está enviando isso
+            maxPlayers: lobby.maxPlayers, // Confirm max players
             settings: lobby.settings,
             hostId: lobby.players[0]?.id
         });
@@ -818,7 +818,7 @@ io.on("connection", function (socket) {
             currentRound: 1,
             totalRounds: 5,
             timePerRound: room.gameState.timePerRound || 60,
-            prompts: roundPrompts, // <-- Always set this!
+            prompts: roundPrompts,
             responses: {},
             responseChain: []
         };
@@ -832,7 +832,7 @@ io.on("connection", function (socket) {
         startRound(roomCode);
     }
 
-    // Adicione esta função para verificar respostas
+    // Function to check if all players have completed the round
     function checkRoundCompletion(roomCode) {
         const room = gameRooms[roomCode];
         if (!room || room.gameState.status !== 'playing') return;
@@ -857,7 +857,7 @@ io.on("connection", function (socket) {
         }
     }
 
-    // Função para avançar para próxima rodada
+    // Function to handle next round
     function nextRound(roomCode) {
         const room = gameRooms[roomCode];
         if (!room) return;
@@ -872,7 +872,6 @@ io.on("connection", function (socket) {
             }))
         });
 
-        // Prepara próxima rodada
         room.gameState.currentRound++;
         room.gameState.responses = {};
 
@@ -882,6 +881,7 @@ io.on("connection", function (socket) {
 
 });
 
+// Start the server on port 3000
 const port = 3000;
 server.listen(port, (err) => {
     if (err) {
@@ -892,11 +892,12 @@ server.listen(port, (err) => {
     }
 });
 
-// Redirecionar para a página de introdução do lobby
+// Redirect /play to the lobby intro page
 app.get('/play', (req, res) => {
     res.redirect('/lobby/intro');
 });
 
+// Endpoint to generate a story using all player responses and LM Studio controller
 app.post('/generate-story', async (req, res) => {
     try {
         const { roomCode } = req.body;
@@ -909,7 +910,7 @@ app.post('/generate-story', async (req, res) => {
         const problemText = room.gameState.problem ? `Problem: ${room.gameState.problem}\n\n` : '';
 
 
-        // Formata todas as respostas para o prompt
+        // Format all responses for the prompt
         const allResponses = room.gameState.responseChain.map(round =>
             `Round ${round.round}:\n${round.responses.map(r => `- ${r.username}: ${r.response}`).join('\n')
             }`
@@ -917,9 +918,9 @@ app.post('/generate-story', async (req, res) => {
 
         const prompt = `${problemText}Create a  structured text to solve the problem using these ideas:\n\n${allResponses}\n\nMake it coherent and make one for each players responses.`;
 
-        // Usa o controller existente do LM Studio
-        req.body = { prompt }; // Prepara o request para o controller
-        await handleChatCompletion(req, res); // Chama diretamente o controller
+        // Use the LM Studio controller to generate the story
+        req.body = { prompt }; 
+        await handleChatCompletion(req, res);
 
     } catch (error) {
         console.error('Error generating story:', error);
@@ -931,7 +932,7 @@ app.post('/generate-story', async (req, res) => {
     }
 });
 
-
+// Endpoint to save game history for all players after a game
 app.post('/save-history', async (req, res) => {
     try {
         const { roomCode } = req.body;

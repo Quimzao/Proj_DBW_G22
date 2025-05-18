@@ -1,9 +1,11 @@
 import User from "../models/user.js";
 
+// Renders the signup page
 const userGet = (req, res) => {
     res.render('signup');
 };
 
+// Handles user registration (signup)
 const userPost = async (req, res) => {
     const { email, username, password } = req.body;
     
@@ -21,6 +23,7 @@ const userPost = async (req, res) => {
     }
 
     try {
+        // Check if a user with the same email or username already exists
         const existingUser = await User.findOne({ 
             $or: [{ email }, { username }] 
         });
@@ -33,16 +36,18 @@ const userPost = async (req, res) => {
             }
         }
 
+        // Create and register the new user
         const user = new User({ email, username });
         await User.register(user, password);
         
-        res.sendStatus(200);
+        res.sendStatus(200); // Registration successful
     } catch (err) {
         console.error("Error during User.register:", err);
         res.status(500).send("Error during signup. Please try again.");
     }
 };
 
+// Checks if a username or email is already taken (AJAX validation)
 const checkUsername = async (req, res) => {
     try {
         const { username, email } = req.body;
@@ -63,10 +68,12 @@ const checkUsername = async (req, res) => {
     }
 };
 
+// Renders the login page
 const loginGet = async (req, res) => {
     res.render('login');
 };
 
+// Handles login POST and redirects based on authentication result
 const loginPostRedirect = (req, res) => {
     if (req.isAuthenticated()) {
         console.log("Login successful for user:", req.user);
@@ -77,6 +84,7 @@ const loginPostRedirect = (req, res) => {
     }
 };
 
+// Handles user logout and redirects to login page
 const logout = (req, res, next) => {
     req.logout(function(err) {
         if (err) {
@@ -86,4 +94,5 @@ const logout = (req, res, next) => {
     });
 }
 
+// Export all controller functions
 export { userGet, userPost, loginGet, loginPostRedirect, logout, checkUsername };

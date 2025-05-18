@@ -1,5 +1,6 @@
 /* game-intro.css - Estilos para a página de introdução usando as cores do sistema */
 
+/* Root variables for color scheme */
 :root {
     --primary-color: #d7ba89;
     --secondary-color: #1a1a1a;
@@ -10,19 +11,21 @@
     --placeholder-color: #b0b0b0;
 }
 
+/* Navbar styles */
 .navbar {
     background-color: var(--card-bg);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     padding: 0.8rem 1rem;
 }
 
+/* Logo styles */
 .logo {
     color: var(--primary-color);
     font-weight: 700;
     font-size: 1.5rem;
 }
 
-/* Footer */
+/* Footer styles */
 .footer {
     background-color: var(--card-bg);
     padding: 1.25rem 0;
@@ -30,8 +33,7 @@
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
 }
 
-
-/* Estrutura principal */
+/* Main container for the intro page */
 .intro-container {
     padding-top: 100px;
     padding-bottom: 20px;
@@ -39,6 +41,7 @@
     background-color: var(--secondary-color);
 }
 
+/* Card styles for the intro section */
 .intro-card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -49,7 +52,7 @@
     overflow: hidden;
 }
 
-/* Cabeçalho do card */
+/* Card header styles */
 .intro-card .card-header {
     background-color: rgba(0, 0, 0, 0.2);
     border-bottom: 1px solid var(--border-color);
@@ -65,13 +68,13 @@
     letter-spacing: 0.5px;
 }
 
-/* Corpo do card */
+/* Card body styles */
 .intro-card .card-body {
     padding: 2rem;
     background-color: rgba(255, 255, 255, 0.03);
 }
 
-/* Rodapé do card */
+/* Card footer styles */
 .intro-card .card-footer {
     background-color: rgba(0, 0, 0, 0.2);
     border-top: 1px solid var(--border-color);
@@ -79,11 +82,12 @@
     text-align: center;
 }
 
-/* Seção de regras */
+/* Rule section styles */
 .rule-section {
     padding: 0.5rem;
 }
 
+/* Individual rule item styles */
 .rule-item {
     margin-bottom: 2rem;
     padding: 0.8rem;
@@ -92,11 +96,13 @@
     transition: all 0.3s ease;
 }
 
+/* Rule item hover effect */
 .rule-item:hover {
     background-color: rgba(215, 186, 137, 0.1);
     transform: translateX(5px);
 }
 
+/* Icon for each rule */
 .rule-icon {
     color: var(--primary-color);
     margin-right: 1rem;
@@ -107,6 +113,7 @@
     justify-content: center;
 }
 
+/* Rule item title styles */
 .rule-item h4 {
     display: flex;
     align-items: center;
@@ -116,6 +123,7 @@
     font-weight: 600;
 }
 
+/* Rule item description styles */
 .rule-item p {
     margin-left: 46px;
     color: var(--text-color);
@@ -124,7 +132,7 @@
     font-size: 0.95rem;
 }
 
-/* Botão principal */
+/* Main button styles */
 .btn-enter {
     background-color: var(--primary-color);
     color: #121212;
@@ -141,22 +149,25 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Button hover effect */
 .btn-enter:hover {
     background-color: #e0c28c;
     transform: translateY(-3px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Button active effect */
 .btn-enter:active {
     transform: translateY(1px);
 }
 
-/* Input de código */
+/* Code input section styles */
 .code-input {
     max-width: 320px;
     margin: 1.5rem auto;
 }
 
+/* Input field styles inside code input */
 .code-input .form-control {
     background-color: var(--input-bg);
     border: 1px solid var(--border-color);
@@ -166,16 +177,19 @@
     border-right: none;
 }
 
+/* Input focus effect */
 .code-input .form-control:focus {
     box-shadow: 0 0 0 0.25rem rgba(215, 186, 137, 0.25);
     border-color: var(--primary-color);
 }
 
+/* Placeholder text styles */
 .code-input .form-control::placeholder {
     color: var(--placeholder-color);
     opacity: 0.7;
 }
 
+/* Button styles inside code input */
 .code-input .btn-primary {
     background-color: var(--primary-color);
     color: #121212;
@@ -186,11 +200,12 @@
     font-size: 1.1rem;
 }
 
+/* Button hover effect inside code input */
 .code-input .btn-primary:hover {
     background-color: #e0c28c;
 }
 
-/* Divisor */
+/* Divider styles */
 .divider {
     color: var(--primary-color);
     font-weight: 500;
@@ -202,6 +217,7 @@
     font-size: 0.9rem;
 }
 
+/* Divider line styles */
 .divider::before,
 .divider::after {
     content: "";
@@ -223,7 +239,7 @@
     background: linear-gradient(90deg, var(--primary-color), transparent);
 }
 
-/* Responsividade */
+/* Responsive styles for tablets */
 @media (max-width: 768px) {
     .intro-container {
         padding: 70px 15px 30px;
@@ -253,6 +269,7 @@
     }
 }
 
+/* Responsive styles for small screens */
 @media (max-width: 576px) {
     .intro-card .card-body {
         padding: 1rem;
@@ -273,6 +290,7 @@
     }
 }
 
+/* Dropdown menu styles */
 .dropdown-menu {
     background-color: #ffffff; /* White background */
     color: #000000; /* Black text color */
@@ -280,34 +298,40 @@
     border-radius: 0.25rem; /* Rounded corners */
 }
 
+/* Dropdown item styles */
 .dropdown-menu .dropdown-item {
     color: #000000; /* Black text color for dropdown items */
 }
 
+/* Dropdown item hover effect */
 .dropdown-menu .dropdown-item:hover {
     background-color: var(--primary-color); /* Highlight color on hover */
     color: #ffffff; /* White text color on hover */
 }
 
+/* Modal content styles */
 .modal-content {
     background-color: var(--card-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
 }
 
+/* Modal header styles */
 .modal-header {
     border-bottom: 1px solid var(--border-color);
 }
 
+/* Modal footer styles */
 .modal-footer {
     border-top: 1px solid var(--border-color);
 }
 
+/* Error modal header styles */
 #errorModal .modal-header {
     background-color: var(--danger-color);
 }
 
-/* media queries */
+/* Additional responsive styles for tablets */
 @media (max-width: 768px) {
     .intro-container {
         padding: 80px 15px 20px;
@@ -335,6 +359,7 @@
     }
 }
 
+/* Additional responsive styles for small screens */
 @media (max-width: 576px) {
     .intro-container {
         padding: 70px 10px 15px;

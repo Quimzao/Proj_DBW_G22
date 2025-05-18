@@ -5,24 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Intro | Brainstorm</title>
+    <!-- Bootstrap CSS for layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/lobby.css"> <!-- Estilo base do lobby -->
-    <link rel="stylesheet" href="/css/game-intro.css"> <!-- Estilos específicos -->
+    <!-- Base lobby styles -->
+    <link rel="stylesheet" href="/css/lobby.css">
+    <!-- Game intro specific styles -->
+    <link rel="stylesheet" href="/css/game-intro.css">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
-    <!-- Navbar igual ao do lobby -->
+    <!-- Navbar similar to the lobby page -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/intro">
                 <h3 class="logo">Brainstorm</h3>
             </a>
             <div class="d-flex align-items-center">
+                <!-- User dropdown menu with avatar and username -->
                 <div class="dropdown">
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                         id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
+                            <!-- Show user avatar or default if not set -->
                             <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
                                 alt="User Avatar">
                         </div>
@@ -30,13 +36,13 @@
                             <%= user.username %>
                         </span>
                     </a>
+                    <!-- Dropdown menu with profile, settings, and logout -->
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
                             <div class="fw-bold" id="dropdown-username">
                                 <%= user.username %>
                             </div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
-                                    %>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %>
                             </div>
                         </li>
                         <li>
@@ -60,10 +66,12 @@
             <div class="col-lg-8">
                 <div class="card intro-card">
                     <div class="card-header">
+                        <!-- Game instructions title -->
                         <h2 class="text-center mb-0">Como Jogar Brainstorm</h2>
                     </div>
 
                     <div class="card-body rule-section">
+                        <!-- Game rules and features -->
                         <div>
                             <h4><i class="fas fa-users rule-icon"></i>Jogo em Grupo</h4>
                             <p>Reúna seus amigos para uma sessão de criatividade coletiva.</p>
@@ -81,6 +89,7 @@
                     </div>
 
                     <div class="card-footer text-center">
+                        <!-- Button to create a new room -->
                         <div class="mb-3">
                             <button id="create-room" class="btn btn-enter">
                                 <i class="fas fa-plus me-2"></i>Criar Nova Sala
@@ -89,6 +98,7 @@
 
                         <p class="divider">OU</p>
 
+                        <!-- Input to join an existing room by code -->
                         <div class="code-input input-group">
                             <input type="text" class="form-control" id="room-code" placeholder="Código da Sala" maxlength="6">
                             <button class="btn btn-primary" id="join-room">
@@ -101,14 +111,14 @@
         </div>
     </main>
 
-    <!-- Footer igual ao do lobby -->
+    <!-- Footer similar to the lobby page -->
     <footer class="footer mt-auto py-3 bg-dark">
         <div class="container text-center">
             <span class="text-white mb-0">Brainstorm Game &copy; 2023</span>
         </div>
     </footer>
 
-    <!-- Modal de Erro -->
+    <!-- Error Modal for displaying join errors -->
     <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -126,29 +136,34 @@
         </div>
     </div>
 
+    <!-- Bootstrap JS for components, Font Awesome for icons, Socket.io for real-time features -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Initialize socket.io connection
         const socket = io();
+        // Store current user info for client-side use
         const currentUser = {
             id: '<%= user._id %>',
             username: '<%= user.username %>',
             profilePicture: '<%= user.profilePicture || "/images/default-avatar.png" %>'
         };
 
-        // Inicializa o modal de erro
+        // Initialize the error modal
         const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
 
-        // Formatação automática do código da sala (maiúsculas)
+        // Automatically format room code input to uppercase and remove invalid characters
         document.getElementById('room-code').addEventListener('input', function(e) {
             this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
         });
 
+        // Redirect to create a new room when button is clicked
         document.getElementById('create-room').addEventListener('click', () => {
             window.location.href = '/lobby';
         });
 
+        // Handle join room button click
         document.getElementById('join-room').addEventListener('click', async () => {
             const codeInput = document.getElementById('room-code');
             const code = codeInput.value.trim();
@@ -164,12 +179,12 @@
             }
 
             try {
-                // Mostrar loading no botão
+                // Show loading spinner on the button
                 const joinBtn = document.getElementById('join-room');
                 joinBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Verificando...';
                 joinBtn.disabled = true;
 
-                // Verifica se o lobby existe
+                // Check if the lobby exists via API
                 const response = await fetch(`/api/lobby/exists?code=${code}`);
                 
                 if (!response.ok) {
@@ -179,6 +194,7 @@
                 const data = await response.json();
                 
                 if (data.exists) {
+                    // Redirect to the lobby if found
                     window.location.href = `/lobby?code=${code}`;
                 } else {
                     showError('Sala não encontrada. Verifique o código ou crie uma nova sala.');
@@ -187,20 +203,21 @@
                 console.error('Erro ao verificar sala:', error);
                 showError('Erro ao conectar ao servidor. Tente novamente.');
             } finally {
-                // Restaurar botão
+                // Restore join button state
                 const joinBtn = document.getElementById('join-room');
                 joinBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
                 joinBtn.disabled = false;
             }
         });
 
-        // Tecla Enter no input do código
+        // Allow pressing Enter in the input to trigger join
         document.getElementById('room-code').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 document.getElementById('join-room').click();
             }
         });
 
+        // Show error modal with a message
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
             errorModal.show();

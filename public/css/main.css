@@ -1,4 +1,4 @@
-/* Estilo para o container do cabeçalho */
+/* Style for the header container: centers content and adds spacing */
 .header-container {
   display: flex;
   align-items: center;
@@ -7,29 +7,29 @@
   margin-bottom: 2rem;
 }
 
-/* Estilo para as imagens laterais */
+/* Style for the side images in the header */
 .header-gif {
-  max-width: 120px; /* Tamanho reduzido para ficar equilibrado */
+  max-width: 120px; /* Reduced size for balance */
   height: auto;
-  flex-shrink: 0; /* Impede que as imagens encolham */
+  flex-shrink: 0; /* Prevents images from shrinking */
 }
 
-/* Estilo responsivo para mobile */
+/* Responsive style for mobile screens */
 @media (max-width: 768px) {
   .header-container {
-      flex-direction: column;
+      flex-direction: column; /* Stack elements vertically */
       gap: 10px;
   }
   .header-gif {
       max-width: 80px;
-      order: 2; /* Coloca as imagens abaixo do título em mobile */
+      order: 2; /* Place images below the title on mobile */
   }
   .header-title {
-      order: 1; /* Garante que o título fique acima */
+      order: 1; /* Ensure the title stays above */
   }
 }
 
-/* media queries*/
+/* Responsive adjustments for tablets and smaller screens */
 @media (max-width: 992px) {
     .header-gif {
         max-width: 100px;
@@ -52,6 +52,7 @@
     }
 }
 
+/* Responsive adjustments for very small screens */
 @media (max-width: 576px) {
     .header-gif {
         max-width: 60px;

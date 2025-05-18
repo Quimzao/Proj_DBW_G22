@@ -1,6 +1,6 @@
-/* lobby.css - Estilos para a sala de lobby */
+/* lobby.css - Styles for the lobby room */
 
-/* Variáveis de cores */
+/* Color variables for consistent theming */
 :root {
     --primary-color: #d7ba89;
     --secondary-color: #1a1a1a;
@@ -12,19 +12,21 @@
     --not-ready-color: #f44336;
 }
 
-        /* Add this style block */
-        #chat-messages {
-            min-height: 526px;
-            max-height: 526px; /* Adjust the height as needed */
-            overflow-y: auto;
-        }
+/* Chat messages area with fixed height and scroll */
+#chat-messages {
+    min-height: 526px;
+    max-height: 526px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
 
-        #game-settings {
-            min-height: 493px;
-            max-height: 493px; /* Adjust the height as needed */
-            overflow-y: auto;
-        }
-/* Custom scrollbar styling */
+/* Game settings area with fixed height and scroll */
+#game-settings {
+    min-height: 493px;
+    max-height: 493px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
+
+/* Custom scrollbar styling for chat messages */
 #chat-messages::-webkit-scrollbar {
     width: 8px; /* Width of the scrollbar */
 }
@@ -49,13 +51,14 @@
     padding: 0.8rem 1rem;
 }
 
+/* Logo styles in the navbar */
 .logo {
     color: var(--primary-color);
     font-weight: 700;
     font-size: 1.5rem;
 }
 
-/* Footer */
+/* Footer styles */
 .footer {
     background-color: var(--card-bg);
     padding: 1.25rem 0;
@@ -78,38 +81,41 @@
     object-fit: cover;
 }
 
-/* Ajustes para o lobby container */
+/* Lobby container padding and height */
 .lobby-container {
     padding-top: 80px;
     padding-bottom: 8px;
-    min-height: calc(100vh - 60px); /* Reduzi o valor para dar mais espaço */
+    min-height: calc(100vh - 60px); /* Reduced value for more space */
 }
 
-/* Ajustes para o card principal */
+/* Main lobby card styles */
 .lobby-room {
-    min-height: 650px; /* Altura mínima aumentada */
-    max-height: calc(100vh - 150px); /* Altura máxima relativa à viewport */
+    min-height: 650px; /* Increased minimum height */
+    max-height: calc(100vh - 150px); /* Maximum height relative to viewport */
     display: flex;
     flex-direction: column;
 }
 
-/* Ensure the players grid adjusts accordingly */
+/* Players grid inside the lobby */
 .players-grid {
     max-height: calc(100% - 50px); /* Adjust based on the new card size */
     overflow-y: auto;
 }
 
+/* Card header styles */
 .lobby-room .card-header {
     background-color: rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid var(--border-color);
     padding: 15px 20px;
 }
 
+/* Card body styles */
 .lobby-room .card-body {
     flex: 1;
     overflow-y: auto;
 }
 
+/* Room code display styles */
 .room-code {
     background-color: rgba(0, 0, 0, 0.2);
     padding: 5px 10px;
@@ -119,6 +125,7 @@
     gap: 8px;
 }
 
+/* Copy button for room code */
 .btn-copy {
     background-color: var(--primary-color);
     color: #121212;
@@ -130,7 +137,7 @@
     background-color: #e0c28c;
 }
 
-/* Grid de jogadores */
+/* Players grid layout */
 .players-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -138,6 +145,7 @@
     padding: 10px;
 }
 
+/* Leader icon for the room leader */
 .leader-icon {
     position: absolute;
     top: -8px;
@@ -157,6 +165,7 @@
     animation: pulseLeader 2s infinite;
 }
 
+/* Animation for leader icon */
 @keyframes pulseLeader {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
@@ -167,6 +176,7 @@
     animation: pulseLeader 2s infinite;
 }
 
+/* Player card styles in the grid */
 .player-card {
     position: relative;
     background-color: var(--input-bg);
@@ -189,6 +199,7 @@
     margin: 0 auto;
 }
 
+/* Player name styles */
 .player-name {
     margin: 8px 0;
     font-weight: 500;
@@ -197,23 +208,26 @@
     text-overflow: ellipsis;
 }
 
+/* Player status styles */
 .player-status {
     font-size: 0.9rem;
     padding: 3px 0;
     border-radius: 4px;
 }
 
+/* Status for ready players */
 .player-status.ready {
     background-color: rgba(76, 175, 80, 0.2);
     color: var(--ready-color);
 }
 
+/* Status for not ready players */
 .player-status:not(.ready) {
     background-color: rgba(244, 67, 54, 0.2);
     color: var(--not-ready-color);
 }
 
-/* Chat */
+/* Chat card container styles */
 .chat-card {
     background-color: var(--card-bg);
     border: none;
@@ -223,12 +237,14 @@
     flex-direction: column;
 }
 
+/* Chat card header styles */
 .chat-card .card-header {
     background-color: rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid var(--border-color);
     padding: 15px 20px;
 }
 
+/* Chat messages container */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -238,6 +254,7 @@
     gap: 10px;
 }
 
+/* Individual chat message styles */
 .message {
     max-width: 80%;
     padding: 8px 12px;
@@ -245,6 +262,7 @@
     word-wrap: break-word;
 }
 
+/* Styles for messages sent by the current user */
 .message.user {
     align-self: flex-end;
     background-color: var(--primary-color);
@@ -252,12 +270,14 @@
     border-bottom-right-radius: 0;
 }
 
+/* Styles for system messages */
 .message.system {
     align-self: center;
     background-color: rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
 }
 
+/* Styles for messages sent by other users */
 .message.other {
     align-self: flex-start;
     background-color: var(--input-bg);
@@ -270,12 +290,14 @@
     margin-bottom: 3px;
 }
 
+/* Chat input area styles */
 .chat-input {
     background-color: rgba(0, 0, 0, 0.1);
     border-top: 1px solid var(--border-color);
     padding: 10px;
 }
 
+/* Send button styles */
 .btn-send {
     background-color: var(--primary-color);
     color: #121212;
@@ -285,7 +307,7 @@
     background-color: #e0c28c;
 }
 
-/* Configurações do jogo */
+/* Game settings card styles */
 .settings-card {
     background-color: var(--card-bg);
     border: none;
@@ -306,6 +328,7 @@
     overflow-y: auto;
 }
 
+/* Form and input styles */
 .form-select, .form-control {
     background-color: var(--input-bg);
     border: 1px solid var(--border-color);
@@ -324,7 +347,7 @@
     border-color: var(--primary-color);
 }
 
-/* Botões */
+/* Ready button styles */
 .btn-ready {
     background-color: var(--ready-color);
     color: white;
@@ -335,12 +358,14 @@
     background-color: var(--not-ready-color);
 }
 
+/* Quit button styles */
 .btn-quit {
     background-color: var(--not-ready-color);
     color: white;
     padding: 8px 20px;
 }
 
+/* Start button styles */
 .btn-start {
     background-color: var(--primary-color);
     color: #121212;
@@ -348,6 +373,7 @@
     font-weight: 500;
 }
 
+/* Player count styles */
 .player-count {
     color: #e0c28c;
     font-weight: bold;
@@ -358,7 +384,7 @@
     background-color: #e0c28c;
 }
 
-/* Layout adjustments */
+/* Layout adjustments for columns and cards */
 .col-lg-4 {
     height: 100%;
 }
@@ -377,7 +403,7 @@
     min-height: 0;
 }
 
-/* Responsividade */
+/* Responsive adjustments for players grid and lobby container */
 @media (max-width: 992px) {
     .players-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -404,7 +430,7 @@
     }
 }
 
-/* Add this to ensure text color is applied globally */
+/* Ensure text color is applied globally */
 body {
     color: var(--text-color);
     background-color: var(--secondary-color);
@@ -416,6 +442,7 @@ body {
     background-color: var(--card-bg);
 }
 
+/* Dropdown menu styles */
 .dropdown-menu {
     background-color: #ffffff; /* White background */
     color: #000000; /* Black text color */
@@ -486,6 +513,7 @@ body {
     padding: 15px;
 }
 
+/* Chat message bubble styles */
 .message {
     max-width: 70%;
     padding: 10px 15px;
@@ -496,7 +524,7 @@ body {
     font-size: 0.95rem;
 }
 
-/* Suas mensagens (direita) */
+/* Your messages (right side) */
 .message.self {
     align-self: flex-end;
     background-color: #d7ba89;
@@ -505,7 +533,7 @@ body {
     margin-left: 30%;
 }
 
-/* Mensagens de outros (esquerda) */
+/* Other users' messages (left side) */
 .message.other {
     align-self: flex-start;
     background-color: #3d3d3d;
@@ -514,7 +542,7 @@ body {
     margin-right: 30%;
 }
 
-/* Mensagens do sistema */
+/* System messages */
 .message.system {
     align-self: center;
     background-color: rgba(255, 255, 255, 0.1);
@@ -526,7 +554,7 @@ body {
     border-radius: 8px;
 }
 
-/* Remetente da mensagem */
+/* Message sender name */
 .message-sender {
     font-weight: 600;
     font-size: 0.8rem;
@@ -538,7 +566,7 @@ body {
     color: #9a7c4f;
 }
 
-/* Container das mensagens */
+/* Chat messages container */
 .chat-messages {
     display: flex;
     flex-direction: column;
@@ -547,7 +575,7 @@ body {
     height: calc(100% - 60px);
 }
 
-/* Barra de rolagem */
+/* Custom scrollbar for chat messages */
 .chat-messages::-webkit-scrollbar {
     width: 6px;
 }
@@ -561,12 +589,13 @@ body {
     border-radius: 3px;
 }
 
+/* Placeholder text color for inputs */
 .form-control::placeholder {
     color: #ffffff !important;
     opacity: 0.7;
 }
 
-/* Adicione isso ao lobby.css */
+/* Disabled start button styles */
 .btn-start:disabled {
     opacity: 0.65;
     cursor: not-allowed;
@@ -574,7 +603,7 @@ body {
     color: var(--text-color);
 }
 
-/* Difficulty level buttons */
+/* Difficulty level buttons group */
 .btn-group.difficulty-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -604,7 +633,7 @@ body {
     border-color: var(--primary-color);
 }
 
-/* Custom settings */
+/* Custom settings section */
 .custom-settings {
     background-color: rgba(0, 0, 0, 0.1);
     padding: 15px;
@@ -623,7 +652,7 @@ body {
     margin-bottom: 5px;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for difficulty buttons and chat messages */
 @media (max-width: 768px) {
     .btn-group.difficulty-buttons .btn {
         min-width: 80px;
@@ -636,7 +665,7 @@ body {
     }
 }
 
-/* media queries */
+/* Responsive adjustments for lobby and players grid */
 @media (max-width: 1200px) {
     .lobby-container {
         padding-top: 90px;

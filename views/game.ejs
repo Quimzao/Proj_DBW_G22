@@ -145,6 +145,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Initialize socket.io connection and user/room info
         const socket = io();
         const currentUser = {
             id: '<%= user._id %>',
@@ -153,7 +154,7 @@
         };
         const roomCode = new URLSearchParams(window.location.search).get('room');
 
-        // Game state
+        // Game state object to track rounds, timer, and other info
         const gameState = {
             currentRound: 0,
             totalRounds: 5,
@@ -163,7 +164,7 @@
             currentPrompt: ""
         };
 
-        // UI Elements
+        // Get references to UI elements
         const waitingScreen = document.getElementById('waiting-screen');
         const promptScreen = document.getElementById('prompt-screen');
         const resultsScreen = document.getElementById('results-screen');
@@ -177,7 +178,7 @@
         const skipButton = document.getElementById('skip-round');
         const generateStoryBtn = document.getElementById('generate-story');
 
-        // When page loads
+        // When the page loads, join the game room
         document.addEventListener('DOMContentLoaded', () => {
             socket.emit('joinGameRoom', {
                 roomCode: roomCode,
@@ -185,7 +186,7 @@
             });
         });
 
-        // Socket event handlers
+        // Update the players list when receiving new player data
         socket.on('updatePlayers', (players) => {
             gameState.players = players;
             const playersList = document.getElementById('players-list');
@@ -211,15 +212,18 @@
             });
         });
 
+        // Show waiting message with number of players needed
         socket.on('gameWaiting', (needed) => {
             document.getElementById('waiting-message').textContent =
                 `Waiting for ${needed} more player${needed > 1 ? 's' : ''} to start...`;
         });
 
+        // Show "game starting soon" message
         socket.on('gameStarting', () => {
             document.getElementById('waiting-message').textContent = "Game starting soon...";
         });
 
+        // When the game starts, update round and timer settings and show the prompt screen
         socket.on('gameStarted', (settings) => {
             gameState.totalRounds = settings.rounds;
             gameState.timePerRound = settings.ideaTime;
@@ -239,6 +243,7 @@
             gameState.isGameActive = true;
         });
 
+        // When a new round starts, update the prompt and reset input fields
         socket.on('newRound', (data) => {
             // Clear any existing timer
             if (gameState.timer) {
@@ -274,6 +279,7 @@
             timerContainer.style.display = 'block';
         });
 
+        // Update the timer display and add warning/danger classes as time runs out
         socket.on('updateTimer', (time) => {
             gameState.timeRemaining = time;
             timerDisplay.textContent = time;
@@ -289,6 +295,7 @@
             }
         });
 
+        // Disable input for the player who has already responded
         socket.on('playerResponded', ({ userId }) => {
             if (userId === currentUser.id) {
                 responseInput.disabled = true;
@@ -296,6 +303,7 @@
             }
         });
 
+        // When the game finishes, show the results screen and render stories and votes
         socket.on('gameFinished', ({ playerStories, leaderboard, votes }) => {
             console.log('Game finished data:', { playerStories, leaderboard, votes });
             timerContainer.style.display = 'none';
@@ -343,13 +351,14 @@
     `;
         });
 
+        // Show the leaderboard with final rankings
         function showLeaderboard() {
             if (!gameState.leaderboard) return;
 
             const leaderboardContainer = document.getElementById('leaderboard-container');
             leaderboardContainer.classList.remove('d-none');
 
-            // Atualiza o leaderboard com os votos mais recentes
+            // Sort leaderboard by score
             const updatedLeaderboard = [...gameState.leaderboard].sort((a, b) => b.score - a.score);
 
             leaderboardContainer.innerHTML = `
@@ -368,8 +377,8 @@
                     </thead>
                     <tbody>
                         ${updatedLeaderboard.map((player, index) => {
-                const playerData = gameState.leaderboard.find(p => p.userId === player.userId) || player;
-                return `
+            const playerData = gameState.leaderboard.find(p => p.userId === player.userId) || player;
+            return `
                                 <tr class="${getRankingClass(index)}">
                                     <td>${getPositionIcon(index + 1)} ${index + 1}</td>
                                     <td>${playerData.username}</td>
@@ -378,7 +387,7 @@
                                     <td>${playerData.downvotes}</td>
                                 </tr>
                             `;
-            }).join('')}
+        }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -388,6 +397,7 @@
             leaderboardContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Return a trophy/medal icon for the top 3 positions
         function getPositionIcon(position) {
             if (position === 1) return '<i class="fas fa-crown text-warning"></i>';
             if (position === 2) return '<i class="fas fa-medal text-secondary"></i>';
@@ -395,6 +405,7 @@
             return '';
         }
 
+        // Return a class for styling the top 3 positions
         function getRankingClass(index) {
             if (index === 0) return 'first-place';
             if (index === 1) return 'second-place';
@@ -402,13 +413,14 @@
             return '';
         }
 
+        // Show leaderboard when the button is clicked
         document.addEventListener('click', function (e) {
             if (e.target && e.target.id === 'show-leaderboard') {
                 showLeaderboard();
             }
         });
 
-        // Voting logic
+        // Voting logic for upvotes and downvotes
         document.addEventListener('click', function (e) {
             if (e.target.closest('.btn-vote')) {
                 const btn = e.target.closest('.btn-vote');
@@ -427,7 +439,7 @@
             }
         });
 
-        // Update votes when received from server
+        // Update votes in the UI when receiving new vote data from the server
         socket.on('updateVotes', ({ userId, upvotes, downvotes }) => {
             // Update vote counts in UI
             const playerStory = document.querySelector(`.player-story[data-user-id="${userId}"]`);
@@ -455,7 +467,8 @@
                 }
             }
         });
-        // UI Event handlers
+
+        // Handle submit button click for sending a response
         submitButton.addEventListener('click', () => {
             const response = responseInput.value.trim();
             if (response) {
@@ -467,6 +480,7 @@
             }
         });
 
+        // Handle skip button click to skip the round
         skipButton.addEventListener('click', () => {
             socket.emit('submitResponse', {
                 roomCode: roomCode,
@@ -475,6 +489,7 @@
             });
         });
 
+        // Handle "Create Story" button click to generate a story using the server
         generateStoryBtn.addEventListener('click', async () => {
             generateStoryBtn.innerHTML = `
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -493,7 +508,7 @@
                 const storyModal = new bootstrap.Modal('#storyModal');
 
                 if (result.success) {
-                    // Ajuste para a nova estrutura de resposta
+                    // Show the generated story in the modal
                     const storyContent = result.response.choices[0].message.content;
                     document.getElementById('generated-story').innerHTML =
                         storyContent.split('\n').map(para => `<p>${para}</p>`).join('');
@@ -515,12 +530,13 @@
             }
         });
 
-        // Chat functionality
+        // Chat functionality: send message on button click or Enter key
         document.getElementById('send-message').addEventListener('click', sendMessage);
         document.getElementById('message-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
 
+        // Function to send a chat message to the server
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
@@ -535,42 +551,51 @@
             }
         }
 
+        // Listen for new chat messages from the server and display them in the chat area
         socket.on('newMessage', (message) => {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
 
+            // Set the class for styling based on message type (user, system, etc.)
             messageElement.className = `message ${message.type}`;
+            // Add sender and message content to the chat message element
             messageElement.innerHTML = `
                 <div class="message-sender">${message.sender}:</div>
                 <div class="message-content">${message.content}</div>
             `;
 
+            // Add the new message to the chat container and scroll to the bottom
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
 
-        // Clean up on page leave
+        // Clean up any running timers when the user leaves the page
         window.addEventListener('beforeunload', () => {
             if (gameState.timer) {
                 clearInterval(gameState.timer);
             }
         });
 
+        // When the "Return to Lobby" button is clicked, save the game history and redirect
         document.getElementById('return-to-lobby').addEventListener('click', async () => {
             try {
+                // Send a POST request to save the game history for this room
                 const response = await fetch('/save-history', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roomCode })
                 });
 
+                // Log an error if saving history fails
                 if (!response.ok) {
                     console.error('Failed to save game history');
                 }
             } catch (err) {
+                // Log any network or server errors
                 console.error('Error saving history:', err);
             }
 
+            // Redirect the user back to the lobby page
             window.location.href = '/lobby';
         });
     </script>

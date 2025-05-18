@@ -1,3 +1,4 @@
+/* Root color variables for consistent theming */
 :root {
     --primary-color: #d7ba89;
     --secondary-color: #1a1a1a;
@@ -7,28 +8,31 @@
     --border-color: #444;
     --gold-color: #e0c28c;
 }
-/* Navbar Styles */
+
+/* Navbar styles */
 .navbar {
     background-color: var(--card-bg);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     padding: 0.8rem 1rem;
 }
 
+/* Logo styles in the navbar */
 .logo {
     color: var(--primary-color);
     font-weight: 700;
     font-size: 1.5rem;
 }
 
-/* Footer */
+/* Footer styles */
 .footer {
     background-color: var(--card-bg);
     padding: 1rem 0;
-    margin-top: auto; /* Empurra o footer para baixo */
+    margin-top: auto; /* Pushes footer to the bottom */
     position: relative;
     z-index: 10;
 }
-/* User Avatar in Header */
+
+/* User avatar styles in the header */
 .user-avatar {
     width: 40px;
     height: 40px;
@@ -43,7 +47,7 @@
     object-fit: cover;
 }
 
-/* Botão principal */
+/* Main button styles */
 .btn-enter {
     background-color: var(--primary-color);
     color: #121212;
@@ -60,39 +64,45 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Button hover effect */
 .btn-enter:hover {
     background-color: #e0c28c;
     transform: translateY(-3px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Button active effect */
 .btn-enter:active {
     transform: translateY(1px);
 }
 
+/* Dropdown menu styles */
 .dropdown-menu {
     background-color: #ffffff; /* White background */
     color: #000000; /* Black text color */
-    border: 1px solid var(--border-color); /* Optional: Add a border for consistency */
-    border-radius: 0.25rem; /* Rounded corners */
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
 }
 
+/* Dropdown item styles */
 .dropdown-menu .dropdown-item {
-    color: #000000; /* Black text color for dropdown items */
+    color: #000000;
 }
 
+/* Dropdown item hover effect */
 .dropdown-menu .dropdown-item:hover {
-    background-color: var(--primary-color); /* Highlight color on hover */
-    color: #ffffff; /* White text color on hover */
+    background-color: var(--primary-color);
+    color: #ffffff;
 }
 
-/* Tabs Styles */
+/* Tabs header styles */
 .tabs-header {
     background-color: var(--card-bg);
     border-radius: 8px 8px 0 0;
     overflow: hidden;
 }
 
+/* Tab button styles */
 .tab-btn {
     flex: 1;
     padding: 12px 15px;
@@ -106,21 +116,24 @@
     border-bottom: 3px solid transparent;
 }
 
+/* First tab button border */
 .tab-btn:first-child {
     border-right: 1px solid var(--border-color);
 }
 
+/* Active tab button styles */
 .tab-btn.active {
     background-color: var(--card-bg);
     border-bottom: 3px solid var(--primary-color);
     color: var(--primary-color);
 }
 
+/* Tab button hover effect */
 .tab-btn:not(.active):hover {
     background-color: rgba(215, 186, 137, 0.1);
 }
 
-/* Add this to ensure text color is applied globally */
+/* Global body styles */
 body {
     display: flex;
     flex-direction: column;
@@ -129,36 +142,40 @@ body {
     background-color: var(--secondary-color);
 }
 
+/* Main game container */
 .game-container {
     flex: 1;
     padding-top: 90px;
     padding-bottom: 20px;
 }
 
+/* Card styles for players, game, and chat columns */
 .players-card, .game-card, .chat-card {
-    height: calc(100vh - 180px); /* Ajuste baseado na altura total */
-    min-height: 400px; /* Altura mínima garantida */
+    height: calc(100vh - 180px); /* Height based on viewport */
+    min-height: 400px;
 }
 
-/* Players Column */
+/* Players column card styles */
 .players-card {
     background-color: var(--card-bg);
     border: none;
     border-radius: 8px;
     overflow: hidden;
-    height: 100%; /* Garante que o card ocupe toda a altura */
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
 
+/* Players list styles */
 .players-list {
     flex: 1;
     overflow-y: auto;
     padding: 10px;
-    max-height: calc(100vh - 180px); /* Altura máxima baseada na viewport */
-    min-height: 200px; /* Altura mínima */
+    max-height: calc(100vh - 180px);
+    min-height: 200px;
 }
 
+/* Individual player item styles */
 .player-item {
     display: flex;
     align-items: center;
@@ -167,14 +184,16 @@ body {
     background-color: var(--input-bg);
     border-radius: 6px;
     transition: all 0.2s;
-    flex-shrink: 0; /* Impede que os itens encolham */
+    flex-shrink: 0;
 }
 
+/* Highlight for the current user */
 .player-item.current-user {
     background-color: rgba(215, 186, 137, 0.2);
     border-left: 3px solid var(--primary-color);
 }
 
+/* Player avatar styles in the list */
 .player-avatar {
     width: 40px;
     height: 40px;
@@ -190,11 +209,13 @@ body {
     object-fit: cover;
 }
 
+/* Player info section */
 .player-info {
     flex-grow: 1;
     min-width: 0;
 }
 
+/* Player name styles */
 .player-name {
     font-weight: 500;
     white-space: nowrap;
@@ -204,22 +225,24 @@ body {
     color: white;
 }
 
+/* Player status styles */
 .player-status {
     font-size: 0.75rem;
     color: var(--primary-color);
 }
 
+/* Prompt text styles */
 #prompt-text {
     color: white !important;
-    opacity: 0.9; /* Opcional: ajuste a opacidade se necessário */
+    opacity: 0.9;
 }
 
-/* Se estiver usando classes do Bootstrap que podem estar sobrescrevendo */
+/* Centered text override */
 .text-center {
     color: white !important;
 }
 
-/* Game Column */
+/* Game column card styles */
 .game-card {
     background-color: var(--card-bg);
     border: none;
@@ -234,12 +257,13 @@ body {
     flex-direction: column;
 }
 
+/* Gold background for highlights */
 .bg-gold {
     background-color: #e0c28c;
     color: #121212;
 }
 
-
+/* Submit response button styles */
 #submit-response {
     background-color: #e0c28c;
     color: #121212;
@@ -250,29 +274,33 @@ body {
     transition: all 0.2s ease;
 }
 
-/* Estados do botão */
+/* Submit button hover state */
 #submit-response:hover {
     background-color: #d4b67e;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Submit button active state */
 #submit-response:active {
     background-color: #c9ab77;
     transform: translateY(0);
 }
 
+/* Disabled submit button */
 #submit-response:disabled {
     background-color: #a0a0a0;
     color: #e0e0e0;
     cursor: not-allowed;
 }
 
+/* Prompt text size and spacing */
 #prompt-text {
     font-size: 1.2rem;
     margin-bottom: 20px;
 }
 
+/* Response input textarea styles */
 #response-input {
     flex: 1;
     background-color: var(--input-bg);
@@ -281,30 +309,32 @@ body {
     resize: none;
 }
 
-/* Chat Column */
+/* Chat column card styles */
 .chat-card {
     background-color: var(--card-bg);
     border: none;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ocupa toda a altura disponível */
+    height: 100%;
 }
 
 .chat-card .card-body {
     flex: 1;
-    min-height: 0; /* Importante para o flex funcionar com overflow */
-    padding: 0; /* Removemos o padding padrão */
+    min-height: 0;
+    padding: 0;
 }
 
+/* Chat messages container */
 .chat-messages {
-    height: calc(100vh - 250px); /* Altura baseada na viewport */
-    min-height: 200px; /* Altura mínima */
-    max-height: 600px; /* Altura máxima */
+    height: calc(100vh - 250px);
+    min-height: 200px;
+    max-height: 600px;
     overflow-y: auto;
     padding: 15px;
 }
 
+/* Individual chat message styles */
 .message {
     margin-bottom: 15px;
     padding: 10px 15px;
@@ -313,6 +343,7 @@ body {
     word-wrap: break-word;
 }
 
+/* Styles for messages sent by the current user */
 .message.self {
     margin-left: auto;
     background-color: var(--primary-color);
@@ -320,6 +351,7 @@ body {
     border-bottom-right-radius: 0;
 }
 
+/* Styles for messages sent by others */
 .message.other {
     margin-right: auto;
     background-color: var(--input-bg);
@@ -327,6 +359,7 @@ body {
     color: white;
 }
 
+/* System message styles */
 .message.system {
     margin: 10px auto;
     background-color: rgba(255, 255, 255, 0.1);
@@ -336,28 +369,33 @@ body {
     padding: 8px 12px;
 }
 
+/* Message sender name styles */
 .message-sender {
     font-weight: 600;
     font-size: 0.8rem;
     margin-bottom: 4px;
 }
 
+/* Sender color for self */
 .message.self .message-sender {
     color: #9a7c4f;
 }
 
+/* Sender color for others */
 .message.other .message-sender {
     color: var(--primary-color);
 }
 
+/* Chat input area styles */
 .chat-input {
-    background-color: var(--card-bg); /* Same as chat background */
+    background-color: var(--card-bg);
     border-top: 1px solid var(--border-color);
     padding: 10px;
 }
 
+/* Message input field styles */
 #message-input {
-    background-color: var(--input-bg); /* Slightly darker than chat background */
+    background-color: var(--input-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -372,6 +410,7 @@ body {
     color: var(--text-color);
 }
 
+/* Send message button styles */
 #send-message {
     background-color: #e0c28c;
     color: #121212;
@@ -393,7 +432,7 @@ body {
     transform: translateY(0);
 }
 
-/* Ensure the input group looks cohesive */
+/* Input group styling for chat input */
 .input-group {
     border-radius: 4px;
     overflow: hidden;
@@ -407,12 +446,13 @@ body {
     border-left: none;
 }
 
+/* Placeholder text color */
 .form-control::placeholder {
     color: #ffffff !important;
     opacity: 0.7;
 }
 
-/* Scrollbars */
+/* Custom scrollbars for player and chat lists */
 .players-list::-webkit-scrollbar,
 .chat-messages::-webkit-scrollbar {
     width: 6px;
@@ -429,9 +469,10 @@ body {
     border-radius: 3px;
 }
 
+/* Responsive adjustments for different screen heights and widths */
 @media (max-height: 800px) {
     .players-list {
-        max-height: calc(100vh - 150px); /* Ajuste para telas menores */
+        max-height: calc(100vh - 150px);
     }
 }
 
@@ -477,6 +518,8 @@ body {
         min-height: 500px;
     }
 }
+
+/* Timer container styles (top right) */
 .timer-container {
     position: absolute;
     top: 10px;
@@ -489,21 +532,25 @@ body {
     font-weight: bold;
 }
 
+/* Timer warning color */
 .timer-warning {
     color: #ffcc00;
 }
 
+/* Timer danger color and animation */
 .timer-danger {
     color: #ff3333;
     animation: pulse 1s infinite;
 }
 
+/* Pulse animation for timer */
 @keyframes pulse {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1; }
 }
 
+/* Round info container (top left) */
 .round-info {
     position: absolute;
     top: 10px;
@@ -515,17 +562,19 @@ body {
     font-size: 1rem;
 }
 
-/* Adicione ao game.css */
+/* Game content layout */
 #game-content {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
+/* Response item highlight */
 .response-item {
     border-left: 4px solid var(--primary-color);
 }
 
+/* Story container styles */
 .story-container {
     background-color: var(--input-bg);
     color: var(--text-color);
@@ -534,11 +583,13 @@ body {
     border: 1px solid var(--border-color);
 }
 
+/* Results container styles */
 .results-container {
     max-height: 400px;
     overflow-y: auto;
 }
 
+/* Waiting screen styles */
 #waiting-screen {
     flex: 1;
     display: flex;
@@ -547,27 +598,32 @@ body {
     align-items: center;
 }
 
+/* Prompt, results, and story screen styles */
 #prompt-screen, #results-screen, #story-screen {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
+/* Waiting message styles */
 #waiting-message {
     font-size: 1.2rem;
     color: var(--primary-color);
     margin-top: 15px;
 }
 
+/* Player count on waiting screen */
 #player-count-waiting {
     font-weight: bold;
     color: white;
 }
 
+/* Round result highlight */
 .round-result {
     border-left: 4px solid var(--primary-color);
 }
 
+/* Player response styles */
 .player-response {
     background-color: rgba(0, 0, 0, 0.2);
     padding: 8px;
@@ -575,10 +631,12 @@ body {
     color: white;
 }
 
+/* Gold text utility class */
 .text-gold {
     color: var(--primary-color);
 }
 
+/* Story content formatting */
 .story-content {
     white-space: pre-line;
     line-height: 1.6;
@@ -598,19 +656,23 @@ body {
     border-radius: 5px;
 }
 
+/* Error message for story generation */
 #story-error {
     font-weight: bold;
 }
 
+/* Retry story button (hidden by default) */
 #retry-story {
     display: none;
 }
 
+/* Rounds results container */
 #rounds-results {
     max-height: 60vh;
     overflow-y: auto;
 }
 
+/* Player story text styles */
 .player-story {
     color: #fff !important;
 }
@@ -618,6 +680,7 @@ body {
     color: #fff !important;
 }
 
+/* Vote buttons styles */
 .vote-buttons .btn-vote {
     min-width: 48px;
     font-weight: 600;
@@ -635,9 +698,11 @@ body {
     font-weight: bold;
 }
 
+/* Return to lobby button */
 #return-to-lobby {
     margin-bottom: 1rem;
 }
+
 /* Leaderboard styles */
 .leaderboard {
     border: 2px solid var(--primary-color);
@@ -666,7 +731,7 @@ body {
     background-color: rgba(215, 186, 137, 0.1);
 }
 
-/* Ranking positions */
+/* Ranking positions highlight */
 .first-place {
     background-color: rgba(255, 215, 0, 0.15);
 }
@@ -692,6 +757,7 @@ body {
     color: #cd7f32 !important;
 }
 
+/* Leaderboard and return to lobby button styles */
 #show-leaderboard {
     transition: all 0.3s;
 }
@@ -701,18 +767,21 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Stories container for displaying multiple stories */
 .stories-container {
     max-height: 60vh;
     overflow-y: auto;
     padding-right: 10px;
 }
 
+/* Score display styles */
 .score-display {
     font-size: 0.9rem;
     text-align: right;
     padding-right: 10px;
 }
 
+/* Vote button transitions */
 .btn-vote {
     transition: all 0.2s;
 }
@@ -741,7 +810,7 @@ body {
     color: white;
 }
 
-/* Botões dourados */
+/* Gold buttons for leaderboard and return */
 #show-leaderboard, 
 #return-to-lobby {
     background-color: #e0c28c;
@@ -766,13 +835,13 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Ícones dentro dos botões */
+/* Icons inside buttons */
 #show-leaderboard i,
 #return-to-lobby i {
     color: #121212;
 }
 
-/* media queries */
+/* Responsive adjustments for different screen sizes */
 @media (max-width: 1200px) {
     .players-card, .game-card, .chat-card {
         height: auto;

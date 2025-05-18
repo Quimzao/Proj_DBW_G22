@@ -5,22 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Lobby | Brainstorm</title>
+    <!-- Bootstrap CSS for layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Custom lobby styles -->
     <link rel="stylesheet" href="/css/lobby.css">
 </head>
 
 <body>
+    <!-- Navbar with app logo and user dropdown -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/intro">
                 <h3 class="logo">Brainstorm</h3>
             </a>
             <div class="d-flex align-items-center">
+                <!-- User dropdown menu with avatar and username -->
                 <div class="dropdown">
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                         id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
+                            <!-- Show user avatar or default if not set -->
                             <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
                                 alt="User Avatar">
                         </div>
@@ -28,13 +34,13 @@
                             <%= user.username %>
                         </span>
                     </a>
+                    <!-- Dropdown menu with profile, settings, and logout -->
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
                             <div class="fw-bold" id="dropdown-username">
                                 <%= user.username %>
                             </div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
-                                    %>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %>
                             </div>
                         </li>
                         <li>
@@ -53,9 +59,10 @@
         </div>
     </nav>
 
+    <!-- Main lobby container -->
     <main class="container-fluid lobby-container">
         <div class="row h-100">
-            <!-- Waiting Room -->
+            <!-- Left side: Waiting Room with player list and ready/leave buttons -->
             <div class="col-lg-8">
                 <div class="card lobby-room h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -73,12 +80,13 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        <!-- Player cards will be dynamically added here -->
                         <div class="players-grid" id="players-container">
-                            <!-- Players will be added here dynamically -->
                         </div>
                     </div>
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
+                            <!-- Ready and Leave Room buttons -->
                             <button id="toggle-ready" class="btn btn-ready">
                                 <i class="fas fa-check-circle me-2"></i>Ready
                             </button>
@@ -90,20 +98,21 @@
                 </div>
             </div>
 
-            <!-- Chat and Settings -->
+            <!-- Right side: Chat and Settings tabs -->
             <div class="col-lg-4 h-100">
                 <div class="d-flex flex-column h-100">
-                    <!-- Tabs Header -->
+                    <!-- Tabs Header for switching between Chat and Settings -->
                     <div class="tabs-header d-flex mb-3">
                         <button class="tab-btn active" id="chat-tab-btn">
                             <i class="fas fa-comments me-2"></i>Chat
                         </button>
+                        <!-- Settings tab is only visible to the host -->
                         <button class="tab-btn d-none" id="settings-tab-btn">
                             <i class="fas fa-cog me-2"></i>Settings
                         </button>
                     </div>
 
-                    <!-- Chat Card -->
+                    <!-- Chat Card: displays chat messages and input -->
                     <div class="card chat-card flex-grow-1" id="chat-card">
                         <div class="card-body chat-messages" id="chat-messages">
                             <!-- Messages will appear here -->
@@ -119,14 +128,15 @@
                         </div>
                     </div>
 
-                    <!-- Settings Card -->
+                    <!-- Settings Card: only visible to the host for game configuration -->
                     <div class="card settings-card flex-grow-1 d-none" id="settings-card">
-                        <!-- Error Messages -->
+                        <!-- Error popup for settings issues -->
                         <div id="error-popup" class="alert alert-danger d-none mb-3">
                             <i class="fas fa-exclamation-circle me-2"></i>
                             <span id="error-message"></span>
                         </div>
 
+                        <!-- Warning popup for not-ready players -->
                         <div id="not-ready-players-popup" class="alert alert-warning d-none">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             The following players are not ready:
@@ -135,6 +145,7 @@
 
                         <div class="card-body">
                             <form id="game-settings">
+                                <!-- Difficulty selection -->
                                 <div class="mb-3">
                                     <label class="form-label">Difficulty Level</label>
                                     <div class="btn-group w-100" role="group" id="difficulty-level">
@@ -156,6 +167,7 @@
                                     </div>
                                 </div>
 
+                                <!-- Custom time input, only shown if "Custom" is selected -->
                                 <div class="mb-3 custom-settings" id="custom-settings" style="display: none;">
                                     <div class="row">
                                         <div class="col-md-12">
@@ -166,15 +178,18 @@
                                     </div>
                                 </div>
 
+                                <!-- Private room checkbox -->
                                 <div class="mb-3 form-check">
                                     <input type="checkbox" class="form-check-input" id="private-room" checked>
                                     <label class="form-check-label" for="private-room">Private Room</label>
                                 </div>
+                                <!-- Problem input for the game -->
                                 <div class="mb-3">
                                     <label for="problem-input" class="form-label">Problem for this game</label>
                                     <textarea class="form-control" id="problem-input" rows="2" maxlength="300"
                                         placeholder="Type the problem players will solve..."></textarea>
                                 </div>
+                                <!-- Start Game button (only enabled if all players are ready) -->
                                 <div class="d-grid">
                                     <button type="button" id="start-game" class="btn btn-start" disabled>
                                         <i class="fas fa-play me-2"></i>Start Game
@@ -188,6 +203,7 @@
         </div>
     </main>
 
+    <!-- Footer section -->
     <footer class="footer">
         <div class="container">
             <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %>
@@ -195,11 +211,12 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Scripts for Bootstrap, Font Awesome, and Socket.io -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Initialize socket.io and user/room info
         const socket = io();
         const currentUser = {
             id: '<%= user._id %>',
@@ -208,7 +225,7 @@
         };
         const roomCode = '<%= roomCode %>';
 
-        // Join lobby when page loads
+        // Join the lobby when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             socket.emit('joinLobby', {
                 roomCode: roomCode,
@@ -216,7 +233,7 @@
             });
         });
 
-        // Update player list without duplication
+        // Listen for lobby updates and update the player list, ready status, and host controls
         socket.on('updateLobby', (data) => {
             const playersContainer = document.getElementById('players-container');
             const settingsCard = document.getElementById('settings-card');
@@ -239,7 +256,7 @@
                 settingsCard.classList.add('d-none');
             }
 
-            // Clear container if player count changed or order is different
+            // Clear player cards if player count or order changed
             let shouldClear = false;
             const currentCards = Array.from(playersContainer.children);
 
@@ -257,10 +274,10 @@
                 playersContainer.innerHTML = '';
             }
 
-            // Update player count
+            // Update player count display
             document.getElementById('player-count').textContent = `(${data.players.length}${data.maxPlayers ? '/' + data.maxPlayers : ''})`;
 
-            // Add/update players
+            // Add or update player cards
             data.players.forEach((player, index) => {
                 const isCurrentUser = player.id === socket.id;
                 const isLeader = index === 0;
@@ -310,7 +327,7 @@
                     : '<i class="fas fa-times-circle me-2"></i>Not Ready';
             }
 
-            // Update start game button
+            // Update start game button for host
             const startButton = document.getElementById('start-game');
             if (data.players.length > 0 && data.players[0].id === socket.id) {
                 const allReady = data.players.every(p => p.ready);
@@ -321,12 +338,12 @@
             }
         });
 
-        // Handle system messages
+        // Handle system messages in chat
         socket.on('systemMessage', (message) => {
             addMessage('System', message, 'system');
         });
 
-        // Handle full lobby
+        // Handle full lobby event
         socket.on('lobbyFull', () => {
             alert('This lobby is full!');
             window.location.href = '/intro';
@@ -337,7 +354,7 @@
             addMessage(data.username, data.message, data.isSelf ? 'self' : 'other');
         });
 
-        // Ready button logic
+        // Ready button logic: toggle ready status
         document.getElementById('toggle-ready').addEventListener('click', function () {
             socket.emit('toggleReady', {
                 roomCode: roomCode,
@@ -345,12 +362,13 @@
             });
         });
 
-        // Chat logic
+        // Chat logic: send message on button click or Enter key
         document.getElementById('send-message').addEventListener('click', sendMessage);
         document.getElementById('message-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
 
+        // Function to send a chat message to the server
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
@@ -365,6 +383,7 @@
             }
         }
 
+        // Function to add a message to the chat area
         function addMessage(sender, content, type = 'other') {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
@@ -384,7 +403,7 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Leave lobby logic
+        // Leave lobby logic: emit leave event and redirect
         document.getElementById('leave-room').addEventListener('click', function () {
             socket.emit('leaveLobby', {
                 roomCode: roomCode,
@@ -393,14 +412,14 @@
             window.location.href = '/intro';
         });
 
-        // Start game logic
+        // Start game logic: only host can start, checks if all players are ready
         document.getElementById('start-game').addEventListener('click', function () {
             const problem = document.getElementById('problem-input').value.trim();
             const startButton = this;
             startButton.disabled = true;
             startButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting...';
 
-            // Esconder mensagens de erro anteriores
+            // Hide previous error messages
             document.getElementById('error-popup').classList.add('d-none');
             document.getElementById('not-ready-players-popup').classList.add('d-none');
 
@@ -410,7 +429,7 @@
                 problem: problem
             }, (response) => {
                 if (!response.success) {
-                    // Mostrar mensagem de erro se houver
+                    // Show error message if not all players are ready or other error
                     const errorPopup = document.getElementById('error-popup');
                     const errorMessage = document.getElementById('error-message');
                     const notReadyPopup = document.getElementById('not-ready-players-popup');
@@ -438,19 +457,20 @@
                         errorPopup.classList.remove('d-none');
                     }
 
-                    // Reativar o botão após mostrar o erro
+                    // Re-enable the button after showing the error
                     startButton.disabled = false;
                     startButton.innerHTML = '<i class="fas fa-play me-2"></i>Start Game';
                 }
-                // Se for sucesso, não fazemos nada aqui - o redirecionamento será feito pelo evento 'redirectToGame'
+                // On success, redirection is handled by 'redirectToGame' event
             });
         });
 
+        // Redirect to the game page when the server emits the event
         socket.on('redirectToGame', ({ roomCode }) => {
             window.location.href = `/game?room=${roomCode}`;
         });
 
-        // Tab switching functionality
+        // Tab switching logic between Chat and Settings
         document.getElementById('chat-tab-btn').addEventListener('click', function () {
             this.classList.add('active');
             document.getElementById('settings-tab-btn').classList.remove('active');
@@ -465,7 +485,7 @@
             document.getElementById('chat-card').classList.add('d-none');
         });
 
-        // Copy room code
+        // Copy room code to clipboard
         document.querySelector('.btn-copy').addEventListener('click', function () {
             navigator.clipboard.writeText(roomCode);
             const tooltip = new bootstrap.Tooltip(this, {
@@ -479,7 +499,7 @@
         // Difficulty level logic
         let selectedTime = 60; // Default to Easy
 
-        // Listen for difficulty changes
+        // Listen for difficulty changes and update settings
         document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
             radio.addEventListener('change', function () {
                 const customSettings = document.getElementById('custom-settings');
@@ -505,7 +525,7 @@
             });
         });
 
-        // When custom time changes, update selectedTime if custom is selected
+        // When custom time changes, update selectedTime if custom is selected and emit settings
         document.getElementById('custom-time').addEventListener('input', function () {
             if (document.getElementById('custom').checked) {
                 selectedTime = parseInt(this.value, 10);
@@ -533,6 +553,7 @@
             });
         });
 
+        // When the custom difficulty radio is selected, update selectedTime
         document.getElementById('custom').addEventListener('change', function () {
             if (this.checked) {
                 selectedTime = parseInt(document.getElementById('custom-time').value, 10);

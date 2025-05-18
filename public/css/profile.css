@@ -1,3 +1,4 @@
+/* Root color variables for consistent theming */
 :root {
     --primary-color: #d7ba89;
     --secondary-color: #1a1a1a;
@@ -8,7 +9,7 @@
     --placeholder-color: #b0b0b0;
 }
 
-/* Base Styles */
+/* Base Styles for the whole page */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--secondary-color);
@@ -25,6 +26,7 @@ body {
     padding: 0.8rem 1rem;
 }
 
+/* Logo styles in the navbar */
 .logo {
     color: var(--primary-color);
     font-weight: 700;
@@ -46,13 +48,14 @@ body {
     object-fit: cover;
 }
 
-/* Main Content */
+/* Main Content container for profile page */
 .profile-container {
     padding-top: 100px;
     padding-bottom: 30px;
     flex: 1;
 }
 
+/* Card styling for the profile section */
 .profile-card {
     background-color: var(--card-bg);
     border: none;
@@ -75,6 +78,7 @@ body {
     border: 3px solid var(--primary-color);
 }
 
+/* Button to change profile picture */
 .btn-change-picture {
     background-color: var(--primary-color);
     color: #121212;
@@ -104,6 +108,7 @@ body {
     flex-wrap: wrap;
 }
 
+/* Container for avatar options (scrollable and flexible) */
 .avatar-options-container {
     display: flex;
     flex-wrap: wrap;
@@ -111,12 +116,14 @@ body {
     justify-content: center;
 }
 
+/* Scrollable container for avatars */
 .avatar-scroll-container {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 10px;
 }
 
+/* Inline-flex grid for avatars */
 .avatar-grid {
     display: inline-flex;
     gap: 12px;
@@ -124,10 +131,12 @@ body {
     min-width: 100%;
 }
 
+/* Individual avatar item */
 .avatar-item {
     flex: 0 0 auto;
 }
 
+/* Horizontal scroll for avatar options */
 .avatar-options-container {
     display: flex;
     overflow-x: auto;
@@ -136,6 +145,7 @@ body {
     padding: 10px 0;
 }
 
+/* Custom scrollbar for avatar options */
 .avatar-options-container::-webkit-scrollbar {
     height: 8px;
 }
@@ -144,6 +154,7 @@ body {
     border-radius: 4px;
 }
 
+/* Avatar image option styles */
 .avatar-option {
     width: 70px;
     height: 70px;
@@ -154,22 +165,25 @@ body {
     transition: transform 0.2s, border 0.2s;
 }
 
+/* Hover effect for avatar option */
 .avatar-option:hover {
     transform: scale(1.05);
     border-color: var(--primary-color);
 }
 
+/* Highlight for selected avatar */
 .avatar-option.selected-avatar {
     border: 3px solid #ffc107;
     transform: scale(1.1);
 }
 
+/* Additional highlight for selected avatar */
 .selected-avatar {
     border: 3px solid var(--primary-color);
     box-shadow: 0 0 10px rgba(215, 186, 137, 0.5);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar for avatar scroll container */
 .avatar-scroll-container::-webkit-scrollbar {
     height: 6px;
 }
@@ -184,7 +198,7 @@ body {
     border-radius: 3px;
 }
 
-/* Form Styles */
+/* Section title styles */
 .section-title {
     color: var(--primary-color);
     padding-bottom: 0.5rem;
@@ -193,6 +207,7 @@ body {
     font-size: 1.1rem;
 }
 
+/* Input field styles */
 .form-control {
     background-color: var(--input-bg);
     border: 1px solid var(--border-color);
@@ -200,6 +215,7 @@ body {
     padding: 0.6rem 0.75rem;
 }
 
+/* Input focus effect */
 .form-control:focus {
     background-color: var(--input-bg);
     color: var(--text-color);
@@ -207,13 +223,14 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(215, 186, 137, 0.25);
 }
 
+/* Label styles */
 .form-label {
     color: var(--text-color);
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
 
-/* Buttons */
+/* Save button styles */
 .btn-save {
     background-color: var(--primary-color);
     color: #121212;
@@ -230,7 +247,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Footer */
+/* Footer styles */
 .footer {
     background-color: var(--card-bg);
     padding: 1.25rem 0;
@@ -238,22 +255,24 @@ body {
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Validation */
+/* Validation error message styles */
 .invalid-feedback {
     color: #f44336;
     font-size: 0.85rem;
     display: none;
 }
 
+/* Highlight invalid input fields */
 .is-invalid {
     border-color: #f44336 !important;
 }
 
+/* Show error message when input is invalid */
 .is-invalid + .invalid-feedback {
     display: block;
 }
 
-/* Responsive Adjustments */
+/* Responsive Adjustments for tablets */
 @media (max-width: 768px) {
     .profile-image {
         width: 120px;
@@ -266,6 +285,7 @@ body {
     }
 }
 
+/* Responsive Adjustments for small screens */
 @media (max-width: 576px) {
     .profile-container {
         padding-top: 70px;
@@ -281,6 +301,7 @@ body {
     }
 }
 
+/* Dropdown menu styles */
 .dropdown-menu {
     background-color: #ffffff; /* White background */
     color: #000000; /* Black text color */
@@ -297,7 +318,7 @@ body {
     color: #ffffff; /* White text color on hover */
 }
 
-/* History Button */
+/* History Button styles */
 .btn-history {
     background-color: var(--primary-color);
     color: #121212;
@@ -314,7 +335,7 @@ body {
     color: #121212;
 }
 
-/* media qieries */
+/* Responsive adjustments for medium screens */
 @media (max-width: 992px) {
     .profile-container {
         padding-top: 90px;
@@ -326,6 +347,7 @@ body {
     }
 }
 
+/* Responsive adjustments for tablets */
 @media (max-width: 768px) {
     .profile-container {
         padding-top: 80px;
@@ -341,6 +363,7 @@ body {
     }
 }
 
+/* Responsive adjustments for small screens */
 @media (max-width: 576px) {
     .profile-container {
         padding: 70px 10px 20px;

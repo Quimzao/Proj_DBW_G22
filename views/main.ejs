@@ -6,13 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brainstorm - Comece sua Aventura!</title>
+    <!-- Bootstrap CSS for layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Custom styles for login and main page -->
     <link rel="stylesheet" href="/css/login.css">
     <link rel="stylesheet" href="/css/main.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
+    <!-- Navigation bar with app logo and login button -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
@@ -24,7 +27,9 @@
         </div>
     </nav>
 
+    <!-- Main content: Welcome section and game features -->
     <main class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center p-4">
+        <!-- Header with logo images and title -->
         <div class="header-container">
             <img src="/images/gif.gif" alt="Brainstorm Logo" class="header-gif">
             <div class="header-title">
@@ -33,6 +38,7 @@
             </div>
             <img src="/images/gif.gif" alt="Brainstorm Logo" class="header-gif">
         </div>
+        <!-- Game features section -->
         <div class="container mt-5 mb-7">
             <div class="row g-5">
                 <div class="col-md-4">
@@ -50,6 +56,7 @@
             </div>
         </div>
 
+        <!-- Button to open the account modal -->
         <div class="mt-5">
             <button class="btn btn-lg btn-success" data-bs-toggle="modal" data-bs-target="#accountModal">
                 Começar Agora
@@ -57,7 +64,7 @@
         </div>
     </main>
 
-    <!-- Modal Conta -->
+    <!-- Account Modal: prompts user to login or sign up -->
     <div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content bg-dark text-white">
@@ -76,8 +83,10 @@
         </div>
     </div>
 
+    <!-- Include the footer partial for consistent footer across pages -->
     <%- include('../views/partials/footer'); %>
 
+    <!-- Bootstrap JS for interactive components -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

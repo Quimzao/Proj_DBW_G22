@@ -1,9 +1,11 @@
+// Middleware to check if the user is authenticated
 const userLoggedIn = (req, res, next) => {
+    // If the user is not authenticated, redirect to the home (login) page
     if (!req.isAuthenticated()) {
-        // Se não está autenticado, vai para o login!
-        console.log("Nop, não tem acesso!");
+        console.log("Nope, access denied!"); // Log for debugging
         return res.redirect("/");
     }
+    // If authenticated, proceed to the next middleware or route handler
     next();
 };
 

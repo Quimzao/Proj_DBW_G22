@@ -5,22 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Settings | Brainstorm</title>
+    <!-- Bootstrap CSS for layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Custom profile page styles -->
     <link rel="stylesheet" href="/css/profile.css">
 </head>
 
 <body>
+    <!-- Navigation bar with app logo and user dropdown -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/intro">
                 <h3 class="logo">Brainstorm</h3>
             </a>
             <div class="d-flex align-items-center">
+                <!-- User dropdown menu with avatar and username -->
                 <div class="dropdown">
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                         id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
+                            <!-- Show user avatar or default if not set -->
                             <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
                                 alt="User Avatar">
                         </div>
@@ -28,14 +34,13 @@
                             <%= user.username %>
                         </span>
                     </a>
+                    <!-- Dropdown menu with profile, settings, and logout -->
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
                             <div class="fw-bold" id="dropdown-username">
                                 <%= user.username %>
                             </div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
-                                    %>
-                            </div>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></div>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
@@ -45,14 +50,14 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i
-                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Main profile settings container -->
     <main class="container profile-container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -61,10 +66,13 @@
                         <h3 class="mb-0 text-white">Profile Settings</h3>
                     </div>
                     <div class="card-body">
+                        <!-- Success and error messages for profile update -->
                         <div id="success-message" class="alert alert-success d-none">Profile updated successfully!</div>
                         <div id="error-message" class="alert alert-danger d-none"></div>
 
+                        <!-- Profile update form -->
                         <form id="profile-form" enctype="multipart/form-data">
+                            <!-- Hidden input for selected avatar -->
                             <input type="hidden" id="selected-avatar-input" name="selectedAvatar"
                                 value="<%= user.profilePicture %>">
 
@@ -72,14 +80,17 @@
                             <div class="row mb-4">
                                 <div class="col-md-4 text-center">
                                     <div class="profile-picture-container">
+                                        <!-- Profile picture preview -->
                                         <img id="profile-picture-preview"
                                             src="<%= user.profilePicture || '/images/default-avatar.png' %>"
                                             alt="Profile Picture" class="profile-image">
 
                                         <div class="mt-3">
+                                            <!-- Button to change avatar (shows avatar selection) -->
                                             <button type="button" class="btn btn-change-picture" id="change-avatar-btn">
                                                 <i class="fas fa-camera me-1"></i> Change Avatar
                                             </button>
+                                            <!-- File input for custom avatar upload -->
                                             <input type="file" id="profile-picture" name="profilePicture"
                                                 accept="image/*" class="d-none">
                                         </div>
@@ -87,16 +98,15 @@
                                 </div>
 
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
+                                    <!-- Username and member since info -->
                                     <h4 class="text-white mb-0" id="profile-username">
                                         <%= user.username %>
                                     </h4>
-                                    <p class="text-white mb-0">Member since <%= new
-                                            Date(user.createdAt).toLocaleDateString() %>
-                                    </p>
+                                    <p class="text-white mb-0">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
                                 </div>
                             </div>
 
-                            <!-- Full Width Avatar Selection Section -->
+                            <!-- Avatar Selection Section (hidden by default, shown when changing avatar) -->
                             <div class="row mb-4 d-none" id="avatar-options">
                                 <div class="col-12">
                                     <div class="avatar-scroll-container">
@@ -108,14 +118,14 @@
                                                             class="avatar-option <%= user.profilePicture === avatar ? 'selected-avatar' : '' %>"
                                                             data-avatar="<%= avatar %>">
                                                     </div>
-                                                    <% }); %>
+                                                <% }); %>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Personal Info Section -->
+                            <!-- Personal Information Section -->
                             <div class="mb-4">
                                 <h5 class="section-title">Personal Information</h5>
                                 <div class="row">
@@ -167,6 +177,7 @@
                                 </button>
                             </div>
                         </form>
+                        <!-- Link to view game history -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="/history" class="btn btn-history">
                                 <i class="fas fa-history me-2"></i> View Game History
@@ -178,74 +189,76 @@
         </div>
     </main>
 
+    <!-- Footer section -->
     <footer class="footer">
         <div class="container">
-            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %>
-            </p>
+            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %></p>
         </div>
     </footer>
 
+    <!-- Bootstrap JS for interactive components -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Toggle avatar options
+        // Toggle avatar options section when "Change Avatar" is clicked
         document.getElementById('change-avatar-btn').addEventListener('click', function () {
             document.getElementById('avatar-options').classList.toggle('d-none');
         });
 
-        // Select avatar
+        // Handle avatar selection from default avatars
         document.querySelectorAll('.avatar-option').forEach(avatar => {
             avatar.addEventListener('click', function () {
                 const avatarPath = this.dataset.avatar;
 
-                // Update profile preview
+                // Update profile preview and hidden input
                 document.getElementById('profile-picture-preview').src = avatarPath;
                 document.getElementById('selected-avatar-input').value = avatarPath;
 
                 // Update header avatar
                 document.getElementById('header-avatar').src = avatarPath;
 
-                // Update selected state
+                // Highlight selected avatar
                 document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 this.classList.add('selected-avatar');
 
-                // Hide options
+                // Hide avatar options section
                 document.getElementById('avatar-options').classList.add('d-none');
             });
         });
 
-        // Custom upload
+        // Handle custom avatar upload and preview
         document.getElementById('profile-picture').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
-                    // Update profile preview
+                    // Update profile preview and hidden input
                     document.getElementById('profile-picture-preview').src = event.target.result;
                     document.getElementById('selected-avatar-input').value = event.target.result;
 
                     // Update header avatar
                     document.getElementById('header-avatar').src = event.target.result;
 
-                    // Clear any selected avatar
+                    // Remove highlight from default avatars
                     document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Form submission with AJAX
+        // Handle profile form submission with AJAX
         document.getElementById('profile-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
+            // Validate password match
             if (newPassword && newPassword !== confirmPassword) {
                 document.getElementById('confirm-password').classList.add('is-invalid');
                 return false;
             }
 
-            // Show loading state
+            // Show loading spinner and disable button
             const saveButton = document.getElementById('save-button');
             const saveText = document.getElementById('save-text');
             const saveSpinner = document.getElementById('save-spinner');
@@ -254,13 +267,14 @@
             saveSpinner.classList.remove('d-none');
             saveButton.disabled = true;
 
-            // Hide messages
+            // Hide previous messages
             document.getElementById('success-message').classList.add('d-none');
             document.getElementById('error-message').classList.add('d-none');
 
             try {
                 const formData = new FormData(this);
 
+                // Send profile update request to server
                 const response = await fetch('/profile/update', {
                     method: 'POST',
                     body: formData,
@@ -272,13 +286,13 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Update all username fields
+                    // Update username in all relevant places
                     const username = result.username || document.getElementById('username').value;
                     document.getElementById('header-username').textContent = username;
                     document.getElementById('dropdown-username').textContent = username;
                     document.getElementById('profile-username').textContent = username;
 
-                    // Update avatar in header
+                    // Update avatar in header if changed
                     if (result.profilePicture) {
                         document.getElementById('header-avatar').src = result.profilePicture;
                     }
@@ -292,6 +306,7 @@
                     errorMessage.classList.remove('d-none');
                 }
             } catch (error) {
+                // Show error if AJAX fails
                 console.error('Error:', error);
                 const errorMessage = document.getElementById('error-message');
                 errorMessage.textContent = 'An error occurred while updating profile';
@@ -304,7 +319,7 @@
             }
         });
 
-        // Live username update
+        // Live update of username in profile header as user types
         document.getElementById('username').addEventListener('input', function () {
             document.getElementById('profile-username').textContent = this.value;
         });

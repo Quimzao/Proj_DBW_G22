@@ -1,4 +1,6 @@
-/* login.css - Night Mode com placeholders corrigidos */
+/* login.css - Night Mode with corrected placeholders */
+
+/* Root color variables for consistent theming */
 :root {
     --primary-color: #d7ba89;
     --secondary-color: #1a1a1a;
@@ -6,9 +8,10 @@
     --card-bg: #2d2d2d;
     --input-bg: #3d3d3d;
     --border-color: #444;
-    --placeholder-color: #e0e0e0; /* Nova variável para placeholders */
+    --placeholder-color: #e0e0e0; /* Placeholder color variable */
 }
 
+/* Base body styles */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--secondary-color);
@@ -20,6 +23,7 @@ body {
   padding: 0;
 }
 
+/* Main content area fills available space */
 main {
   flex: 1;
   display: flex;
@@ -27,16 +31,19 @@ main {
   justify-content: center;
 }
 
+/* Navbar styles */
 .navbar {
   background-color: var(--card-bg);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Logo styles in the navbar */
 .logo {
   color: var(--primary-color);
   font-weight: 700;
 }
 
+/* Container for the login card */
 .login-container {
   display: flex;
   justify-content: center;
@@ -45,6 +52,7 @@ main {
   padding: 20px;
 }
 
+/* Login card styles */
 .card {
   border: none;
   border-radius: 10px;
@@ -55,6 +63,7 @@ main {
   background-color: var(--card-bg);
 }
 
+/* Title styles for the login card */
 .card-title {
   color: var(--primary-color);
   margin-bottom: 1.5rem;
@@ -62,9 +71,10 @@ main {
   text-align: center;
 }
 
+/* Button styles */
 .btn {
   background-color: var(--primary-color);
-  color: #121212; /* Texto escuro no botão */
+  color: #121212; /* Dark text on button */
   border: none;
   padding: 10px;
   border-radius: 5px;
@@ -73,15 +83,16 @@ main {
   width: 100%;
 }
 
+/* Button hover effect */
 .btn:hover {
   background-color: #e0c28c;
   transform: translateY(-2px);
 }
 
-/* Adicione estas regras para os placeholders */
+/* Placeholder styles for all browsers */
 ::placeholder {
     color: var(--placeholder-color) !important;
-    opacity: 1; /* Firefox reduz a opacidade por padrão */
+    opacity: 1; /* Firefox sets opacity by default */
 }
 
 :-ms-input-placeholder { /* Internet Explorer 10-11 */
@@ -92,7 +103,7 @@ main {
     color: var(--placeholder-color) !important;
 }
 
-/* Garanta que os inputs mantenham o texto branco */
+/* Input styles for login form */
 .form-control {
     color: var(--text-color);
     background-color: var(--input-bg);
@@ -102,6 +113,7 @@ main {
     margin-bottom: 15px;
 }
 
+/* Input focus effect */
 .form-control:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 0.25rem rgba(215, 186, 137, 0.25);
@@ -109,10 +121,12 @@ main {
   color: var(--text-color);
 }
 
+/* Label styles */
 .form-label {
   color: var(--text-color);
 }
 
+/* Footer styles */
 footer {
   background-color: var(--card-bg);
   padding: 20px 0;
@@ -122,6 +136,7 @@ footer {
   color: var(--text-color);
 }
 
+/* Link styles */
 a {
   color: var(--primary-color);
   text-decoration: none;
@@ -132,7 +147,7 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for tablets */
 @media (max-width: 768px) {
   .card {
       box-shadow: none;
@@ -145,6 +160,7 @@ a:hover {
   }
 }
 
+/* Responsive adjustments for small screens */
 @media (max-width: 576px) {
   .navbar-brand h3 {
       font-size: 1.5rem;
@@ -163,12 +179,13 @@ a:hover {
   }
 }
 
+/* Signup text styles */
 .signup-text {
   color: var(--text-color);
-  margin-bottom: 0; /* Remove margem inferior se necessário */
+  margin-bottom: 0; /* Remove bottom margin if needed */
 }
 
-/* media queries */
+/* Additional media queries for padding and font size */
 @media (max-width: 768px) {
     .login-container {
         padding: 15px;
