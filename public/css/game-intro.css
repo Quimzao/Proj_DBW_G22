@@ -306,3 +306,55 @@
 #errorModal .modal-header {
     background-color: var(--danger-color);
 }
+
+/* media queries */
+@media (max-width: 768px) {
+    .intro-container {
+        padding: 80px 15px 20px;
+    }
+    
+    .intro-card {
+        border-radius: 8px;
+    }
+    
+    .intro-card .card-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .rule-item {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-enter {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .code-input {
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 576px) {
+    .intro-container {
+        padding: 70px 10px 15px;
+    }
+    
+    .intro-card .card-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .rule-item h4 {
+        font-size: 1.1rem;
+    }
+    
+    .rule-item p {
+        margin-left: 38px;
+        font-size: 0.9rem;
+    }
+    
+    .divider::before,
+    .divider::after {
+        width: 20%;
+    }
+}

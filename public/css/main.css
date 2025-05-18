@@ -28,3 +28,32 @@
       order: 1; /* Garante que o título fique acima */
   }
 }
+
+/* media queries*/
+@media (max-width: 992px) {
+    .header-gif {
+        max-width: 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .header-gif {
+        max-width: 80px;
+        order: 2;
+    }
+    
+    .header-title {
+        order: 1;
+    }
+}
+
+@media (max-width: 576px) {
+    .header-gif {
+        max-width: 60px;
+    }
+}

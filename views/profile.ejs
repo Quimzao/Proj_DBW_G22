@@ -21,7 +21,8 @@
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button"
                         id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar me-2">
-                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>" alt="User Avatar">
+                            <img id="header-avatar" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+                                alt="User Avatar">
                         </div>
                         <span class="text-white" id="header-username">
                             <%= user.username %>
@@ -29,14 +30,23 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold" id="dropdown-username"><%= user.username %></div>
-                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString() %></div>
+                            <div class="fw-bold" id="dropdown-username">
+                                <%= user.username %>
+                            </div>
+                            <div class="small text-muted">Member since <%= new Date(user.createdAt).toLocaleDateString()
+                                    %>
+                            </div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                         <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i
+                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -53,29 +63,36 @@
                     <div class="card-body">
                         <div id="success-message" class="alert alert-success d-none">Profile updated successfully!</div>
                         <div id="error-message" class="alert alert-danger d-none"></div>
-                        
+
                         <form id="profile-form" enctype="multipart/form-data">
-                            <input type="hidden" id="selected-avatar-input" name="selectedAvatar" value="<%= user.profilePicture %>">
+                            <input type="hidden" id="selected-avatar-input" name="selectedAvatar"
+                                value="<%= user.profilePicture %>">
 
                             <!-- Profile Picture and Username Section -->
                             <div class="row mb-4">
                                 <div class="col-md-4 text-center">
                                     <div class="profile-picture-container">
-                                        <img id="profile-picture-preview" src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+                                        <img id="profile-picture-preview"
+                                            src="<%= user.profilePicture || '/images/default-avatar.png' %>"
                                             alt="Profile Picture" class="profile-image">
 
                                         <div class="mt-3">
                                             <button type="button" class="btn btn-change-picture" id="change-avatar-btn">
                                                 <i class="fas fa-camera me-1"></i> Change Avatar
                                             </button>
-                                            <input type="file" id="profile-picture" name="profilePicture" accept="image/*" class="d-none">
+                                            <input type="file" id="profile-picture" name="profilePicture"
+                                                accept="image/*" class="d-none">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
-                                    <h4 class="text-white mb-0" id="profile-username"><%= user.username %></h4>
-                                    <p class="text-white mb-0">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                                    <h4 class="text-white mb-0" id="profile-username">
+                                        <%= user.username %>
+                                    </h4>
+                                    <p class="text-white mb-0">Member since <%= new
+                                            Date(user.createdAt).toLocaleDateString() %>
+                                    </p>
                                 </div>
                             </div>
 
@@ -85,13 +102,13 @@
                                     <div class="avatar-scroll-container">
                                         <div class="avatar-grid">
                                             <div class="avatar-options-container">
-                                                <% DEFAULT_AVATARS.forEach(avatar => { %>
+                                                <% DEFAULT_AVATARS.forEach(avatar=> { %>
                                                     <div class="avatar-item">
                                                         <img src="<%= avatar %>"
                                                             class="avatar-option <%= user.profilePicture === avatar ? 'selected-avatar' : '' %>"
                                                             data-avatar="<%= avatar %>">
                                                     </div>
-                                                <% }); %>
+                                                    <% }); %>
                                             </div>
                                         </div>
                                     </div>
@@ -150,6 +167,11 @@
                                 </button>
                             </div>
                         </form>
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/history" class="btn btn-history">
+                                <i class="fas fa-history me-2"></i> View Game History
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -158,7 +180,8 @@
 
     <footer class="footer">
         <div class="container">
-            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %></p>
+            <p class="mb-0 text-center text-white">Brainstorm &copy; <%= new Date().getFullYear() %>
+            </p>
         </div>
     </footer>
 
@@ -173,18 +196,18 @@
         document.querySelectorAll('.avatar-option').forEach(avatar => {
             avatar.addEventListener('click', function () {
                 const avatarPath = this.dataset.avatar;
-                
+
                 // Update profile preview
                 document.getElementById('profile-picture-preview').src = avatarPath;
                 document.getElementById('selected-avatar-input').value = avatarPath;
-                
+
                 // Update header avatar
                 document.getElementById('header-avatar').src = avatarPath;
-                
+
                 // Update selected state
                 document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 this.classList.add('selected-avatar');
-                
+
                 // Hide options
                 document.getElementById('avatar-options').classList.add('d-none');
             });
@@ -199,10 +222,10 @@
                     // Update profile preview
                     document.getElementById('profile-picture-preview').src = event.target.result;
                     document.getElementById('selected-avatar-input').value = event.target.result;
-                    
+
                     // Update header avatar
                     document.getElementById('header-avatar').src = event.target.result;
-                    
+
                     // Clear any selected avatar
                     document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected-avatar'));
                 };
@@ -213,7 +236,7 @@
         // Form submission with AJAX
         document.getElementById('profile-form').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
@@ -226,7 +249,7 @@
             const saveButton = document.getElementById('save-button');
             const saveText = document.getElementById('save-text');
             const saveSpinner = document.getElementById('save-spinner');
-            
+
             saveText.classList.add('d-none');
             saveSpinner.classList.remove('d-none');
             saveButton.disabled = true;
@@ -237,7 +260,7 @@
 
             try {
                 const formData = new FormData(this);
-                
+
                 const response = await fetch('/profile/update', {
                     method: 'POST',
                     body: formData,
@@ -247,19 +270,19 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
                     // Update all username fields
                     const username = result.username || document.getElementById('username').value;
                     document.getElementById('header-username').textContent = username;
                     document.getElementById('dropdown-username').textContent = username;
                     document.getElementById('profile-username').textContent = username;
-                    
+
                     // Update avatar in header
                     if (result.profilePicture) {
                         document.getElementById('header-avatar').src = result.profilePicture;
                     }
-                    
+
                     // Show success message
                     document.getElementById('success-message').classList.remove('d-none');
                 } else {
@@ -287,4 +310,5 @@
         });
     </script>
 </body>
+
 </html>

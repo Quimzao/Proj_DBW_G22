@@ -296,3 +296,68 @@ body {
     background-color: var(--primary-color); /* Highlight color on hover */
     color: #ffffff; /* White text color on hover */
 }
+
+/* History Button */
+.btn-history {
+    background-color: var(--primary-color);
+    color: #121212;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-history:hover {
+    background-color: #e0c28c;
+    transform: translateY(-2px);
+    color: #121212;
+}
+
+/* media qieries */
+@media (max-width: 992px) {
+    .profile-container {
+        padding-top: 90px;
+    }
+    
+    .profile-image {
+        width: 130px;
+        height: 130px;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding-top: 80px;
+    }
+    
+    .profile-card {
+        margin-bottom: 20px;
+    }
+    
+    .avatar-option {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-container {
+        padding: 70px 10px 20px;
+    }
+    
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .avatar-option {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .btn-save {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}

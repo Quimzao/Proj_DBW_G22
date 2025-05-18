@@ -771,3 +771,65 @@ body {
 #return-to-lobby i {
     color: #121212;
 }
+
+/* media queries */
+@media (max-width: 1200px) {
+    .players-card, .game-card, .chat-card {
+        height: auto;
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 992px) {
+    .game-container {
+        padding-top: 80px;
+    }
+    
+    .players-card {
+        margin-bottom: 20px;
+        max-height: 300px;
+    }
+    
+    .chat-card {
+        margin-top: 20px;
+        max-height: 400px;
+    }
+    
+    .chat-messages {
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        padding-top: 70px;
+    }
+    
+    #prompt-text {
+        font-size: 1.1rem;
+    }
+    
+    .timer-container, .round-info {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .game-container {
+        padding: 60px 10px 15px;
+    }
+    
+    .player-item {
+        padding: 8px;
+    }
+    
+    .player-avatar {
+        width: 35px;
+        height: 35px;
+        margin-right: 8px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}

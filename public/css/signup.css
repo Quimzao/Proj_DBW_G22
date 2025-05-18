@@ -172,3 +172,39 @@ a:hover {
       font-size: 0.9rem;
   }
 }
+
+/* media queries */
+@media (max-width: 768px) {
+    .card {
+        box-shadow: none;
+        background-color: transparent;
+    }
+    
+    .card-body {
+        padding: 1.5rem 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .logo {
+        font-size: 1.3rem;
+    }
+    
+    .card-title {
+        font-size: 1.4rem;
+    }
+    
+    .form-control {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        padding: 8px;
+        font-size: 0.95rem;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+    }
+}

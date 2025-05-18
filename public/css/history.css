@@ -1,0 +1,171 @@
+:root {
+    --primary-color: #d7ba89;
+    --secondary-color: #1a1a1a;
+    --text-color: #ffffff;
+    --card-bg: #2d2d2d;
+    --input-bg: #3d3d3d;
+    --border-color: #444;
+    --placeholder-color: #b0b0b0;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 0.8rem 1rem;
+}
+
+.logo {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Main Content */
+.history-container {
+    padding-top: 100px;
+    padding-bottom: 30px;
+    flex: 1;
+}
+
+/* Game History List */
+.list-group-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.list-group-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Prompt and Story Sections */
+pre {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    padding: 1rem;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.story-content {
+    background-color: var(--input-bg);
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+}
+
+/* Vote Count Styles */
+.fa-thumbs-up {
+    color: #4CAF50;
+}
+
+.fa-thumbs-down {
+    color: #f44336;
+}
+
+/* Buttons */
+.btn-outline-light {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-light:hover {
+    background-color: var(--primary-color);
+    color: #121212;
+}
+
+.btn-history {
+    background-color: var(--primary-color);
+    color: #121212;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-history:hover {
+    background-color: #e0c28c;
+    transform: translateY(-2px);
+    color: #121212;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--card-bg);
+    padding: 1.25rem 0;
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .history-container {
+        padding-top: 80px;
+    }
+    
+    .list-group-item {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .history-container {
+        padding-top: 70px;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+}
+
+/* media queries */
+@media (max-width: 992px) {
+    .history-container {
+        padding-top: 90px;
+    }
+    
+    .list-group-item {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .history-container {
+        padding-top: 80px;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .history-container {
+        padding: 70px 10px 20px;
+    }
+    
+    .list-group-item {
+        padding: 1rem;
+    }
+    
+    .btn-history {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}

@@ -635,3 +635,71 @@ body {
         margin-bottom: 10px;
     }
 }
+
+/* media queries */
+@media (max-width: 1200px) {
+    .lobby-container {
+        padding-top: 90px;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .lobby-container {
+        padding-top: 80px;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .player-card {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .lobby-container {
+        padding: 70px 15px 15px;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
+    }
+    
+    .player-avatar img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .chat-messages {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .lobby-container {
+        padding: 60px 10px 10px;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+    
+    .player-name {
+        font-size: 0.85rem;
+    }
+    
+    .player-status {
+        font-size: 0.75rem;
+    }
+    
+    .message {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+}
